@@ -152,17 +152,38 @@ def main():
     parser.add_argument(
         "--partition",
         type=int,
-        default=0,
+        default=-1,
         choices=range(-1, 10),
         required=False,
-        help="Specifies the artificial data partition of CIFAR10 to be used. \
-        Picks partition 0 by default",
+        help="Specifies the artificial data partition of dataset to be used. \
+        Pics -1 by default which indicates full dataset. ",
+    )
+    parser.add_argument(
+        "--agents_no",
+        type=int,
+        default=10,
+        choices=range(1, 10),
+        required=False,
+        help="Specifies the number of FL participants. \
+        Picks partition 10 by default",
+    )
+    
+    parser.add_argument(
+        "--if_FL",
+        type=int,
+        default=1,
+        choices=range(0,2),
+        required=False,
+        help="Specifies the pipeline type: centralised (0) of FL (1). \
+        Picks 1 by default",
     )
 
     args = parser.parse_args()
 
+    print(f'args = {args}')
+
     print(f'Processing client {args.partition}')
-    train_dataset, val_dataset, test_dataset, train_column_names = utils.load_partition(args.partition)  # args.partition
+    train_dataset, val_dataset, test_dataset, train_column_names = utils.load_partition(args.partition, args.agents_no)  # args.partition
    
     train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(dataset=val_dataset, batch_size=1)
@@ -176,26 +197,28 @@ def main():
 
     # Set loss function change to true and then exp the output
     criterion = nn.PoissonNLLLoss(log_input= True, full= True)
+    print(f'if_FL = {args.if_FL}')
 
+    if args.if_FL==0:
+        # Global model training args.partition =-1
+        train(model, optimizer, criterion, train_loader, val_loader, EPOCHS )
 
-#    # Global model training args.partition =-1
-#    train(model, optimizer, criterion, train_loader, val_loader, EPOCHS )
-
-    if args.partition ==-1 :
-        model_name = 'global_model.pt'
+        if args.partition ==-1 :
+            model_name = 'global_model.pt'
+            AGENT_PATH = './ag_global/' + model_name
+        else:
+            model_name = 'partial_model.pt'      
+            AGENT_PATH = './ag_' + str(args.partition) + '/' + model_name 
     else:
-        model_name = 'partial_model.pt'      
-
     #Fl training     
     #utils.seed_torch(args.partition) # in FL let every client behave randomly 
-    client = IFoAClient(model, optimizer, criterion, train_dataset, val_dataset, test_dataset, {})
-    fl.client.start_numpy_client("[::]:8080", client)
-    model_name = 'fl_model.pt'  
+        client = IFoAClient(model, optimizer, criterion, train_dataset, val_dataset, test_dataset, {})
+        fl.client.start_numpy_client("[::]:8080", client)     # when running server locally ! 
+    #    fl.client.start_numpy_client("193.0.96.129:6555", client) # Polish server ! Make sure Malgorzata starts it :) , otherwise it won't work
 
-    #saving model
-    AGENT_PATH = MODEL_PATH + 'ag_global/' + model_name
-    if args.partition in range(10):
-        AGENT_PATH = MODEL_PATH + 'ag_' + str(args.partition) + '/' + model_name 
+        model_name = 'fl_model.pt'
+        AGENT_PATH = './ag_' + str(args.partition) + '/' + model_name 
+       
     torch.save(model.state_dict(), AGENT_PATH)            
     
 

@@ -78,8 +78,8 @@ def upload_dataset():
 
 
 
-def load_partition(idx: int = -1):
-      """Load 1/10th of the training and test data to simulate a partition."""
+def load_partition(idx: int = -1, num_agents: int = 10):
+      """Load 1/(num_agents) of the training and test data to simulate a partition."""
 
       (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
 
@@ -88,10 +88,9 @@ def load_partition(idx: int = -1):
       val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
 
       #truncate data
-      if idx in range(10):
-            NUM_AGENTS = 10
-            train_array_split = np.array_split(train_array, NUM_AGENTS)
-            val_array_split = np.array_split(val_array, NUM_AGENTS)
+      if idx in range(num_agents):
+            train_array_split = np.array_split(train_array, num_agents)
+            val_array_split = np.array_split(val_array, num_agents)
             X_train_sc = train_array_split[idx][:,0:39]
             y_tr = train_array_split[idx][:, 39]
             X_val_sc = val_array_split[idx][:, 0:39]

@@ -8,9 +8,25 @@ IFoA Use case [Privacy preserving ML collaboration on claims modelling]. We use 
 4. results are stored in dedicated folders ag_0 .... ag_9
 
 
-TO DO:
-1. separate global model run
-2. Separate partion model run
+Execution:
+1. Global model training ( no FL loop ):
+python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --partition=-1 --if_FL=0
+2. Partial model training ( assuming 10 participants) . Model training for participant = i  i in range(0,9):
+
+
+3. FL training ( assuming 10 participants). 
+
+
+a) Start FL server (make sure the ip adress used in the code is correct):
+
+
+b) Start participant == 0 with a call (make sure you use right ip adress and port when connecting to the server):
+
+
+( you need to start 10 such processes representing participant==i i in range(10) ) 
+
+
+
 
 
 

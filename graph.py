@@ -50,7 +50,7 @@ def main():
       model_fl.load_state_dict(torch.load(AGENT_PATH))
       model_fl.eval()
 
-      utils.predictions_check('FL rnd: 10 epoch: 10 seed:model_init.png', model_global, model_partial, model_fl)
+      utils.predictions_check('FL 10 rnd; 10 epoch; 3 agents.png', model_global, model_partial, model_fl)
 
       return
 
