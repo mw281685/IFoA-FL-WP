@@ -78,8 +78,39 @@ def upload_dataset():
 
 
 
+<<<<<<< HEAD
+def prep_partitions(agents:int = 10):
+      (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
+
+      print(len(X_column_names))
+
+      pd.DataFrame(X_test_sc[:,0:39], columns=X_column_names).to_csv('./data/X_test.csv', index=False)
+      pd.DataFrame(y_te).to_csv('./data/y_test.csv', index=False)
+
+      train_array = np.insert(X_train_sc, 39, y_tr, axis=1)
+      val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
+
+      #truncate data
+      for idx in range(agents):
+            print(f'Processing idx = {idx}')
+            train_array_split = np.array_split(train_array, agents)
+            val_array_split = np.array_split(val_array, agents)
+            X_train_sc = train_array_split[idx][:,0:39]
+            pd.DataFrame(X_train_sc, columns=X_column_names).to_csv('./data/X_train_' + str(idx) + '.csv', index=False)
+            y_tr = train_array_split[idx][:, 39]
+            pd.DataFrame(y_tr).to_csv('./data/y_tr_' + str(idx) + '.csv', index=False)
+            X_val_sc = val_array_split[idx][:, 0:39]
+            pd.DataFrame(X_val_sc, columns=X_column_names).to_csv('./data/X_val_' + str(idx) + '.csv', index=False)
+            y_vl = val_array_split[idx][:,39]
+            pd.DataFrame(y_vl).to_csv('./data/y_vl_' + str(idx) + '.csv', index=False)
+
+
+def load_partition(agents: int = 10, idx: int = -1):
+      """Load 1/10th of the training and test data to simulate a partition."""
+=======
 def load_partition(idx: int = -1, num_agents: int = 10):
       """Load 1/(num_agents) of the training and test data to simulate a partition."""
+>>>>>>> b411b19d1dfbdcc04723b2ab51b19290a7b0042e
 
       (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
 
@@ -88,9 +119,15 @@ def load_partition(idx: int = -1, num_agents: int = 10):
       val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
 
       #truncate data
+<<<<<<< HEAD
+      if idx in range(agents):
+            train_array_split = np.array_split(train_array, agents)
+            val_array_split = np.array_split(val_array, agents)
+=======
       if idx in range(num_agents):
             train_array_split = np.array_split(train_array, num_agents)
             val_array_split = np.array_split(val_array, num_agents)
+>>>>>>> b411b19d1dfbdcc04723b2ab51b19290a7b0042e
             X_train_sc = train_array_split[idx][:,0:39]
             y_tr = train_array_split[idx][:, 39]
             X_val_sc = val_array_split[idx][:, 0:39]
@@ -107,6 +144,29 @@ def load_partition(idx: int = -1, num_agents: int = 10):
       
       return (train_dataset, val_dataset, test_dataset, X_column_names)
 
+
+def load_individual_data():
+      MY_DATA_PATH = './my_data'
+      X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train_0.csv')
+      X_column_names = X_train_sc.columns.tolist()
+
+      y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr_0.csv')
+
+      X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val_0.csv')
+      y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl_0.csv')
+
+      X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
+      y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
+
+      # Created tensordataset
+      train_dataset = torch.utils.data.TensorDataset(
+            torch.tensor(X_train_sc.values).float(), torch.tensor(y_tr.values).float())
+      val_dataset = torch.utils.data.TensorDataset(
+            torch.tensor(X_val_sc.values).float(), torch.tensor(y_vl.values).float())
+      test_dataset = torch.utils.data.TensorDataset(
+            torch.tensor(X_test_sc.values).float(), torch.tensor(y_te.values).float())
+      
+      return (train_dataset, val_dataset, test_dataset, X_column_names)
 
 #---------------------- Model predictions testing
 
