@@ -152,23 +152,19 @@ def main():
  
     parser = argparse.ArgumentParser(description="Flower")
     parser.add_argument(
-        "--partition",
+        "--agent_id",
         type=int,
         default=-1,
         choices=range(-1, 10),
         required=False,
-<<<<<<< HEAD
         help="Specifies the partition of data to be used for training. -1 means all data . \
         Picks partition 0 by default",
-=======
-        help="Specifies the artificial data partition of dataset to be used. \
-        Pics -1 by default which indicates full dataset. ",
     )
     parser.add_argument(
         "--agents_no",
         type=int,
         default=10,
-        choices=range(1, 10),
+        choices=range(1, 11),
         required=False,
         help="Specifies the number of FL participants. \
         Picks partition 10 by default",
@@ -182,7 +178,6 @@ def main():
         required=False,
         help="Specifies the pipeline type: centralised (0) of FL (1). \
         Picks 1 by default",
->>>>>>> b411b19d1dfbdcc04723b2ab51b19290a7b0042e
     )
 
 
@@ -191,17 +186,12 @@ def main():
 
     print(f'args = {args}')
 
-    print(f'Processing client {args.partition}')
-<<<<<<< HEAD
+    print(f'Processing client {args.agent_id}')
     NUM_AGENTS = 3
 #    train_dataset, val_dataset, test_dataset, train_column_names = utils.load_partition(NUM_AGENTS, args.partition) 
-    train_dataset, val_dataset, test_dataset, train_column_names = utils.load_individual_data()  # in folder my_data each training participant is storing their private, unique dataset 
-
-
-=======
-    train_dataset, val_dataset, test_dataset, train_column_names = utils.load_partition(args.partition, args.agents_no)  # args.partition
+    train_dataset, val_dataset, test_dataset, train_column_names = utils.load_individual_data(args.agent_id)  # in folder my_data each training participant is storing their private, unique dataset 
+#    train_dataset, val_dataset, test_dataset, train_column_names = utils.load_partition(args.agent_id, args.agents_no)  # args.partition
    
->>>>>>> b411b19d1dfbdcc04723b2ab51b19290a7b0042e
     train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(dataset=val_dataset, batch_size=1)
     test_loader = DataLoader(dataset=test_dataset, batch_size=1)
@@ -214,52 +204,29 @@ def main():
 
     # Set loss function change to true and then exp the output
     criterion = nn.PoissonNLLLoss(log_input= True, full= True)
-<<<<<<< HEAD
-
-
-    # Global model training args.partition =-1
-    #train(model, optimizer, criterion, train_loader, val_loader, EPOCHS )
-
-    if args.partition ==-1 :
-        model_name = 'global_model.pt'
-=======
-    print(f'if_FL = {args.if_FL}')
 
     if args.if_FL==0:
         # Global model training args.partition =-1
         train(model, optimizer, criterion, train_loader, val_loader, EPOCHS )
 
-        if args.partition ==-1 :
+        if args.agent_id ==-1 :
             model_name = 'global_model.pt'
             AGENT_PATH = './ag_global/' + model_name
         else:
-            model_name = 'partial_model.pt'      
-            AGENT_PATH = './ag_' + str(args.partition) + '/' + model_name 
->>>>>>> b411b19d1dfbdcc04723b2ab51b19290a7b0042e
+            model_name = 'local_model.pt'      
+            AGENT_PATH = './ag_' + str(args.agent_id) + '/' + model_name 
     else:
     #Fl training     
-
-    #utils.seed_torch(args.partition) # in FL let every client behave randomly 
-<<<<<<< HEAD
-    client = IFoAClient(model, optimizer, criterion, train_dataset, val_dataset, test_dataset, {})
-   #  fl.client.start_numpy_client("[::]:8080", client)  # to run locally 
-    fl.client.start_numpy_client("193.0.96.129:6555", client)  # to connect to PL server
-    model_name = 'fl_model.pt'  
-
-
-    #saving model
-    AGENT_PATH = './ag_global/' + model_name
-    if args.partition in range(10):
-        AGENT_PATH = './ag_' + str(args.partition) + '/' + model_name 
-=======
-        client = IFoAClient(model, optimizer, criterion, train_dataset, val_dataset, test_dataset, {})
-        fl.client.start_numpy_client("[::]:8080", client)     # when running server locally ! 
-    #    fl.client.start_numpy_client("193.0.96.129:6555", client) # Polish server ! Make sure Malgorzata starts it :) , otherwise it won't work
-
         model_name = 'fl_model.pt'
-        AGENT_PATH = './ag_' + str(args.partition) + '/' + model_name 
+        AGENT_PATH = './ag_' + str(args.agent_id) + '/' + model_name 
+
+        if args.agent_id in range(10):
+            AGENT_PATH = './ag_' + str(args.agent_id) + '/' + model_name 
+            client = IFoAClient(model, optimizer, criterion, train_dataset, val_dataset, test_dataset, {})
+        #    fl.client.start_numpy_client("[::]:8080", client)     # when running server locally ! 
+            fl.client.start_numpy_client("193.0.96.129:6555", client) # Polish server ! Make sure Malgorzata starts it :) , otherwise it won't work
+
        
->>>>>>> b411b19d1dfbdcc04723b2ab51b19290a7b0042e
     torch.save(model.state_dict(), AGENT_PATH)            
     
 

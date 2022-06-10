@@ -78,7 +78,6 @@ def upload_dataset():
 
 
 
-<<<<<<< HEAD
 def prep_partitions(agents:int = 10):
       (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
 
@@ -105,12 +104,8 @@ def prep_partitions(agents:int = 10):
             pd.DataFrame(y_vl).to_csv('./data/y_vl_' + str(idx) + '.csv', index=False)
 
 
-def load_partition(agents: int = 10, idx: int = -1):
-      """Load 1/10th of the training and test data to simulate a partition."""
-=======
 def load_partition(idx: int = -1, num_agents: int = 10):
       """Load 1/(num_agents) of the training and test data to simulate a partition."""
->>>>>>> b411b19d1dfbdcc04723b2ab51b19290a7b0042e
 
       (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
 
@@ -119,15 +114,9 @@ def load_partition(idx: int = -1, num_agents: int = 10):
       val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
 
       #truncate data
-<<<<<<< HEAD
-      if idx in range(agents):
-            train_array_split = np.array_split(train_array, agents)
-            val_array_split = np.array_split(val_array, agents)
-=======
       if idx in range(num_agents):
             train_array_split = np.array_split(train_array, num_agents)
             val_array_split = np.array_split(val_array, num_agents)
->>>>>>> b411b19d1dfbdcc04723b2ab51b19290a7b0042e
             X_train_sc = train_array_split[idx][:,0:39]
             y_tr = train_array_split[idx][:, 39]
             X_val_sc = val_array_split[idx][:, 0:39]
@@ -145,15 +134,15 @@ def load_partition(idx: int = -1, num_agents: int = 10):
       return (train_dataset, val_dataset, test_dataset, X_column_names)
 
 
-def load_individual_data():
-      MY_DATA_PATH = './my_data'
-      X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train_0.csv')
+def load_individual_data(agent_id):
+      MY_DATA_PATH = './data'
+      X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train_' + str(agent_id) + '.csv')
       X_column_names = X_train_sc.columns.tolist()
 
-      y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr_0.csv')
+      y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr_' + str(agent_id) +  '.csv')
 
-      X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val_0.csv')
-      y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl_0.csv')
+      X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val_' + str(agent_id) + '.csv')
+      y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl_' + str(agent_id) + '.csv')
 
       X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
       y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
@@ -193,7 +182,7 @@ def one_way_graph(FACTOR, df, plot_name,  *freq):
       plt.figure(figsize=(15,8))
       sns.lineplot(data=pd.melt(data_preproc, [FACTOR+'_binned_midpoint']), x=FACTOR+'_binned_midpoint', y='value', hue='variable')
       #plt.show()
-      plt.savefig('./ag_3/' + plot_name)
+      plt.savefig('./ag_0/' + plot_name)
 
 def predictions_check(run_name, model_global, model_partial, model_fl):
       

@@ -40,12 +40,12 @@ def main():
       model_global.load_state_dict(torch.load(AGENT_PATH))
       model_global.eval()
 
-      AGENT_PATH =  './ag_3/partial_model.pt'
+      AGENT_PATH =  './ag_0/local_model.pt'
       model_partial = NeuralNetworks(NUM_FEATURES)
       model_partial.load_state_dict(torch.load(AGENT_PATH))
       model_partial.eval()
 
-      AGENT_PATH = './ag_3/fl_model.pt'
+      AGENT_PATH = './ag_0/fl_model.pt'
       model_fl = NeuralNetworks(NUM_FEATURES)
       model_fl.load_state_dict(torch.load(AGENT_PATH))
       model_fl.eval()

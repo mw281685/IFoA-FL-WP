@@ -27,6 +27,10 @@ b) Start participant == 0 with a call (make sure you use right ip adress and por
 
 
 
+TEST RUN 2 PARTICIPANTS:
+1. Dylan: python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=3
+2. Malgorzata python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=5
+
 
 
 
