@@ -97,7 +97,7 @@ def prep_partitions(agents:int = 10):
       train_array = np.insert(X_train_sc, 39, y_tr, axis=1)
       val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
 
-      train_array = train_array[train_array[:, 39].argsort()] # sorting !!!
+  #    train_array = train_array[train_array[:, 39].argsort()] # sorting !!!
 
 
 
