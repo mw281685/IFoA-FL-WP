@@ -31,6 +31,11 @@ def seed_torch(seed=SEED):
 def upload_dataset():
       
       df = pd.read_csv(DATA_PATH)
+#      df = df0.sort_values('ClaimNb', ignore_index=True)
+
+      print(df['ClaimNb'])
+
+
       #transformations and corrections
       df['VehPower'] = df['VehPower'].astype(object) # categorical ordinal
       df['ClaimNb'].values[df['ClaimNb']>4] = 4 # corrected for unreasonable observations (see M.V. Wuthrich)
@@ -56,6 +61,7 @@ def upload_dataset():
       scaler = MinMaxScaler()
       df_new_encoded[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']] = scaler.fit_transform(df_new_encoded[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']])
 
+
       #Convert to numpy array 
       df_array=df_new_encoded.to_numpy()
 
@@ -69,6 +75,8 @@ def upload_dataset():
       
       #Split train into train and validation
       X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_size=0.1,  random_state=SEED)
+
+      print(type(X_train))
 
       train_array = np.insert(X_train, 39, y_train, axis=1)
       val_array = np.insert(X_val, 39, y_val, axis=1)
@@ -88,6 +96,10 @@ def prep_partitions(agents:int = 10):
 
       train_array = np.insert(X_train_sc, 39, y_tr, axis=1)
       val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
+
+      train_array = train_array[train_array[:, 39].argsort()] # sorting !!!
+
+
 
       #truncate data
       for idx in range(agents):

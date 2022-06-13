@@ -22,6 +22,7 @@ from typing import Dict, List, Tuple
 from collections import OrderedDict
 import argparse
 import architecture as archit
+import copy
 
 MODEL_PATH = '.'
 EPOCHS = 25
@@ -216,6 +217,14 @@ def main():
             model_name = 'local_model.pt'      
             AGENT_PATH = './ag_' + str(args.agent_id) + '/' + model_name 
     else:
+
+        model_l = copy.deepcopy(model)
+        train(model_l, optimizer, criterion, train_loader, val_loader, EPOCHS )
+        model_name = 'local_model.pt'      
+        AGENT_PATH = './ag_' + str(args.agent_id) + '/' + model_name 
+        torch.save(model_l.state_dict(), AGENT_PATH)            
+
+
     #Fl training     
         model_name = 'fl_model.pt'
         AGENT_PATH = './ag_' + str(args.agent_id) + '/' + model_name 
