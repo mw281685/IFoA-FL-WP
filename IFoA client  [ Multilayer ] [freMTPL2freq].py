@@ -219,10 +219,10 @@ def main():
     else:
 
         model_l = copy.deepcopy(model)
-        train(model_l, optimizer, criterion, train_loader, val_loader, EPOCHS )
+        train(model_l, optimizer, criterion, train_loader, val_loader, 5)
         model_name = 'local_model.pt'      
         AGENT_PATH = './ag_' + str(args.agent_id) + '/' + model_name 
-        torch.save(model_l.state_dict(), AGENT_PATH)            
+        torch.save(model_l.state_dict(), AGENT_PATH)  
 
 
     #Fl training     

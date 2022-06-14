@@ -33,9 +33,6 @@ def upload_dataset():
       df = pd.read_csv(DATA_PATH)
 #      df = df0.sort_values('ClaimNb', ignore_index=True)
 
-      print(df['ClaimNb'])
-
-
       #transformations and corrections
       df['VehPower'] = df['VehPower'].astype(object) # categorical ordinal
       df['ClaimNb'].values[df['ClaimNb']>4] = 4 # corrected for unreasonable observations (see M.V. Wuthrich)
@@ -76,8 +73,6 @@ def upload_dataset():
       #Split train into train and validation
       X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_size=0.1,  random_state=SEED)
 
-      print(type(X_train))
-
       train_array = np.insert(X_train, 39, y_train, axis=1)
       val_array = np.insert(X_val, 39, y_val, axis=1)
 
@@ -97,23 +92,42 @@ def prep_partitions(agents:int = 10):
       train_array = np.insert(X_train_sc, 39, y_tr, axis=1)
       val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
 
+      print(f'train_array shape = {train_array.shape}, val_array shape = {val_array.shape}')
   #    train_array = train_array[train_array[:, 39].argsort()] # sorting !!!
 
+      #train_array_split = np.array_split(train_array, agents)
 
-
-      #truncate data
+      val_array_split = np.array_split(val_array, agents)
+      train_array_len = train_array.shape[0]
+      idx_0 = 2*train_array_len//6
+      idx_1 = idx_0 + 1*train_array_len//6
+      print(f'idx_0 = {idx_0} , idx_1 = {idx_1}')
+      #truncate datas
       for idx in range(agents):
             print(f'Processing idx = {idx}')
-            train_array_split = np.array_split(train_array, agents)
-            val_array_split = np.array_split(val_array, agents)
-            X_train_sc = train_array_split[idx][:,0:39]
-            pd.DataFrame(X_train_sc, columns=X_column_names).to_csv('./data/X_train_' + str(idx) + '.csv', index=False)
-            y_tr = train_array_split[idx][:, 39]
-            pd.DataFrame(y_tr).to_csv('./data/y_tr_' + str(idx) + '.csv', index=False)
+#            X_train_sc = train_array_split[idx][:,0:39]
+#            pd.DataFrame(X_train_sc, columns=X_column_names).to_csv('./data/X_train_' + str(idx) + '.csv', index=False)
+#            y_tr = train_array_split[idx][:, 39]
+#            pd.DataFrame(y_tr).to_csv('./data/y_tr_' + str(idx) + '.csv', index=False)
             X_val_sc = val_array_split[idx][:, 0:39]
             pd.DataFrame(X_val_sc, columns=X_column_names).to_csv('./data/X_val_' + str(idx) + '.csv', index=False)
             y_vl = val_array_split[idx][:,39]
             pd.DataFrame(y_vl).to_csv('./data/y_vl_' + str(idx) + '.csv', index=False)
+
+      X_train_sc = train_array[0:idx_0][:,0:39]
+      pd.DataFrame(X_train_sc, columns=X_column_names).to_csv('./data/X_train_0.csv' , index=False)
+      y_tr = train_array[0:idx_0][:, 39]
+      pd.DataFrame(y_tr).to_csv('./data/y_tr_0.csv', index=False)
+
+      X_train_sc = train_array[idx_0: idx_1][:,0:39]
+      pd.DataFrame(X_train_sc, columns=X_column_names).to_csv('./data/X_train_1.csv' , index=False)
+      y_tr = train_array[idx_0:idx_1][:, 39]
+      pd.DataFrame(y_tr).to_csv('./data/y_tr_1.csv', index=False)
+
+      X_train_sc = train_array[idx_1:][:,0:39]
+      pd.DataFrame(X_train_sc, columns=X_column_names).to_csv('./data/X_train_2.csv' , index=False)
+      y_tr = train_array[idx_1:][:, 39]
+      pd.DataFrame(y_tr).to_csv('./data/y_tr_2.csv', index=False)
 
 
 def load_partition(idx: int = -1, num_agents: int = 10):
