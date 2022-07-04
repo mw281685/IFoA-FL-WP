@@ -185,6 +185,8 @@ def main():
 
     args = parser.parse_args()
 
+    utils.seed_torch() # for FL training, we cannot set seed, as everyone will have same rng
+    
     print(f'args = {args}')
 
     print(f'Processing client {args.agent_id}')
@@ -197,7 +199,7 @@ def main():
     val_loader = DataLoader(dataset=val_dataset, batch_size=1)
     test_loader = DataLoader(dataset=test_dataset, batch_size=1)
 
-    utils.seed_torch() # for FL training, we cannot set seed, as everyone will have same rng
+   
 
     model = archit.NeuralNetworks(NUM_FEATURES)
     model.to(device)

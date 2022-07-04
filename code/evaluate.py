@@ -52,7 +52,7 @@ def main():
     model.load_state_dict(torch.load(AGENT_PATH))
     model.eval()
     pred = model(X_test_sc)
-    print(pred)
+    print(torch.exp(pred))
 
     print('--------------------------------------------------')
     print(f'Local Model predictions for agent {args.agent_id}')
@@ -63,9 +63,7 @@ def main():
     model.load_state_dict(torch.load(AGENT_PATH))
     model.eval()
     pred = model(X_test_sc)
-    print(pred)
-    print(model.state_dict()['hid1.weight'][0])
-
+    print(torch.exp(pred))
 
 
 if __name__ == "__main__":
