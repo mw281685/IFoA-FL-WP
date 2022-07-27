@@ -3,7 +3,7 @@
 IFoA Use case [Privacy preserving ML collaboration on claims modelling]. We use Flower.dev framework to federate workflow. 
 
 1. pip install flwr
-2. start server: python3 IFoAserver.py     [please see the configuration of FL run in IFoAserver.py ; later on we will separate configuration from server code]
+2. start server: python IFoAserver.py     [please see the configuration of FL run in IFoAserver.py ; later on we will separate configuration from server code]
 3. start FL training participants, --partition=i i in range(3) identifies participant's data chunk eg. to start client0 we call: python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=0
 4. Individual data are stored in data folder
 5. results are stored in dedicated folders ag_0 .... ag_3 . Resulting models:
@@ -29,9 +29,9 @@ python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=0
 
 
 TEST RUN 3 PARTICIPANTS:
-1. Dylan: python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=0
-2. Ben: python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=1
-3. Malgorzata python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=2
+1. Dylan: python "IFoA client  [ Multilayer ] [freMTPL2freq].py" --agent_id=0
+2. Ben: python "IFoA client  [ Multilayer ] [freMTPL2freq].py" --agent_id=1
+3. Malgorzata python "IFoA client  [ Multilayer ] [freMTPL2freq].py" --agent_id=2
 
 
 EDA: 
@@ -41,7 +41,7 @@ EDA:
 3. Malgorzata: python3 EDA.py --agent=2
 
 PREDICTIONS:
-1. Dylan : python3 evaluate.py --agent=0
+1. Dylan : python evaluate.py --agent=0
 2. Ben : python3 evaluate.py --agent=1
 3. Malgorzata :  python3 evaluate.py --agent=2
 
