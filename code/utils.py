@@ -83,6 +83,9 @@ def upload_dataset():
 
 def prep_partitions(agents:int = 10):
       (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
+      #whole dataset 
+      pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train.csv' , index=False)
+      pd.DataFrame(y_tr).to_csv(f'../data/y_tr.csv', index=False)
 
       print(len(X_column_names))
 
@@ -93,41 +96,38 @@ def prep_partitions(agents:int = 10):
       val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
 
       print(f'train_array shape = {train_array.shape}, val_array shape = {val_array.shape}')
-  #    train_array = train_array[train_array[:, 39].argsort()] # sorting !!!
-
-      #train_array_split = np.array_split(train_array, agents)
 
       val_array_split = np.array_split(val_array, agents)
       train_array_len = train_array.shape[0]
-      idx_0 = 2*train_array_len//6
-      idx_1 = idx_0 + 1*train_array_len//6
-      print(f'idx_0 = {idx_0} , idx_1 = {idx_1}')
+
+
+      if agents == 3:
+            idx_0 = 2*train_array_len//6
+            idx_1 = idx_0 + 1*train_array_len//6
+            print(f'idx_0 = {idx_0} , idx_1 = {idx_1}')
+      elif agents == 10:
+            part = train_array_len//40
+            idx=[]
+            parts=[0,2,3,4,5,5,5,5,5,5,1]
+            idx.append(parts[0]*part)
+            for no in range(1, agents + 1):
+                  idx.append(idx[no-1] + parts[no]*part)
+
+      for ag_no in range(1, agents + 1):
+            X_train_sc = train_array[idx[ag_no-1]:idx[ag_no]][:,0:39]
+            print(f' Agent no = {ag_no} has ranges : {idx[ag_no-1]} to {idx[ag_no]}')
+            pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train_{ag_no}.csv' , index=False)
+            y_tr = train_array[idx[ag_no - 1]:idx[ag_no]][:, 39]
+            pd.DataFrame(y_tr).to_csv(f'../data/y_tr_{ag_no}.csv', index=False)
+
       #truncate datas
       for idx in range(agents):
             print(f'Processing idx = {idx}')
-#            X_train_sc = train_array_split[idx][:,0:39]
-#            pd.DataFrame(X_train_sc, columns=X_column_names).to_csv('./data/X_train_' + str(idx) + '.csv', index=False)
-#            y_tr = train_array_split[idx][:, 39]
-#            pd.DataFrame(y_tr).to_csv('./data/y_tr_' + str(idx) + '.csv', index=False)
             X_val_sc = val_array_split[idx][:, 0:39]
             pd.DataFrame(X_val_sc, columns=X_column_names).to_csv('../data/X_val_' + str(idx) + '.csv', index=False)
             y_vl = val_array_split[idx][:,39]
             pd.DataFrame(y_vl).to_csv('../data/y_vl_' + str(idx) + '.csv', index=False)
 
-      X_train_sc = train_array[0:idx_0][:,0:39]
-      pd.DataFrame(X_train_sc, columns=X_column_names).to_csv('../data/X_train_0.csv' , index=False)
-      y_tr = train_array[0:idx_0][:, 39]
-      pd.DataFrame(y_tr).to_csv('../data/y_tr_0.csv', index=False)
-
-      X_train_sc = train_array[idx_0: idx_1][:,0:39]
-      pd.DataFrame(X_train_sc, columns=X_column_names).to_csv('../data/X_train_1.csv' , index=False)
-      y_tr = train_array[idx_0:idx_1][:, 39]
-      pd.DataFrame(y_tr).to_csv('../data/y_tr_1.csv', index=False)
-
-      X_train_sc = train_array[idx_1:][:,0:39]
-      pd.DataFrame(X_train_sc, columns=X_column_names).to_csv('../data/X_train_2.csv' , index=False)
-      y_tr = train_array[idx_1:][:, 39]
-      pd.DataFrame(y_tr).to_csv('../data/y_tr_2.csv', index=False)
 
 
 def load_partition(idx: int = -1, num_agents: int = 10):

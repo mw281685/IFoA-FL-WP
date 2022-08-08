@@ -16,7 +16,7 @@ from sklearn.metrics import mean_squared_error, r2_score, mean_poisson_deviance
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_splits
 import flwr as fl 
 from typing import Dict, List, Tuple
 from collections import OrderedDict
@@ -28,7 +28,7 @@ MODEL_PATH = '.'
 EPOCHS = 25
 BATCH_SIZE = 1000 # Wutrich suggestion this may be better at 6,000 or so, 488169
 NUM_FEATURES = 39
-LEARNING_RATE = 6.888528294546944e-05
+LEARNING_RATE = 0.013433393353340668 #6.888528294546944e-05
 device = torch.device("cpu" if torch.cuda.is_available() else "cpu")
 
 
@@ -219,7 +219,6 @@ def main():
             model_name = 'local_model.pt'      
             AGENT_PATH = '../ag_' + str(args.agent_id) + '/' + model_name 
     else:
-
         model_l = copy.deepcopy(model)
         optimizer_l = optim.Adam(params=model_l.parameters(), lr=LEARNING_RATE)
         train(model_l, optimizer_l, criterion, train_loader, val_loader, 5)

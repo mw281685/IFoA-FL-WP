@@ -46,3 +46,10 @@ PREDICTIONS:
 3. Malgorzata :  python3 evaluate.py --agent=2
 
 
+SCRIPTS:
+./code/prepare_dataset.py - prepares dataset for 10 agents. Split function defined in prep_partitions function in utils.py 
+./code/optuna_tuning.py - runs a study to define lr and dropout rate . 
+
+SEED = 300
+learning rate= 0.013433393353340668
+dropout rate= 0.13690812525293783
