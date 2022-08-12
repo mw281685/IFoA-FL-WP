@@ -11,7 +11,7 @@ import seaborn as sns
 
 
 DATA_PATH = '../data/freMTPL2freq.csv'
-SEED = 212
+SEED = 300#212
 
 
 
@@ -161,17 +161,33 @@ def load_partition(idx: int = -1, num_agents: int = 10):
 
 
 def load_individual_data(agent_id):
-      MY_DATA_PATH = '../data'
-      X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train_' + str(agent_id) + '.csv')
-      X_column_names = X_train_sc.columns.tolist()
+      #global model training:
+      if agent_id == -1:
+            (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
 
-      y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr_' + str(agent_id) +  '.csv')
+                  # Created tensordataset
+            train_dataset = torch.utils.data.TensorDataset(
+                  torch.from_numpy(X_train_sc).float(), torch.from_numpy(y_tr).float())
+            val_dataset = torch.utils.data.TensorDataset(
+                  torch.from_numpy(X_val_sc).float(), torch.from_numpy(y_vl).float())
+            test_dataset = torch.utils.data.TensorDataset(
+                  torch.from_numpy(X_test_sc).float(), torch.from_numpy(y_te).float())
+      
+            return (train_dataset, val_dataset, test_dataset, X_column_names, X_test_sc)
 
-      X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val_' + str(agent_id) + '.csv')
-      y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl_' + str(agent_id) + '.csv')
+      else:
 
-      X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
-      y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
+            MY_DATA_PATH = '../data'
+            X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train_' + str(agent_id) + '.csv')
+            X_column_names = X_train_sc.columns.tolist()
+
+            y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr_' + str(agent_id) +  '.csv')
+
+            X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val_' + str(agent_id) + '.csv')
+            y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl_' + str(agent_id) + '.csv')
+
+            X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
+            y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
 
       # Created tensordataset
       train_dataset = torch.utils.data.TensorDataset(
@@ -203,14 +219,14 @@ def frequency_conversion(FACTOR, df, freq_dictionary):
       df.insert(1,FACTOR+'_binned_midpoint',[round((a.left + a.right)/2,0) for a in df[FACTOR+'_binned']])
 
 
-def one_way_graph(FACTOR, df, plot_name,  *freq):
+def one_way_graph(FACTOR, df, plot_name, ag,  *freq):
       data_preproc = df[[FACTOR+'_binned_midpoint', *freq]]
       plt.figure(figsize=(15,8))
       sns.lineplot(data=pd.melt(data_preproc, [FACTOR+'_binned_midpoint']), x=FACTOR+'_binned_midpoint', y='value', hue='variable')
       #plt.show()
-      plt.savefig('../ag_0/' + plot_name)
+      plt.savefig(f'../ag_{ag}/' + plot_name)
 
-def predictions_check(run_name, model_global, model_partial, model_fl):
+def predictions_check(run_name, model_global, model_partial, model_fl, ag):
       
       (X_train, X_val, X_test, y_train, y_val, y_test, X_column_names, scaler) = upload_dataset()
       test_dataset = torch.utils.data.TensorDataset(
@@ -255,6 +271,6 @@ def predictions_check(run_name, model_global, model_partial, model_fl):
       frequency_conversion(FACTOR, df_sum, {'ClaimNb':'freq', 'ClaimNb_pred':'freq_pred', 'ClaimNb_partial_pred':'freq_partial_pred', 'ClaimNb_fl_pred':'freq_fl_pred'})
 
 
-      one_way_graph(FACTOR, df_sum, run_name, 'freq', 'freq_pred', 'freq_partial_pred','freq_fl_pred')
+      one_way_graph(FACTOR, df_sum, run_name, ag,  'freq', 'freq_pred', 'freq_partial_pred','freq_fl_pred')
 
 
