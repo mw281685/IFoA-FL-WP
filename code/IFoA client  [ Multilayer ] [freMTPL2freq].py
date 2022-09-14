@@ -28,7 +28,7 @@ MODEL_PATH = '.'
 EPOCHS = 10
 BATCH_SIZE = 1000 # Wutrich suggestion this may be better at 6,000 or so, 488169
 NUM_FEATURES = 39
-LEARNING_RATE = 0.013433393353340668 #6.888528294546944e-05
+LEARNING_RATE = 6.888528294546944e-05 #0.013433393353340668 #6.888528294546944e-05
 device = torch.device("cpu" if torch.cuda.is_available() else "cpu")
 
 
@@ -202,7 +202,7 @@ def main():
    
 
     model = archit.NeuralNetworks(NUM_FEATURES)
-    model.to(device)
+    #model.to(device)
     optimizer = optim.Adam(params=model.parameters(), lr=LEARNING_RATE)
 
     # Set loss function change to true and then exp the output

@@ -135,7 +135,8 @@ def main():
     lr= dict()
     dropout = dict()
 
-    for ag in range(10):
+    for ag in range(-1,10):
+        print(f'processing agent = {ag}')
         train_dataset, val_dataset, test_dataset, train_column_names, X_test_sc = utils.load_individual_data(ag)  # in folder my_data each training participant is storing their private, unique dataset    
         train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
         val_loader = DataLoader(dataset=val_dataset, batch_size=1)

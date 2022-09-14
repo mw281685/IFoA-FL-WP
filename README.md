@@ -13,7 +13,7 @@ IFoA Use case [Privacy preserving ML collaboration on claims modelling]. We use 
 
 Execution:
 1. Global model training ( no FL loop ):
-python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=0 --if_FL=0
+python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=-1 --if_FL=0
 
 2. FL training ( assuming 10 participants). 
 
@@ -52,4 +52,4 @@ SCRIPTS:
 
 SEED = 300
 learning rate= 0.013433393353340668
-dropout rate= 0.13690812525293783
+dropout rate= 0.13690812525293783   (defined in model.py )
