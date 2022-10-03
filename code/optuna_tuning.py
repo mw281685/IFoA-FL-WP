@@ -12,12 +12,12 @@ import utils
 
 NUM_FEATURES = 39
 device = 'cpu'
-EPOCHS = 10
+EPOCHS = 50 #10 to test also 50 ! 
 BATCH_SIZE = 1000
 LOG_INTERVAL = 10
 # Set loss function change to true and then exp the output
 criterion = nn.PoissonNLLLoss(log_input= True, full= True)
-SEED = 300 #212
+SEED = 212 #300
 
 def define_model(trial):
     n_layers = trial.suggest_int("n_layers", 1, 2)

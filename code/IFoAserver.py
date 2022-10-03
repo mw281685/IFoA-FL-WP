@@ -9,9 +9,9 @@ if __name__ == "__main__":
     strategy = fl.server.strategy.FedAvg(
         fraction_fit=1.0,
         fraction_eval=0.0,
-        min_fit_clients=2,
+        min_fit_clients=10,
         min_eval_clients=1,
-        min_available_clients=2,
+        min_available_clients=10,
  #       eval_fn=get_eval_fn(model, args.toy),
  #       on_fit_config_fn=fit_config,
  #       on_evaluate_config_fn=evaluate_config,

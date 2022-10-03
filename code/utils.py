@@ -11,7 +11,7 @@ import seaborn as sns
 
 
 DATA_PATH = '../data/freMTPL2freq.csv'
-SEED = 300#212
+SEED = 212
 
 
 
@@ -199,6 +199,29 @@ def load_individual_data(agent_id):
       
       return (train_dataset, val_dataset, test_dataset, X_column_names, torch.tensor(X_test_sc.values).float())
 
+def load_individual_data_lift(agent_id):
+      MY_DATA_PATH = '../data'
+      X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train_' + str(agent_id) + '.csv')
+      X_column_names = X_train_sc.columns.tolist()
+
+      y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr_' + str(agent_id) +  '.csv')
+
+      X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val_' + str(agent_id) + '.csv')
+      y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl_' + str(agent_id) + '.csv')
+
+      X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
+      y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
+
+      # Created tensordataset
+      train_dataset = torch.utils.data.TensorDataset(
+            torch.tensor(X_train_sc.values).float(), torch.tensor(y_tr.values).float())
+      val_dataset = torch.utils.data.TensorDataset(
+            torch.tensor(X_val_sc.values).float(), torch.tensor(y_vl.values).float())
+      test_dataset = torch.utils.data.TensorDataset(
+            torch.tensor(X_test_sc.values).float(), torch.tensor(y_te.values).float())
+      
+      return (train_dataset, val_dataset, test_dataset, X_train_sc, y_tr, X_val_sc, y_vl, X_test_sc, y_te)
+
 #---------------------- Model predictions testing
 
 def exp_model_predictions(model, test_loader):
@@ -274,3 +297,21 @@ def predictions_check(run_name, model_global, model_partial, model_fl, ag):
       one_way_graph(FACTOR, df_sum, run_name, ag,  'freq', 'freq_pred', 'freq_partial_pred','freq_fl_pred')
 
 
+# Lorenz Curves
+
+def lorenz_curve(y_true, y_pred, exposure):
+    y_true, y_pred = np.asarray(y_true), np.asarray(y_pred)
+    y_true = y_true.reshape((len(y_true), ))
+    y_pred = y_pred.reshape((len(y_pred), ))
+    exposure = np.asarray(exposure)
+
+    # order samples by increasing predicted risk:
+    ranking = np.argsort(y_pred)
+    ranked_frequencies = y_true[ranking]
+    ranked_exposure = exposure[ranking]
+    cumulated_claims = np.cumsum(ranked_frequencies * ranked_exposure)
+    cumulated_claims /= cumulated_claims[-1]
+    cumulated_exposure = np.cumsum(ranked_exposure)
+    cumulated_exposure /= cumulated_exposure[-1]
+    
+    return cumulated_exposure, cumulated_claims

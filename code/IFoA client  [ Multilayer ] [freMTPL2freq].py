@@ -25,7 +25,7 @@ import architecture as archit
 import copy
 
 MODEL_PATH = '.'
-EPOCHS = 10
+EPOCHS = 50
 BATCH_SIZE = 1000 # Wutrich suggestion this may be better at 6,000 or so, 488169
 NUM_FEATURES = 39
 LEARNING_RATE = 6.888528294546944e-05 #0.013433393353340668 #6.888528294546944e-05
@@ -80,7 +80,7 @@ class IFoAClient(fl.client.NumPyClient):
         self.set_parameters(parameters)
         trainLoader = DataLoader(self.trainset, batch_size=BATCH_SIZE, shuffle=True)
         valLoader = DataLoader(self.valset, batch_size=BATCH_SIZE)
-        train(self.model, self.optimizer, self.criterion, trainLoader, valLoader, epochs=10 )
+        train(self.model, self.optimizer, self.criterion, trainLoader, valLoader, epochs=EPOCHS )
         return self.get_parameters(), len(self.trainset), {}
 
     def evaluate(
@@ -210,7 +210,7 @@ def main():
 
     if args.if_FL==0:
         # Global model training args.partition =-1
-        train(model, optimizer, criterion, train_loader, val_loader, 15 )
+        train(model, optimizer, criterion, train_loader, val_loader, epochs=EPOCHS )
 
         if args.agent_id ==-1 :
             model_name = 'global_model.pt'
@@ -221,7 +221,7 @@ def main():
     else:
         model_l = copy.deepcopy(model)
         optimizer_l = optim.Adam(params=model_l.parameters(), lr=LEARNING_RATE)
-        train(model_l, optimizer_l, criterion, train_loader, val_loader, 15)
+        train(model_l, optimizer_l, criterion, train_loader, val_loader, epochs=EPOCHS)
         model_name = 'local_model.pt'      
         AGENT_PATH = '../ag_' + str(args.agent_id) + '/' + model_name 
         torch.save(model_l.state_dict(), AGENT_PATH)  
