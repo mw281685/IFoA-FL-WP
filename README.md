@@ -1,5 +1,20 @@
 # IFoA-FL-WP
 
+---------------------------------------------------------
+DEPENDENCY MANAGEMENT:
+
+We recommend Poetry to install those dependencies and manage your virtual environment (Poetry installation: https://python-poetry.org/docs/#installing-with-the-official-installer ), but feel free to use a different way of installing dependencies and managing virtual environments if you have other preferences.
+
+poetry install
+poetry shell
+Poetry will install all your dependencies in a newly created virtual environment. To verify that everything works correctly you can run the following command:
+
+python3 -c "import flwr"
+If you don't see any errors you're good to go!
+
+
+-----------------------------------------------------------
+
 IFoA Use case [Privacy preserving ML collaboration on claims modelling]. We use Flower.dev framework to federate workflow. 
 
 1. pip install flwr
@@ -44,5 +59,8 @@ PREDICTIONS:
 1. Dylan : python3 evaluate.py --agent=0
 2. Ben : python3 evaluate.py --agent=1
 3. Malgorzata :  python3 evaluate.py --agent=2
+
+
+
 
 
