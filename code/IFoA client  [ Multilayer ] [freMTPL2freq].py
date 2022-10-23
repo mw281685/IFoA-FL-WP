@@ -235,8 +235,8 @@ def main():
         if args.agent_id in range(10):
             AGENT_PATH = '../ag_' + str(args.agent_id) + '/' + model_name 
             client = IFoAClient(model, optimizer, criterion, train_dataset, val_dataset, test_dataset, {})
-#            fl.client.start_numpy_client("[::]:8080", client)     # when running server locally ! 
-            fl.client.start_numpy_client("193.0.96.129:8080", client) # Polish server ! Make sure Malgorzata starts it :) , otherwise it won't work
+            fl.client.start_numpy_client("[::]:8080", client)     # when running server locally ! 
+#            fl.client.start_numpy_client("193.0.96.129:8080", client) # Polish server ! Make sure Malgorzata starts it :) , otherwise it won't work
 
 #            fl.client.start_numpy_client("193.0.96.129:6555", client) # Polish server ! Make sure Malgorzata starts it :) , otherwise it won't work
        
