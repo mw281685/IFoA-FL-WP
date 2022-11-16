@@ -3,14 +3,19 @@ requires = ["poetry_core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "quickstart_pytorch"
+name = "flw_3AgentsDemo"
 version = "0.1.0"
-description = "PyTorch Federated Learning Quickstart with Flower"
-authors = ["The Flower Authors <hello@flower.dev>"]
+description = "IFoA Federated Learning for Claims Frequencies modeling Demo"
+authors = ["IFoA FL Working Party"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
-flwr = "^1.0.0"
+python = "^3.8"
+flwr = "1.1.0"
 torch = "^1.12.0"
 torchvision = "^0.13.0"
 tqdm = "^4.63.0"
+pandas = "^1.5.1"
+sklearn = "^0.0.post1"
+scikit-learn = "^1.1.3"
+matplotlib = "^3.6.2"
+seaborn = "^0.12.1"

@@ -1,26 +1,25 @@
 """Flower server example."""
 
-
+from typing import List, Tuple
 import flwr as fl
+from flwr.common import Metrics
+
 
 if __name__ == "__main__":
 
-    # Create strategy
-    strategy = fl.server.strategy.FedAvg(
-        fraction_fit=1.0,
-        fraction_eval=0.0,
-        min_fit_clients=3,
-        min_eval_clients=1,
-        min_available_clients=3,
- #       eval_fn=get_eval_fn(model, args.toy),
- #       on_fit_config_fn=fit_config,
- #       on_evaluate_config_fn=evaluate_config,
- #       initial_parameters=fl.common.weights_to_parameters(model_weights),
-    )
+    # Define metric aggregation function
+    def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
+        # Multiply accuracy of each client by number of examples used
+        accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics]
+        examples = [num_examples for num_examples, _ in metrics]
+
+        # Aggregate and return custom metric (weighted average)
+        return {"accuracy": sum(accuracies) / sum(examples)}
 
 
 
+    strategy = fl.server.strategy.FedAvg(evaluate_metrics_aggregation_fn=weighted_average)
     fl.server.start_server(
         server_address="[::]:8080",
-        config={"num_rounds": 10}, strategy=strategy
+        config=fl.server.ServerConfig(num_rounds=10), strategy=strategy
       )

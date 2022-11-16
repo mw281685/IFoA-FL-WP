@@ -6,7 +6,7 @@ import time
 import os
 import warnings
 import numpy as np
-import pandas as pd
+#import pandas as pd
 import torch
 from torch import nn, optim
 from torch.utils.data import TensorDataset, DataLoader
@@ -53,7 +53,7 @@ class IFoAClient(fl.client.NumPyClient):
         self.testset = testset
         self.num_examples = num_examples
 
-    def get_parameters(self) -> List[np.ndarray]:
+    def get_parameters(self, config) -> List[np.ndarray]:
         state_dict_elements = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
         print('[GET_PARAMETERS CALLED ]:', self.model.state_dict()['hid1.weight'][0])
         self.model.train()
@@ -81,7 +81,7 @@ class IFoAClient(fl.client.NumPyClient):
         trainLoader = DataLoader(self.trainset, batch_size=BATCH_SIZE, shuffle=True)
         valLoader = DataLoader(self.valset, batch_size=BATCH_SIZE)
         train(self.model, self.optimizer, self.criterion, trainLoader, valLoader, epochs=10 )
-        return self.get_parameters(), len(self.trainset), {}
+        return self.get_parameters(config), len(self.trainset), {}
 
     def evaluate(
         self, parameters: List[np.ndarray], config: Dict[str, str]
@@ -92,8 +92,10 @@ class IFoAClient(fl.client.NumPyClient):
     
         # Evaluate global model parameters on the local test data and return results
         testloader = DataLoader(self.testset, batch_size=512)
-        loss = test(self.model, self.criterion, testloader)/len(testloader)
-        return float(loss), len(self.testset), {"val_loss": float(loss)}
+        loss = test(self.model, self.criterion, testloader)#/len(testloader)
+        return float(loss), len(self.testset), {"accuracy": loss/len(testloader)}
+#        loss = test(self.model, self.criterion, testloader)/len(testloader)
+#        return float(loss), len(self.testset), {"val_loss": float(loss)}
 
 
 
@@ -234,8 +236,8 @@ def main():
 
         if args.agent_id in range(10):
             AGENT_PATH = '../ag_' + str(args.agent_id) + '/' + model_name 
-            client = IFoAClient(model, optimizer, criterion, train_dataset, val_dataset, test_dataset, {})
-            fl.client.start_numpy_client("[::]:8080", client)     # when running server locally ! 
+            agent = IFoAClient(model, optimizer, criterion, train_dataset, val_dataset, test_dataset, {})
+            fl.client.start_numpy_client(server_address="[::]:8080", client=agent,)     # when running server locally ! 
 #            fl.client.start_numpy_client("193.0.96.129:8080", client) # Polish server ! Make sure Malgorzata starts it :) , otherwise it won't work
 
 #            fl.client.start_numpy_client("193.0.96.129:6555", client) # Polish server ! Make sure Malgorzata starts it :) , otherwise it won't work
