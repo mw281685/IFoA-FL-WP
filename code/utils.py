@@ -83,6 +83,9 @@ def upload_dataset():
 
 def prep_partitions(agents:int = 10):
       (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
+      #whole dataset 
+      pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train.csv' , index=False)
+      pd.DataFrame(y_tr).to_csv(f'../data/y_tr.csv', index=False)
 
       print(len(X_column_names))
 
@@ -93,41 +96,38 @@ def prep_partitions(agents:int = 10):
       val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
 
       print(f'train_array shape = {train_array.shape}, val_array shape = {val_array.shape}')
-  #    train_array = train_array[train_array[:, 39].argsort()] # sorting !!!
-
-      #train_array_split = np.array_split(train_array, agents)
 
       val_array_split = np.array_split(val_array, agents)
       train_array_len = train_array.shape[0]
-      idx_0 = 2*train_array_len//6
-      idx_1 = idx_0 + 1*train_array_len//6
-      print(f'idx_0 = {idx_0} , idx_1 = {idx_1}')
+
+
+      if agents == 3:
+            idx_0 = 2*train_array_len//6
+            idx_1 = idx_0 + 1*train_array_len//6
+            print(f'idx_0 = {idx_0} , idx_1 = {idx_1}')
+      elif agents == 10:
+            part = train_array_len//40
+            idx=[]
+            parts=[0,2,3,4,5,5,5,5,5,5,1]
+            idx.append(parts[0]*part)
+            for no in range(1, agents + 1):
+                  idx.append(idx[no-1] + parts[no]*part)
+
+      for ag_no in range(1, agents + 1):
+            X_train_sc = train_array[idx[ag_no-1]:idx[ag_no]][:,0:39]
+            print(f' Agent no = {ag_no} has ranges : {idx[ag_no-1]} to {idx[ag_no]}')
+            pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train_{ag_no}.csv' , index=False)
+            y_tr = train_array[idx[ag_no - 1]:idx[ag_no]][:, 39]
+            pd.DataFrame(y_tr).to_csv(f'../data/y_tr_{ag_no}.csv', index=False)
+
       #truncate datas
       for idx in range(agents):
             print(f'Processing idx = {idx}')
-#            X_train_sc = train_array_split[idx][:,0:39]
-#            pd.DataFrame(X_train_sc, columns=X_column_names).to_csv('./data/X_train_' + str(idx) + '.csv', index=False)
-#            y_tr = train_array_split[idx][:, 39]
-#            pd.DataFrame(y_tr).to_csv('./data/y_tr_' + str(idx) + '.csv', index=False)
             X_val_sc = val_array_split[idx][:, 0:39]
             pd.DataFrame(X_val_sc, columns=X_column_names).to_csv('../data/X_val_' + str(idx) + '.csv', index=False)
             y_vl = val_array_split[idx][:,39]
             pd.DataFrame(y_vl).to_csv('../data/y_vl_' + str(idx) + '.csv', index=False)
 
-      X_train_sc = train_array[0:idx_0][:,0:39]
-      pd.DataFrame(X_train_sc, columns=X_column_names).to_csv('../data/X_train_0.csv' , index=False)
-      y_tr = train_array[0:idx_0][:, 39]
-      pd.DataFrame(y_tr).to_csv('../data/y_tr_0.csv', index=False)
-
-      X_train_sc = train_array[idx_0: idx_1][:,0:39]
-      pd.DataFrame(X_train_sc, columns=X_column_names).to_csv('../data/X_train_1.csv' , index=False)
-      y_tr = train_array[idx_0:idx_1][:, 39]
-      pd.DataFrame(y_tr).to_csv('../data/y_tr_1.csv', index=False)
-
-      X_train_sc = train_array[idx_1:][:,0:39]
-      pd.DataFrame(X_train_sc, columns=X_column_names).to_csv('../data/X_train_2.csv' , index=False)
-      y_tr = train_array[idx_1:][:, 39]
-      pd.DataFrame(y_tr).to_csv('../data/y_tr_2.csv', index=False)
 
 
 def load_partition(idx: int = -1, num_agents: int = 10):
@@ -161,6 +161,45 @@ def load_partition(idx: int = -1, num_agents: int = 10):
 
 
 def load_individual_data(agent_id):
+      #global model training:
+      if agent_id == -1:
+            (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
+
+                  # Created tensordataset
+            train_dataset = torch.utils.data.TensorDataset(
+                  torch.from_numpy(X_train_sc).float(), torch.from_numpy(y_tr).float())
+            val_dataset = torch.utils.data.TensorDataset(
+                  torch.from_numpy(X_val_sc).float(), torch.from_numpy(y_vl).float())
+            test_dataset = torch.utils.data.TensorDataset(
+                  torch.from_numpy(X_test_sc).float(), torch.from_numpy(y_te).float())
+      
+            return (train_dataset, val_dataset, test_dataset, X_column_names, X_test_sc)
+
+      else:
+
+            MY_DATA_PATH = '../data'
+            X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train_' + str(agent_id) + '.csv')
+            X_column_names = X_train_sc.columns.tolist()
+
+            y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr_' + str(agent_id) +  '.csv')
+
+            X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val_' + str(agent_id) + '.csv')
+            y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl_' + str(agent_id) + '.csv')
+
+            X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
+            y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
+
+      # Created tensordataset
+      train_dataset = torch.utils.data.TensorDataset(
+            torch.tensor(X_train_sc.values).float(), torch.tensor(y_tr.values).float())
+      val_dataset = torch.utils.data.TensorDataset(
+            torch.tensor(X_val_sc.values).float(), torch.tensor(y_vl.values).float())
+      test_dataset = torch.utils.data.TensorDataset(
+            torch.tensor(X_test_sc.values).float(), torch.tensor(y_te.values).float())
+      
+      return (train_dataset, val_dataset, test_dataset, X_column_names, torch.tensor(X_test_sc.values).float())
+
+def load_individual_data_lift(agent_id):
       MY_DATA_PATH = '../data'
       X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train_' + str(agent_id) + '.csv')
       X_column_names = X_train_sc.columns.tolist()
@@ -181,7 +220,7 @@ def load_individual_data(agent_id):
       test_dataset = torch.utils.data.TensorDataset(
             torch.tensor(X_test_sc.values).float(), torch.tensor(y_te.values).float())
       
-      return (train_dataset, val_dataset, test_dataset, X_column_names, torch.tensor(X_test_sc.values).float())
+      return (train_dataset, val_dataset, test_dataset, X_train_sc, y_tr, X_val_sc, y_vl, X_test_sc, y_te)
 
 #---------------------- Model predictions testing
 
@@ -203,14 +242,14 @@ def frequency_conversion(FACTOR, df, freq_dictionary):
       df.insert(1,FACTOR+'_binned_midpoint',[round((a.left + a.right)/2,0) for a in df[FACTOR+'_binned']])
 
 
-def one_way_graph(FACTOR, df, plot_name,  *freq):
+def one_way_graph(FACTOR, df, plot_name, ag,  *freq):
       data_preproc = df[[FACTOR+'_binned_midpoint', *freq]]
       plt.figure(figsize=(15,8))
       sns.lineplot(data=pd.melt(data_preproc, [FACTOR+'_binned_midpoint']), x=FACTOR+'_binned_midpoint', y='value', hue='variable')
       #plt.show()
-      plt.savefig('../ag_0/' + plot_name)
+      plt.savefig(f'../ag_{ag}/' + plot_name)
 
-def predictions_check(run_name, model_global, model_partial, model_fl):
+def predictions_check(run_name, model_global, model_partial, model_fl, ag):
       
       (X_train, X_val, X_test, y_train, y_val, y_test, X_column_names, scaler) = upload_dataset()
       test_dataset = torch.utils.data.TensorDataset(
@@ -255,6 +294,24 @@ def predictions_check(run_name, model_global, model_partial, model_fl):
       frequency_conversion(FACTOR, df_sum, {'ClaimNb':'freq', 'ClaimNb_pred':'freq_pred', 'ClaimNb_partial_pred':'freq_partial_pred', 'ClaimNb_fl_pred':'freq_fl_pred'})
 
 
-      one_way_graph(FACTOR, df_sum, run_name, 'freq', 'freq_pred', 'freq_partial_pred','freq_fl_pred')
+      one_way_graph(FACTOR, df_sum, run_name, ag,  'freq', 'freq_pred', 'freq_partial_pred','freq_fl_pred')
 
 
+# Lorenz Curves
+
+def lorenz_curve(y_true, y_pred, exposure):
+    y_true, y_pred = np.asarray(y_true), np.asarray(y_pred)
+    y_true = y_true.reshape((len(y_true), ))
+    y_pred = y_pred.reshape((len(y_pred), ))
+    exposure = np.asarray(exposure)
+
+    # order samples by increasing predicted risk:
+    ranking = np.argsort(y_pred)
+    ranked_frequencies = y_true[ranking]
+    ranked_exposure = exposure[ranking]
+    cumulated_claims = np.cumsum(ranked_frequencies * ranked_exposure)
+    cumulated_claims /= cumulated_claims[-1]
+    cumulated_exposure = np.cumsum(ranked_exposure)
+    cumulated_exposure /= cumulated_exposure[-1]
+    
+    return cumulated_exposure, cumulated_claims

@@ -16,7 +16,7 @@ from sklearn.metrics import mean_squared_error, r2_score, mean_poisson_deviance
 from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.model_selection import train_test_split
+#from sklearn.model_selection import train_test_splits
 import flwr as fl 
 from typing import Dict, List, Tuple
 from collections import OrderedDict
@@ -25,10 +25,10 @@ import architecture as archit
 import copy
 
 MODEL_PATH = '.'
-EPOCHS = 25
+EPOCHS = 50
 BATCH_SIZE = 1000 # Wutrich suggestion this may be better at 6,000 or so, 488169
 NUM_FEATURES = 39
-LEARNING_RATE = 6.888528294546944e-05
+LEARNING_RATE = 6.888528294546944e-05 #0.013433393353340668 #6.888528294546944e-05
 device = torch.device("cpu" if torch.cuda.is_available() else "cpu")
 
 
@@ -192,7 +192,7 @@ def main():
     print(f'args = {args}')
 
     print(f'Processing client {args.agent_id}')
-    NUM_AGENTS = 3
+#    NUM_AGENTS = 3
 #    train_dataset, val_dataset, test_dataset, train_column_names = utils.load_partition(NUM_AGENTS, args.partition) 
     train_dataset, val_dataset, test_dataset, train_column_names, X_test_sc = utils.load_individual_data(args.agent_id)  # in folder my_data each training participant is storing their private, unique dataset 
 #    train_dataset, val_dataset, test_dataset, train_column_names = utils.load_partition(args.agent_id, args.agents_no)  # args.partition
@@ -204,7 +204,7 @@ def main():
    
 
     model = archit.NeuralNetworks(NUM_FEATURES)
-    model.to(device)
+    #model.to(device)
     optimizer = optim.Adam(params=model.parameters(), lr=LEARNING_RATE)
 
     # Set loss function change to true and then exp the output
@@ -212,7 +212,7 @@ def main():
 
     if args.if_FL==0:
         # Global model training args.partition =-1
-        train(model, optimizer, criterion, train_loader, val_loader, 5 )
+        train(model, optimizer, criterion, train_loader, val_loader, epochs=EPOCHS )
 
         if args.agent_id ==-1 :
             model_name = 'global_model.pt'
@@ -221,10 +221,9 @@ def main():
             model_name = 'local_model.pt'      
             AGENT_PATH = '../ag_' + str(args.agent_id) + '/' + model_name 
     else:
-
         model_l = copy.deepcopy(model)
         optimizer_l = optim.Adam(params=model_l.parameters(), lr=LEARNING_RATE)
-        train(model_l, optimizer_l, criterion, train_loader, val_loader, 5)
+        train(model_l, optimizer_l, criterion, train_loader, val_loader, epochs=EPOCHS)
         model_name = 'local_model.pt'      
         AGENT_PATH = '../ag_' + str(args.agent_id) + '/' + model_name 
         torch.save(model_l.state_dict(), AGENT_PATH)  

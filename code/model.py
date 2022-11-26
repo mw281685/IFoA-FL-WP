@@ -24,7 +24,7 @@ class NeuralNetworks(torch.nn.Module):
         self.hid1 = torch.nn.Linear(n_features, 5)
         self.hid2 = torch.nn.Linear(5, 10)
         self.hid3 = torch.nn.Linear(10, 15)
-        self.drop = torch.nn.Dropout(0.12409392594394411)
+        self.drop = torch.nn.Dropout(0.13690812525293783)
         self.output = torch.nn.Linear(15, 1)
 
         torch.nn.init.xavier_uniform_(self.hid1.weight)

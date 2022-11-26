@@ -28,7 +28,8 @@ IFoA Use case [Privacy preserving ML collaboration on claims modelling]. We use 
 
 Execution:
 1. Global model training ( no FL loop ):
-python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=0 --if_FL=0
+conda activate py38_flw
+python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=-1 --if_FL=0
 
 2. FL training ( assuming 10 participants). 
 
@@ -37,7 +38,17 @@ a) Start FL server (make sure the ip adress used in the code is correct):
 
 
 b) Start participant == 0 with a call (make sure you use right ip adress and port when connecting to the server):
+conda activate py38_flw
 python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=0
+
+conda activate py38_flw
+python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=1
+
+conda activate py38_flw
+python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=9
+
+
+
 
 ( you need to start 3 such processes representing participant==i i in range(3) ) 
 
