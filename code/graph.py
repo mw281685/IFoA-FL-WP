@@ -39,7 +39,7 @@ class NeuralNetworks(torch.nn.Module):
 
 def main():
 
-    for ag in range(10):
+    for ag in range(3):
 
         AGENT_PATH =  '../ag_global/global_model.pt'
         model_global = NeuralNetworks(NUM_FEATURES) 
@@ -56,7 +56,7 @@ def main():
         model_fl.load_state_dict(torch.load(AGENT_PATH))
         model_fl.eval()
 
-        utils.predictions_check('FL 10 rnd; 50 epoch; 10 agents.png', model_global, model_partial, model_fl, ag)
+        utils.predictions_check('FL 10 rnd; 50 epoch; 3 agents.png', model_global, model_partial, model_fl, ag)
 
 
         train_dataset, val_dataset, test_dataset, X_train_sc, y_tr, X_val_sc, y_vl, X_test_sc, y_te = utils.load_individual_data_lift(ag)

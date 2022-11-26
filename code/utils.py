@@ -35,6 +35,7 @@ def upload_dataset():
 
       #transformations and corrections
       df['VehPower'] = df['VehPower'].astype(object) # categorical ordinal
+      df['ClaimNb'] = pd.to_numeric(df['ClaimNb'])
       df['ClaimNb'].values[df['ClaimNb']>4] = 4 # corrected for unreasonable observations (see M.V. Wuthrich)
       df['VehAge'].values[df['VehAge']>20] = 20 # capped for NN training (see M.V. Wuthrich)
       df['DrivAge'].values[df['DrivAge']>90] = 90 # capped for NN training (see M.V. Wuthrich)

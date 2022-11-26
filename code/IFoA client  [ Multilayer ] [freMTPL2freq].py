@@ -192,7 +192,7 @@ def main():
     print(f'args = {args}')
 
     print(f'Processing client {args.agent_id}')
-#    NUM_AGENTS = 3
+    NUM_AGENTS = 3
 #    train_dataset, val_dataset, test_dataset, train_column_names = utils.load_partition(NUM_AGENTS, args.partition) 
     train_dataset, val_dataset, test_dataset, train_column_names, X_test_sc = utils.load_individual_data(args.agent_id)  # in folder my_data each training participant is storing their private, unique dataset 
 #    train_dataset, val_dataset, test_dataset, train_column_names = utils.load_partition(args.agent_id, args.agents_no)  # args.partition
@@ -204,7 +204,7 @@ def main():
    
 
     model = archit.NeuralNetworks(NUM_FEATURES)
-    #model.to(device)
+    model.to(device)
     optimizer = optim.Adam(params=model.parameters(), lr=LEARNING_RATE)
 
     # Set loss function change to true and then exp the output
