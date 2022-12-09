@@ -101,14 +101,20 @@ def prep_partitions(agents:int = 10):
       val_array_split = np.array_split(val_array, agents)
       train_array_len = train_array.shape[0]
 
+      idx=[]
 
       if agents == 3:
             idx_0 = 2*train_array_len//6
             idx_1 = idx_0 + 1*train_array_len//6
             print(f'idx_0 = {idx_0} , idx_1 = {idx_1}')
+            idx.append(0)
+            idx.append(idx_0)
+            idx.append(idx_1)
+            idx.append(train_array_len)
+
       elif agents == 10:
             part = train_array_len//40
-            idx=[]
+
             parts=[0,2,3,4,5,5,5,5,5,5,1]
             idx.append(parts[0]*part)
             for no in range(1, agents + 1):
@@ -117,9 +123,9 @@ def prep_partitions(agents:int = 10):
       for ag_no in range(1, agents + 1):
             X_train_sc = train_array[idx[ag_no-1]:idx[ag_no]][:,0:39]
             print(f' Agent no = {ag_no} has ranges : {idx[ag_no-1]} to {idx[ag_no]}')
-            pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train_{ag_no}.csv' , index=False)
+            pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train_{ag_no - 1}.csv' , index=False)
             y_tr = train_array[idx[ag_no - 1]:idx[ag_no]][:, 39]
-            pd.DataFrame(y_tr).to_csv(f'../data/y_tr_{ag_no}.csv', index=False)
+            pd.DataFrame(y_tr).to_csv(f'../data/y_tr_{ag_no -1}.csv', index=False)
 
       #truncate datas
       for idx in range(agents):
