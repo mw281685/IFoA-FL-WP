@@ -322,3 +322,97 @@ def lorenz_curve(y_true, y_pred, exposure):
     cumulated_exposure /= cumulated_exposure[-1]
     
     return cumulated_exposure, cumulated_claims
+    
+def row_check(agents:int = 10):
+      try:
+            # Create empty dictionaries for validation and training data
+            dataframe_X_train_dictionary = {}
+            dataframe_X_val_dictionary = {}
+            dataframe_y_train_dictionary = {}
+            dataframe_y_val_dictionary = {}
+
+            # Import training and validation data
+            for i in range(agents):
+                  dataframe_X_train_dictionary["X_train_{0}".format(i)] = pd.read_csv(f'..\data\X_train_{i}.csv')
+                  dataframe_X_val_dictionary["X_val_{0}".format(i)] = pd.read_csv(f'..\data\X_val_{i}.csv')
+                  dataframe_y_train_dictionary["y_tr_{0}".format(i)] = pd.read_csv(f'..\data\y_tr_{i}.csv')
+                  dataframe_y_val_dictionary["y_vl_{0}".format(i)] = pd.read_csv(f'..\data\y_vl_{i}.csv')
+      
+            # Import test data
+            X_test = pd.read_csv('..\data\X_test.csv')  
+            y_test = pd.read_csv('..\data\y_test.csv')
+
+            # Set row_count variable to sum
+            row_count = 0
+
+            # Set exposure_sum variable to sum
+            exposure_sum = 0
+
+            # Set claim_sum variable to sum
+            claim_sum = 0
+
+            # Add together row count of training and validation datasets
+            for i in range(agents):
+                  row_count += len(list(dataframe_X_train_dictionary.values())[i].index)
+                  row_count += len(list(dataframe_X_val_dictionary.values())[i].index)
+
+            total_row_count = row_count + len(X_test)
+
+            # Note the underscores are just for readability they don't affect the calculation  
+            print(f'Row Count check:  {total_row_count == 678_013}')
+
+            # Add together exposure of training and validation datasets
+            for i in range(agents):
+                  exposure_sum  += list(dataframe_X_train_dictionary.values())[i]['Exposure'].sum()
+                  exposure_sum  += list(dataframe_X_val_dictionary.values())[i]['Exposure'].sum()
+
+            total_exposure_sum = exposure_sum + X_test['Exposure'].sum()
+
+            # Note the underscores are just for readability they don't affect the calculation  
+            print(f'Exposure check:  {total_exposure_sum == 358_360.10546277853}')
+
+            # Add together claims of training and validation datasets
+            for i in range(agents):
+                  claim_sum  += sum(list(dataframe_y_train_dictionary.values())[i]['0'])
+                  claim_sum  += sum(list(dataframe_y_val_dictionary.values())[i]['0'])
+
+            total_claim_sum = claim_sum + sum(y_test['0'])
+
+            # Note the underscores are just for readability they don't affect the calculation  
+            print(f'Claims check:  {total_claim_sum == 36_056}')
+
+      except:
+            print('Checks failed')
+
+def uniform_partitions(agents:int = 10):
+      (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
+      
+      # Training dataset 
+      pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train.csv' , index=False)
+      pd.DataFrame(y_tr).to_csv(f'../data/y_tr.csv', index=False)
+
+      # Test dataset
+      pd.DataFrame(X_test_sc[:,0:39], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
+      pd.DataFrame(y_te).to_csv('../data/y_test.csv', index=False)
+
+      # Validation dataset 
+      pd.DataFrame(X_val_sc, columns=X_column_names).to_csv(f'../data/X_val.csv' , index=False)
+      pd.DataFrame(y_vl).to_csv(f'../data/y_vl.csv', index=False)
+
+      # Create empty dictionaries for validation and training data
+      train_array_dictionary = {}
+      val_array_dictionary = {}
+
+      train_array = np.insert(X_train_sc, 39, y_tr, axis=1)
+      val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
+
+      val_array_split = np.array_split(val_array, agents)
+      train_array_split = np.array_split(train_array, agents)
+
+      for i in range(agents):
+            train_array_dictionary["X_train_{0}".format(i)] = train_array_split[i]
+            pd.DataFrame(train_array_split[i][:, 0:39], columns=X_column_names).to_csv(f'../data/X_train_{i}.csv' , index=False)
+            pd.DataFrame(train_array_split[i][:, 39]).to_csv(f'../data/y_tr_{i}.csv' , index=False)
+            val_array_dictionary["X_val_{0}".format(i)] = val_array_split[i]
+            pd.DataFrame(val_array_split[i][:, 0:39], columns=X_column_names).to_csv(f'../data/X_val_{i}.csv' , index=False)
+            pd.DataFrame(val_array_split[i][:, 39]).to_csv(f'../data/y_vl_{i}.csv' , index=False)
