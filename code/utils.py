@@ -369,7 +369,7 @@ def row_check(agents:int = 10):
             total_exposure_sum = exposure_sum + X_test['Exposure'].sum()
 
             # Note the underscores are just for readability they don't affect the calculation  
-            print(f'Exposure check:  {total_exposure_sum == 358_360.10546277853}')
+            print(f'Exposure check:  {round(total_exposure_sum, 2) == round(358_360.10546277853,2)}')
 
             # Add together claims of training and validation datasets
             for i in range(agents):
@@ -405,6 +405,13 @@ def uniform_partitions(agents:int = 10):
 
       train_array = np.insert(X_train_sc, 39, y_tr, axis=1)
       val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
+
+      # Seed numpy etc. for shuffling
+      seed_torch()
+
+      # Shuffle arrays
+      np.random.shuffle(train_array)
+      np.random.shuffle(val_array)
 
       val_array_split = np.array_split(val_array, agents)
       train_array_split = np.array_split(train_array, agents)
