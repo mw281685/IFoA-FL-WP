@@ -11,7 +11,7 @@ import seaborn as sns
 
 
 DATA_PATH = '../data/freMTPL2freq.csv'
-SEED = 212
+SEED = 300
 
 
 
@@ -29,8 +29,11 @@ def seed_torch(seed=SEED):
 #seed_torch() # for FL training, we cannot set seed, as everyone will have same rng
 
 def upload_dataset():
+      seed_torch()
       
       df = pd.read_csv(DATA_PATH)
+      df = df.sample(frac=1) # shuffle dataset to make sure claims are not sorted e.g by Year
+      df.reset_index()
 #      df = df0.sort_values('ClaimNb', ignore_index=True)
 
       #transformations and corrections
@@ -104,7 +107,7 @@ def prep_partitions(agents:int = 10):
       idx=[]
 
       if agents == 3:
-            idx_0 = 2*train_array_len//6
+            idx_0 = 1*train_array_len//6
             idx_1 = idx_0 + 1*train_array_len//6
             print(f'idx_0 = {idx_0} , idx_1 = {idx_1}')
             idx.append(0)
@@ -196,6 +199,8 @@ def load_individual_data(agent_id):
             X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
             y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
 
+      exposure = sum(X_train_sc['Exposure'])
+
       # Created tensordataset
       train_dataset = torch.utils.data.TensorDataset(
             torch.tensor(X_train_sc.values).float(), torch.tensor(y_tr.values).float())
@@ -204,7 +209,7 @@ def load_individual_data(agent_id):
       test_dataset = torch.utils.data.TensorDataset(
             torch.tensor(X_test_sc.values).float(), torch.tensor(y_te.values).float())
       
-      return (train_dataset, val_dataset, test_dataset, X_column_names, torch.tensor(X_test_sc.values).float())
+      return (train_dataset, val_dataset, test_dataset, X_column_names, torch.tensor(X_test_sc.values).float(), exposure)
 
 def load_individual_data_lift(agent_id):
       MY_DATA_PATH = '../data'
@@ -259,13 +264,21 @@ def one_way_graph(FACTOR, df, plot_name, ag,  *freq):
 def predictions_check(run_name, model_global, model_partial, model_fl, ag):
       
       (X_train, X_val, X_test, y_train, y_val, y_test, X_column_names, scaler) = upload_dataset()
+      
+      MY_DATA_PATH = '../data'
+        
+      X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
+      y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
+      X_column_names = X_test_sc.columns.tolist()
+      
       test_dataset = torch.utils.data.TensorDataset(
-            torch.from_numpy(X_test).float(), torch.from_numpy(y_test).float())
+            torch.tensor(X_test_sc.values).float(), torch.tensor(y_te.values).float())
+            
       
       test_loader = DataLoader(dataset=test_dataset, batch_size=1)
 
 
-      test_complete_data=np.column_stack((X_test, y_test))
+      test_complete_data=np.column_stack((X_test_sc, y_te))
 
       X_column_names.append('ClaimNb')
 
@@ -273,6 +286,7 @@ def predictions_check(run_name, model_global, model_partial, model_fl, ag):
 
       df_test=pd.DataFrame(data=test_complete_data,    # values
                      columns=X_column_names)  # 1st row as the column names
+      
 
       df_test[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']]=scaler.inverse_transform(df_test[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']] )
       

@@ -44,6 +44,7 @@ class IFoAClient(fl.client.NumPyClient):
         valset: torch.utils.data.dataset,
         testset: torch.utils.data.dataset,
         num_examples: Dict,
+        exposure: float,
     ) -> None:
         self.model = model
         self.optimizer = optimizer
@@ -52,6 +53,7 @@ class IFoAClient(fl.client.NumPyClient):
         self.valset = valset
         self.testset = testset
         self.num_examples = num_examples
+        self.exposure = round(exposure)
 
     def get_parameters(self, config) -> List[np.ndarray]:
         state_dict_elements = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
@@ -73,15 +75,25 @@ class IFoAClient(fl.client.NumPyClient):
 
     def fit(
         self, parameters: List[np.ndarray], config: Dict[str, str]
-    ) -> Tuple[List[np.ndarray], int, Dict]:
+    ) -> Tuple[List[np.ndarray], int,  Dict]:
 
         # Set model parameters, train model, return updated model parameters
         # Update local model parameters
         self.set_parameters(parameters)
         trainLoader = DataLoader(self.trainset, batch_size=BATCH_SIZE, shuffle=True)
         valLoader = DataLoader(self.valset, batch_size=BATCH_SIZE)
-        train(self.model, self.optimizer, self.criterion, trainLoader, valLoader, epochs=10 )
-        return self.get_parameters(config), len(self.trainset), {}
+        train(self.model, self.optimizer, self.criterion, trainLoader, valLoader, epochs=EPOCHS )
+        
+        print('claims exposure for that agent is: ', self.exposure)
+        
+        # test predictions on test dataset:
+        testloader = DataLoader(self.testset, batch_size=512)
+        loss = test(self.model, self.criterion, testloader)
+        accuracy = loss/len(testloader)
+
+        print('loss: ', loss, 'len(test_loader)', len(testloader), ' accuracy: ', accuracy )
+        
+        return self.get_parameters(config), len(self.trainset), {'exposure': self.exposure}
 
     def evaluate(
         self, parameters: List[np.ndarray], config: Dict[str, str]
@@ -194,9 +206,9 @@ def main():
     print(f'Processing client {args.agent_id}')
     NUM_AGENTS = 3
 #    train_dataset, val_dataset, test_dataset, train_column_names = utils.load_partition(NUM_AGENTS, args.partition) 
-    train_dataset, val_dataset, test_dataset, train_column_names, X_test_sc = utils.load_individual_data(args.agent_id)  # in folder my_data each training participant is storing their private, unique dataset 
+    train_dataset, val_dataset, test_dataset, train_column_names, X_test_sc, exposure = utils.load_individual_data(args.agent_id)  # in folder my_data each training participant is storing their private, unique dataset 
 #    train_dataset, val_dataset, test_dataset, train_column_names = utils.load_partition(args.agent_id, args.agents_no)  # args.partition
-   
+
     train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(dataset=val_dataset, batch_size=1)
     test_loader = DataLoader(dataset=test_dataset, batch_size=1)
@@ -235,7 +247,7 @@ def main():
 
         if args.agent_id in range(10):
             AGENT_PATH = '../ag_' + str(args.agent_id) + '/' + model_name 
-            agent = IFoAClient(model, optimizer, criterion, train_dataset, val_dataset, test_dataset, {})
+            agent = IFoAClient(model, optimizer, criterion, train_dataset, val_dataset, test_dataset, {}, exposure)
             fl.client.start_numpy_client(server_address="[::]:8080", client=agent,)     # when running server locally ! 
 #            fl.client.start_numpy_client("193.0.96.129:8080", client) # Polish server ! Make sure Malgorzata starts it :) , otherwise it won't work
 
