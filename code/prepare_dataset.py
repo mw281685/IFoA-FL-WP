@@ -18,7 +18,7 @@ import flwr as fl
 from typing import Dict, List, Tuple
 from collections import OrderedDict
 import argparse
-import architecture as archit
+#import architecture as archit
 
 
 def main():       
@@ -27,7 +27,7 @@ def main():
         "--agents",
         type=int,
         default=10,
-        choices=range(2, 11),
+        choices=range(1, 11),
         required=False,
         help="Specifies the number of agents. \
         Picks 10 by default",

@@ -8,10 +8,11 @@ import random
 from torch.utils.data import TensorDataset, DataLoader
 import matplotlib.pyplot as plt
 import seaborn as sns
+import run_config
 
-
-DATA_PATH = '../data/freMTPL2freq.csv'
-SEED = 300
+DATA_PATH = run_config.dataset_config["path"]
+SEED = run_config.dataset_config["seed"]
+DATA_FEATURES = run_config.dataset_config["num_features"]
 
 
 
@@ -62,7 +63,6 @@ def upload_dataset():
       scaler = MinMaxScaler()
       df_new_encoded[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']] = scaler.fit_transform(df_new_encoded[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']])
 
-
       #Convert to numpy array 
       df_array=df_new_encoded.to_numpy()
 
@@ -93,11 +93,11 @@ def prep_partitions(agents:int = 10):
 
       print(len(X_column_names))
 
-      pd.DataFrame(X_test_sc[:,0:39], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
+      pd.DataFrame(X_test_sc[:,0:DATA_FEATURES], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
       pd.DataFrame(y_te).to_csv('../data/y_test.csv', index=False)
 
-      train_array = np.insert(X_train_sc, 39, y_tr, axis=1)
-      val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
+      train_array = np.insert(X_train_sc, DATA_FEATURES, y_tr, axis=1)
+      val_array = np.insert(X_val_sc, DATA_FEATURES, y_vl, axis=1)
 
       print(f'train_array shape = {train_array.shape}, val_array shape = {val_array.shape}')
 
@@ -106,7 +106,12 @@ def prep_partitions(agents:int = 10):
 
       idx=[]
 
-      if agents == 3:
+      if agents == 1:
+            idx_0 = train_array_len
+            idx.append(0)
+            idx.append(idx_0)
+
+      elif agents == 3:
             idx_0 = 1*train_array_len//6
             idx_1 = idx_0 + 1*train_array_len//6
             print(f'idx_0 = {idx_0} , idx_1 = {idx_1}')
@@ -124,18 +129,18 @@ def prep_partitions(agents:int = 10):
                   idx.append(idx[no-1] + parts[no]*part)
 
       for ag_no in range(1, agents + 1):
-            X_train_sc = train_array[idx[ag_no-1]:idx[ag_no]][:,0:39]
+            X_train_sc = train_array[idx[ag_no-1]:idx[ag_no]][:,0:DATA_FEATURES]
             print(f' Agent no = {ag_no} has ranges : {idx[ag_no-1]} to {idx[ag_no]}')
             pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train_{ag_no - 1}.csv' , index=False)
-            y_tr = train_array[idx[ag_no - 1]:idx[ag_no]][:, 39]
+            y_tr = train_array[idx[ag_no - 1]:idx[ag_no]][:, DATA_FEATURES]
             pd.DataFrame(y_tr).to_csv(f'../data/y_tr_{ag_no -1}.csv', index=False)
 
       #truncate datas
       for idx in range(agents):
             print(f'Processing idx = {idx}')
-            X_val_sc = val_array_split[idx][:, 0:39]
+            X_val_sc = val_array_split[idx][:, 0:DATA_FEATURES]
             pd.DataFrame(X_val_sc, columns=X_column_names).to_csv('../data/X_val_' + str(idx) + '.csv', index=False)
-            y_vl = val_array_split[idx][:,39]
+            y_vl = val_array_split[idx][:,DATA_FEATURES]
             pd.DataFrame(y_vl).to_csv('../data/y_vl_' + str(idx) + '.csv', index=False)
 
 
@@ -146,17 +151,17 @@ def load_partition(idx: int = -1, num_agents: int = 10):
       (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
 
 
-      train_array = np.insert(X_train_sc, 39, y_tr, axis=1)
-      val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
+      train_array = np.insert(X_train_sc, DATA_FEATURES, y_tr, axis=1)
+      val_array = np.insert(X_val_sc, DATA_FEATURES, y_vl, axis=1)
 
       #truncate data
       if idx in range(num_agents):
             train_array_split = np.array_split(train_array, num_agents)
             val_array_split = np.array_split(val_array, num_agents)
-            X_train_sc = train_array_split[idx][:,0:39]
-            y_tr = train_array_split[idx][:, 39]
-            X_val_sc = val_array_split[idx][:, 0:39]
-            y_vl = val_array_split[idx][:,39]
+            X_train_sc = train_array_split[idx][:,0:DATA_FEATURES]
+            y_tr = train_array_split[idx][:, DATA_FEATURES]
+            X_val_sc = val_array_split[idx][:, 0:DATA_FEATURES]
+            y_vl = val_array_split[idx][:,DATA_FEATURES]
 
 
       # Created tensordataset
@@ -406,7 +411,7 @@ def uniform_partitions(agents:int = 10):
       pd.DataFrame(y_tr).to_csv(f'../data/y_tr.csv', index=False)
 
       # Test dataset
-      pd.DataFrame(X_test_sc[:,0:39], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
+      pd.DataFrame(X_test_sc[:,0:DATA_FEATURES], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
       pd.DataFrame(y_te).to_csv('../data/y_test.csv', index=False)
 
       # Validation dataset 
@@ -417,8 +422,8 @@ def uniform_partitions(agents:int = 10):
       train_array_dictionary = {}
       val_array_dictionary = {}
 
-      train_array = np.insert(X_train_sc, 39, y_tr, axis=1)
-      val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
+      train_array = np.insert(X_train_sc, DATA_FEATURES, y_tr, axis=1)
+      val_array = np.insert(X_val_sc, DATA_FEATURES, y_vl, axis=1)
 
       # Seed numpy etc. for shuffling
       seed_torch()
@@ -432,8 +437,8 @@ def uniform_partitions(agents:int = 10):
 
       for i in range(agents):
             train_array_dictionary["X_train_{0}".format(i)] = train_array_split[i]
-            pd.DataFrame(train_array_split[i][:, 0:39], columns=X_column_names).to_csv(f'../data/X_train_{i}.csv' , index=False)
-            pd.DataFrame(train_array_split[i][:, 39]).to_csv(f'../data/y_tr_{i}.csv' , index=False)
+            pd.DataFrame(train_array_split[i][:, 0:DATA_FEATURES], columns=X_column_names).to_csv(f'../data/X_train_{i}.csv' , index=False)
+            pd.DataFrame(train_array_split[i][:, DATA_FEATURES]).to_csv(f'../data/y_tr_{i}.csv' , index=False)
             val_array_dictionary["X_val_{0}".format(i)] = val_array_split[i]
-            pd.DataFrame(val_array_split[i][:, 0:39], columns=X_column_names).to_csv(f'../data/X_val_{i}.csv' , index=False)
-            pd.DataFrame(val_array_split[i][:, 39]).to_csv(f'../data/y_vl_{i}.csv' , index=False)
+            pd.DataFrame(val_array_split[i][:, 0:DATA_FEATURES], columns=X_column_names).to_csv(f'../data/X_val_{i}.csv' , index=False)
+            pd.DataFrame(val_array_split[i][:, DATA_FEATURES]).to_csv(f'../data/y_vl_{i}.csv' , index=False)
