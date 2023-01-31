@@ -1,24 +1,6 @@
 import utils
-import time
-import os
-import warnings
-import numpy as np
-import pandas as pd
-import torch
-from torch import nn, optim
-from torch.utils.data import TensorDataset, DataLoader
-import torch.nn.functional as F
-import sklearn
-from sklearn.metrics import mean_squared_error, r2_score, mean_poisson_deviance
-from sklearn.preprocessing import MinMaxScaler
-import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.model_selection import train_test_split
-import flwr as fl 
-from typing import Dict, List, Tuple
-from collections import OrderedDict
 import argparse
-#import architecture as archit
+import run_config
 
 
 def main():       
@@ -36,7 +18,9 @@ def main():
     args = parser.parse_args()
     print(f'Arg.agents = {args.agents}')
     utils.prep_partitions(int(args.agents))  # args.partition
-   
+
+
+
 if __name__ == "__main__":
-    main()
+    utils.prep_partitions(int(run_config.dataset_config["num_agents"]))
 

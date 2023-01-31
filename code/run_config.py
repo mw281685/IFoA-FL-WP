@@ -23,8 +23,6 @@ from flwr.server.strategy.aggregate import aggregate
 from flwr.server.strategy.strategy import Strategy
 from flwr.common.typing import Status
 from flwr.common import NDArray, NDArrays
-import utils
-
 
 model_architecture = {
     "dropout" : 0.12409392594394411,
@@ -43,7 +41,7 @@ dataset_config = {
     "path" : '../data/freMTPL2freq.csv',
     "seed" : 300,
     "num_features": 39,
-    "num_agents" : 1,
+    "num_agents" : 3,
 }
 
 class LocalUpdatesStrategy(fl.server.strategy.FedAvg):
@@ -78,8 +76,3 @@ class LocalUpdatesStrategy(fl.server.strategy.FedAvg):
         return parameters_aggregated, metrics_aggregated
 
 
-# run config script to prepare dataset: 
-
-if __name__ == "__main__":
-    
-    utils.prep_partitions(int(dataset_config["num_agents"])) 

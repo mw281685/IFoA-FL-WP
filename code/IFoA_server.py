@@ -3,8 +3,11 @@ from typing import List, Tuple
 import flwr as fl
 from flwr.common import Metrics
 import run_config
+import utils
+
 
 if __name__ == "__main__":
+
 
     # Define metric aggregation function
     def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
