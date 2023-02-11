@@ -87,20 +87,24 @@ def upload_dataset():
 
 def prep_partitions(agents:int = 10):
       (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
-      #whole dataset 
+
+      #whole dataset (agent_id = -1) 
       pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train.csv' , index=False)
       pd.DataFrame(y_tr).to_csv(f'../data/y_tr.csv', index=False)
 
-      print(len(X_column_names))
-
       pd.DataFrame(X_test_sc[:,0:DATA_FEATURES], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
       pd.DataFrame(y_te).to_csv('../data/y_test.csv', index=False)
+
+      pd.DataFrame(X_val_sc[:,0:DATA_FEATURES], columns=X_column_names).to_csv('../data/X_val.csv', index=False)
+      pd.DataFrame(y_vl).to_csv('../data/y_vl.csv', index=False)
+
 
       train_array = np.insert(X_train_sc, DATA_FEATURES, y_tr, axis=1)
       val_array = np.insert(X_val_sc, DATA_FEATURES, y_vl, axis=1)
 
       print(f'train_array shape = {train_array.shape}, val_array shape = {val_array.shape}')
 
+      # datasets for agents (0 .... agents-1)
       val_array_split = np.array_split(val_array, agents)
       train_array_len = train_array.shape[0]
 
@@ -178,17 +182,18 @@ def load_partition(idx: int = -1, num_agents: int = 10):
 def load_individual_data(agent_id):
       #global model training:
       if agent_id == -1:
-            (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
+      # Created tensordataset
+            MY_DATA_PATH = '../data'
+            X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train.csv')
+            X_column_names = X_train_sc.columns.tolist()
 
-                  # Created tensordataset
-            train_dataset = torch.utils.data.TensorDataset(
-                  torch.from_numpy(X_train_sc).float(), torch.from_numpy(y_tr).float())
-            val_dataset = torch.utils.data.TensorDataset(
-                  torch.from_numpy(X_val_sc).float(), torch.from_numpy(y_vl).float())
-            test_dataset = torch.utils.data.TensorDataset(
-                  torch.from_numpy(X_test_sc).float(), torch.from_numpy(y_te).float())
-      
-            return (train_dataset, val_dataset, test_dataset, X_column_names, X_test_sc)
+            y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr.csv')
+
+            X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val.csv')
+            y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl.csv')
+
+            X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
+            y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
 
       else:
 
@@ -262,9 +267,16 @@ def frequency_conversion(FACTOR, df, freq_dictionary):
 def one_way_graph(FACTOR, df, plot_name, ag,  *freq):
       data_preproc = df[[FACTOR+'_binned_midpoint', *freq]]
       plt.figure(figsize=(15,8))
-      sns.lineplot(data=pd.melt(data_preproc, [FACTOR+'_binned_midpoint']), x=FACTOR+'_binned_midpoint', y='value', hue='variable')
+      sns.set(style='dark',)
+
+      sns.lineplot(data=pd.melt(data_preproc, [FACTOR+'_binned_midpoint']), x=FACTOR+'_binned_midpoint', y='value', hue='variable', linewidth=2.0).set(title= plot_name)
+      #sns.set_style("ticks",{'axes.grid' : True})
+
       #plt.show()
-      plt.savefig(f'../ag_{ag}/' + plot_name)
+      plt.savefig(f'../plots/' + plot_name)
+
+      #plt.savefig(f'../ag_{ag}/' + plot_name)
+
 
 def predictions_check(run_name, model_global, model_partial, model_fl, ag):
       
@@ -317,10 +329,9 @@ def predictions_check(run_name, model_global, model_partial, model_fl, ag):
 
       df_sum=df_test.groupby([FACTOR+'_binned'])['Exposure','ClaimNb', 'ClaimNb_pred', 'ClaimNb_partial_pred', 'ClaimNb_fl_pred'].sum().reset_index()
 
-      frequency_conversion(FACTOR, df_sum, {'ClaimNb':'freq', 'ClaimNb_pred':'freq_pred', 'ClaimNb_partial_pred':'freq_partial_pred', 'ClaimNb_fl_pred':'freq_fl_pred'})
+      frequency_conversion(FACTOR, df_sum, {'ClaimNb':'Actual freq', 'ClaimNb_pred':'Freq pred global model', 'ClaimNb_partial_pred':'Freq pred local model', 'ClaimNb_fl_pred':'Freq pred FL model'})
 
-
-      one_way_graph(FACTOR, df_sum, run_name, ag,  'freq', 'freq_pred', 'freq_partial_pred','freq_fl_pred')
+      one_way_graph(FACTOR, df_sum, run_name, ag,  'Actual freq', 'Freq pred global model', 'Freq pred local model','Freq pred FL model')
 
 
 # Lorenz Curves

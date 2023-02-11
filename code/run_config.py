@@ -27,21 +27,22 @@ from flwr.common import NDArray, NDArrays
 model_architecture = {
     "dropout" : 0.12409392594394411,
     "learning_rate": 6.888528294546944e-05,
-    "epochs" : 50,
+    "epochs" : 10,
     "batch_size": 1000,
     "num_features": 39,
 }
 
 server_config = {
-    "num_clients": 3,
-    "num_rounds": 10
+    "num_clients": 1,
+    "num_rounds": 50
 }
 
+# used in prepare_dataset.py 
 dataset_config = {
     "path" : '../data/freMTPL2freq.csv',
     "seed" : 300,
     "num_features": 39,
-    "num_agents" : 3,
+    "num_agents" : 1,
 }
 
 class LocalUpdatesStrategy(fl.server.strategy.FedAvg):

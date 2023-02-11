@@ -33,9 +33,9 @@ LEARNING_RATE = run_config.model_architecture["learning_rate"] #6.88852829454694
 device = torch.device("cpu" if torch.cuda.is_available() else "cpu")
 
 
-# Flower Client
 class IFoAClient(fl.client.NumPyClient):
-    """Flower client """
+    """FL model training client """
+    
     def __init__(
         self,
         model: archit.NeuralNetworks(NUM_FEATURES),
@@ -55,17 +55,20 @@ class IFoAClient(fl.client.NumPyClient):
         self.testset = testset
         self.num_examples = num_examples
         self.exposure = round(exposure)
+        self.stats = []  # list of dictionaries
 
     def get_parameters(self, config) -> List[np.ndarray]:
+        """Get local model parameters """
+
         state_dict_elements = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
-        print('[GET_PARAMETERS CALLED ]:', self.model.state_dict()['hid1.weight'][0])
+        print('[INFO][GET_PARAMETERS CALLED ]:', self.model.state_dict()['hid1.weight'][0])
+
         self.model.train()
         return [val.cpu().numpy() for _, val in self.model.state_dict().items()]
 
-
     def set_parameters(self, parameters: List[np.ndarray]) -> None:
-        # Set model parameters from a list of NumPy ndarrays
-        
+        """ Set model parameters from a list of NumPy ndarrays"""
+
         self.model.train()
         params_dict = zip(self.model.state_dict().keys(), parameters)
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
@@ -76,16 +79,15 @@ class IFoAClient(fl.client.NumPyClient):
     def fit(
         self, parameters: List[np.ndarray], config: Dict[str, str]
     ) -> Tuple[List[np.ndarray], int,  Dict]:
+        """Train the model locally """
 
         # Set model parameters, train model, return updated model parameters
-        # Update local model parameters
         self.set_parameters(parameters)
         trainLoader = DataLoader(self.trainset, batch_size=BATCH_SIZE, shuffle=True)
         valLoader = DataLoader(self.valset, batch_size=BATCH_SIZE)
-        train(self.model, self.optimizer, self.criterion, trainLoader, valLoader, epochs=EPOCHS )
-        
-        print('claims exposure for that agent is: ', self.exposure)
-        
+        _, loss_stat = train(self.model, self.optimizer, self.criterion, trainLoader, valLoader, epochs=EPOCHS )
+        self.stats.append(loss_stat)   # after FL local training append learning curves
+
         # test predictions on test dataset:
         testloader = DataLoader(self.testset, batch_size=512)
         loss = test(self.model, self.criterion, testloader)
@@ -99,15 +101,13 @@ class IFoAClient(fl.client.NumPyClient):
         self, parameters: List[np.ndarray], config: Dict[str, str]
     ) -> Tuple[float, int, Dict]:
         
-        # Set model parameters, evaluate model on local test dataset, return result
         self.set_parameters(parameters)
     
         # Evaluate global model parameters on the local test data and return results
         testloader = DataLoader(self.testset, batch_size=512)
-        loss = test(self.model, self.criterion, testloader)#/len(testloader)
+        loss = test(self.model, self.criterion, testloader)
+
         return float(loss), len(self.testset), {"accuracy": loss/len(testloader)}
-#        loss = test(self.model, self.criterion, testloader)/len(testloader)
-#        return float(loss), len(self.testset), {"val_loss": float(loss)}
 
 def train(model:archit.NeuralNetworks(NUM_FEATURES), optimizer, criterion,
                   train_loader: torch.utils.data.DataLoader, 
@@ -116,7 +116,7 @@ def train(model:archit.NeuralNetworks(NUM_FEATURES), optimizer, criterion,
     
     loss_stats = {
     'train': [],
-    "val": []
+    'val': []
     }
 
     for e in range(epochs):
@@ -216,18 +216,26 @@ def main():
 
     if args.if_FL==0:
         # Global model training args.partition =-1
-        train(model, optimizer, criterion, train_loader, val_loader, epochs=EPOCHS )
+        _, loss_stats = train(model, optimizer, criterion, train_loader, val_loader, epochs=EPOCHS )
 
         if args.agent_id ==-1 :
             model_name = 'global_model.pt'
-            AGENT_PATH = '../ag_global/' + model_name
+            PATH = '../ag_global/'
+            AGENT_PATH = PATH + model_name
         else:
-            model_name = 'local_model.pt'      
-            AGENT_PATH = '../ag_' + str(args.agent_id) + '/' + model_name 
+            model_name = 'local_model.pt'
+            PATH = '../ag_' + str(args.agent_id) + '/' 
+            AGENT_PATH = PATH + model_name 
+
+        with open(PATH + 'loss_stats.txt', 'w' ) as f:
+            f.write(str(loss_stats['train']))
+            f.write(str(loss_stats['val']))
+        f.close()
+
     else:
         model_l = copy.deepcopy(model)
         optimizer_l = optim.Adam(params=model_l.parameters(), lr=LEARNING_RATE)
-        train(model_l, optimizer_l, criterion, train_loader, val_loader, epochs=EPOCHS)
+        _, loss_stats = train(model_l, optimizer_l, criterion, train_loader, val_loader, epochs=EPOCHS)
         model_name = 'local_model.pt'      
         AGENT_PATH = '../ag_' + str(args.agent_id) + '/' + model_name 
         torch.save(model_l.state_dict(), AGENT_PATH)  
@@ -239,8 +247,26 @@ def main():
 
         if args.agent_id in range(10):
             AGENT_PATH = '../ag_' + str(args.agent_id) + '/' + model_name 
+
             agent = IFoAClient(model, optimizer, criterion, train_dataset, val_dataset, test_dataset, {}, exposure)
-            fl.client.start_numpy_client(server_address="[::]:8080", client=agent,)     # when running server locally ! 
+            fl.client.start_numpy_client(server_address="[::]:8080", client=agent,)     # FL server run locally
+            
+            import csv
+            f = open('../ag_' + str(args.agent_id) + '/los_stats.csv', 'w')
+            #writer = csv.writer(f)
+            writer = csv.DictWriter(f, fieldnames=['train', 'val'])
+            writer.writeheader()
+            writer.writerows(agent.stats)
+
+            #writer.writerow(['Train', 'Val'])
+            #for dictionary in agent.stats:
+            #    writer.writerow(dictionary.values())
+
+            f.close()
+
+
+
+
 #            fl.client.start_numpy_client("193.0.96.129:8080", client) # Polish server ! Make sure Malgorzata starts it :) , otherwise it won't work
 
 #            fl.client.start_numpy_client("193.0.96.129:6555", client) # Polish server ! Make sure Malgorzata starts it :) , otherwise it won't work

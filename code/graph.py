@@ -8,11 +8,13 @@ import run_config
 
 
 NUM_FEATURES = run_config.model_architecture["num_features"]
+NUM_AGENTS = run_config.server_config["num_clients"]
+
 
 
 def main():
 
-    for ag in range(3):
+    for ag in range(NUM_AGENTS):
 
         AGENT_PATH =  '../ag_global/global_model.pt'
         model_global = architecture.NeuralNetworks(NUM_FEATURES) 
@@ -29,7 +31,7 @@ def main():
         model_fl.load_state_dict(torch.load(AGENT_PATH))
         model_fl.eval()
 
-        utils.predictions_check('FL ' + str(run_config.server_config["num_rounds"]) + ' rnd'  + str(run_config.model_architecture["epochs"]) + ' epoch ' + str(run_config.server_config["num_clients"]) + ' agents.png', model_global, model_partial, model_fl, ag)
+        utils.predictions_check( 'Agent ' + ag + 'FL ' + str(run_config.server_config["num_rounds"]) + ' rnd'  + str(run_config.model_architecture["epochs"]) + ' epoch ' + str(run_config.server_config["num_clients"]) + ' agents.png', model_global, model_partial, model_fl, ag)
 
 
         train_dataset, val_dataset, test_dataset, X_train_sc, y_tr, X_val_sc, y_vl, X_test_sc, y_te = utils.load_individual_data_lift(ag)

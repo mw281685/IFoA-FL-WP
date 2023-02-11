@@ -44,7 +44,6 @@ def define_model(trial):
 def objective(trial, train_loader, val_loader):
 
     utils.seed_torch(seed=SEED)
-
     
     # Generate the model. Transfer to device
     model = define_model(trial).to(device)
