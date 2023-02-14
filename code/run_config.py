@@ -24,25 +24,29 @@ from flwr.server.strategy.strategy import Strategy
 from flwr.common.typing import Status
 from flwr.common import NDArray, NDArrays
 
+
+
 model_architecture = {
-    "dropout" : 0.12409392594394411,
-    "learning_rate": 6.888528294546944e-05,
-    "epochs" : 10,
+    "dropout" : 0.12409392594394411, # remove
+    "learning_rate": 6.888528294546944e-05, #  not needed for Adam optimizer
+    "epochs" : 20,
     "batch_size": 1000,
     "num_features": 39,
 }
 
 server_config = {
-    "num_clients": 1,
-    "num_rounds": 50
+    "num_clients": 5,
+    "num_rounds": 7
 }
+
+run_name = "uniform partitions, " + str(server_config["num_clients"]) + " agents," + str(server_config["num_rounds"]) + " rounds, " + str(model_architecture["epochs"]) + " epochs"
 
 # used in prepare_dataset.py 
 dataset_config = {
     "path" : '../data/freMTPL2freq.csv',
     "seed" : 300,
     "num_features": 39,
-    "num_agents" : 1,
+    "num_agents" : server_config["num_clients"],
 }
 
 class LocalUpdatesStrategy(fl.server.strategy.FedAvg):

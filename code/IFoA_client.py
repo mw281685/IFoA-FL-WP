@@ -29,6 +29,8 @@ EPOCHS = run_config.model_architecture["epochs"]
 BATCH_SIZE = run_config.model_architecture["batch_size"] #1000 # Wutrich suggestion this may be better at 6,000 or so, 488169
 NUM_FEATURES = run_config.model_architecture["num_features"]
 LEARNING_RATE = run_config.model_architecture["learning_rate"] #6.888528294546944e-05 #0.013433393353340668 #6.888528294546944e-05
+NUM_ROUNDS = run_config.server_config["num_rounds"] 
+EPOCHS_LOCAL_GLOBAL = EPOCHS*NUM_ROUNDS
 
 device = torch.device("cpu" if torch.cuda.is_available() else "cpu")
 
@@ -216,7 +218,7 @@ def main():
 
     if args.if_FL==0:
         # Global model training args.partition =-1
-        _, loss_stats = train(model, optimizer, criterion, train_loader, val_loader, epochs=EPOCHS )
+        _, loss_stats = train(model, optimizer, criterion, train_loader, val_loader, epochs=EPOCHS_LOCAL_GLOBAL )
 
         if args.agent_id ==-1 :
             model_name = 'global_model.pt'
@@ -227,15 +229,18 @@ def main():
             PATH = '../ag_' + str(args.agent_id) + '/' 
             AGENT_PATH = PATH + model_name 
 
-        with open(PATH + 'loss_stats.txt', 'w' ) as f:
-            f.write(str(loss_stats['train']))
-            f.write(str(loss_stats['val']))
+        import csv
+        f = open('../ag_global/los_stats.csv', 'w')
+            #writer = csv.writer(f)
+        writer = csv.DictWriter(f, fieldnames=['train', 'val'])
+        writer.writeheader()
+        writer.writerows([loss_stats])
         f.close()
 
     else:
         model_l = copy.deepcopy(model)
         optimizer_l = optim.Adam(params=model_l.parameters(), lr=LEARNING_RATE)
-        _, loss_stats = train(model_l, optimizer_l, criterion, train_loader, val_loader, epochs=EPOCHS)
+        _, loss_stats = train(model_l, optimizer_l, criterion, train_loader, val_loader, epochs=EPOCHS_LOCAL_GLOBAL)
         model_name = 'local_model.pt'      
         AGENT_PATH = '../ag_' + str(args.agent_id) + '/' + model_name 
         torch.save(model_l.state_dict(), AGENT_PATH)  

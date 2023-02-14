@@ -26,6 +26,25 @@ IFoA Use case [Privacy preserving ML collaboration on claims modelling]. We use 
     local_model.pl - > model trained on single participant's dataset
 
 
+
+-----------------------------------------------------------
+
+Running FL training :
+
+1. Setup config in run_config.py
+2. Prepare datasets for each individual agent with  
+    1. python3 prepare_dataset.py
+3. Train FL model by:
+    1. Starting FL server with python3 IFoA_server.py
+    2. Adding server_config[‘num_clients’] ( specified in run_config.py) training agents with python3 IFoA_client.py  —agent_id=0  
+4. Train Global model by running python3 IFoA_client.py —agent_id=-1
+
+
+Generating report:
+python3 report.py
+
+-------------------------------------------------------------
+
 Execution:
 1. Global model training ( no FL loop ):
 conda activate py38_flw
