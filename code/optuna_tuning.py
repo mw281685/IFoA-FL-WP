@@ -8,15 +8,17 @@ from optuna.trial import TrialState
 from optuna.samplers import RandomSampler, TPESampler
 from torch.utils.data import TensorDataset, DataLoader
 import utils
+import run_config
 
 
-NUM_FEATURES = 39
+NUM_FEATURES = run_config.dataset_config["num_features"]
 device = 'cpu'
-EPOCHS = 50 #10 to test also 50 ! 
+EPOCHS = run_config.model_architecture["epochs"] #10 to test also 50 ! 
 BATCH_SIZE = 1000
 LOG_INTERVAL = 10
 # Set loss function change to true and then exp the output
-criterion = nn.PoissonNLLLoss(log_input= True, full= True)
+criterion = nn.PoissonNLLLoss(log_input= True, full= True) # Poisson negative log likelihood
+
 SEED = 212 #300
 
 def define_model(trial):
@@ -40,6 +42,9 @@ def define_model(trial):
 
 
 def objective(trial, train_loader, val_loader):
+
+    utils.seed_torch(seed=SEED)
+    
     # Generate the model. Transfer to device
     model = define_model(trial).to(device)
 
@@ -119,25 +124,25 @@ def run_study(train_loader, val_loader):
 
 def main():
 
-#    parser = argparse.ArgumentParser(description="Flower")
-#    parser.add_argument(
-#        "--agent_id",
-#        type=int,
-#        default=-1,
-#        choices=range(-1, 10),
-#        required=False,
-#        help="Specifies the partition of data to be used for training. -1 means all data . \
-#        Picks partition 0 by default",
-#    )
+    parser = argparse.ArgumentParser(description="Flower")
+    parser.add_argument(
+        "--agent_id",
+        type=int,
+        default=-1,
+        choices=range(-1, 10),
+        required=False,
+        help="Specifies the partition of data to be used for training. -1 means all data . \
+        Picks partition 0 by default",
+    )
     
-#    args = parser.parse_args()
+    args = parser.parse_args()
 
     lr= dict()
     dropout = dict()
 
-    for ag in range(-1,10):
+    for ag in [args.agent_id]: #range(-1,10): 
         print(f'processing agent = {ag}')
-        train_dataset, val_dataset, test_dataset, train_column_names, X_test_sc = utils.load_individual_data(ag)  # in folder my_data each training participant is storing their private, unique dataset    
+        train_dataset, val_dataset, test_dataset, train_column_names, X_test_sc, _ = utils.load_individual_data(ag)  # in folder my_data each training participant is storing their private, unique dataset    
         train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
         val_loader = DataLoader(dataset=val_dataset, batch_size=1)
 

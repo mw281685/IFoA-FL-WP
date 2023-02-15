@@ -8,10 +8,11 @@ import random
 from torch.utils.data import TensorDataset, DataLoader
 import matplotlib.pyplot as plt
 import seaborn as sns
+import run_config
 
-
-DATA_PATH = '../data/freMTPL2freq.csv'
-SEED = 212
+DATA_PATH = run_config.dataset_config["path"]
+SEED = run_config.dataset_config["seed"]
+DATA_FEATURES = run_config.dataset_config["num_features"]
 
 
 
@@ -29,8 +30,11 @@ def seed_torch(seed=SEED):
 #seed_torch() # for FL training, we cannot set seed, as everyone will have same rng
 
 def upload_dataset():
+      seed_torch()
       
       df = pd.read_csv(DATA_PATH)
+      df = df.sample(frac=1) # shuffle dataset to make sure claims are not sorted e.g by Year
+      df.reset_index()
 #      df = df0.sort_values('ClaimNb', ignore_index=True)
 
       #transformations and corrections
@@ -59,7 +63,6 @@ def upload_dataset():
       scaler = MinMaxScaler()
       df_new_encoded[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']] = scaler.fit_transform(df_new_encoded[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']])
 
-
       #Convert to numpy array 
       df_array=df_new_encoded.to_numpy()
 
@@ -84,27 +87,36 @@ def upload_dataset():
 
 def prep_partitions(agents:int = 10):
       (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
-      #whole dataset 
+
+      #whole dataset (agent_id = -1) 
       pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train.csv' , index=False)
       pd.DataFrame(y_tr).to_csv(f'../data/y_tr.csv', index=False)
 
-      print(len(X_column_names))
-
-      pd.DataFrame(X_test_sc[:,0:39], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
+      pd.DataFrame(X_test_sc[:,0:DATA_FEATURES], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
       pd.DataFrame(y_te).to_csv('../data/y_test.csv', index=False)
 
-      train_array = np.insert(X_train_sc, 39, y_tr, axis=1)
-      val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
+      pd.DataFrame(X_val_sc[:,0:DATA_FEATURES], columns=X_column_names).to_csv('../data/X_val.csv', index=False)
+      pd.DataFrame(y_vl).to_csv('../data/y_vl.csv', index=False)
+
+
+      train_array = np.insert(X_train_sc, DATA_FEATURES, y_tr, axis=1)
+      val_array = np.insert(X_val_sc, DATA_FEATURES, y_vl, axis=1)
 
       print(f'train_array shape = {train_array.shape}, val_array shape = {val_array.shape}')
 
+      # datasets for agents (0 .... agents-1)
       val_array_split = np.array_split(val_array, agents)
       train_array_len = train_array.shape[0]
 
       idx=[]
 
-      if agents == 3:
-            idx_0 = 2*train_array_len//6
+      if agents == 1:
+            idx_0 = train_array_len
+            idx.append(0)
+            idx.append(idx_0)
+
+      elif agents == 3:
+            idx_0 = 1*train_array_len//6
             idx_1 = idx_0 + 1*train_array_len//6
             print(f'idx_0 = {idx_0} , idx_1 = {idx_1}')
             idx.append(0)
@@ -121,18 +133,18 @@ def prep_partitions(agents:int = 10):
                   idx.append(idx[no-1] + parts[no]*part)
 
       for ag_no in range(1, agents + 1):
-            X_train_sc = train_array[idx[ag_no-1]:idx[ag_no]][:,0:39]
+            X_train_sc = train_array[idx[ag_no-1]:idx[ag_no]][:,0:DATA_FEATURES]
             print(f' Agent no = {ag_no} has ranges : {idx[ag_no-1]} to {idx[ag_no]}')
             pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train_{ag_no - 1}.csv' , index=False)
-            y_tr = train_array[idx[ag_no - 1]:idx[ag_no]][:, 39]
+            y_tr = train_array[idx[ag_no - 1]:idx[ag_no]][:, DATA_FEATURES]
             pd.DataFrame(y_tr).to_csv(f'../data/y_tr_{ag_no -1}.csv', index=False)
 
       #truncate datas
       for idx in range(agents):
             print(f'Processing idx = {idx}')
-            X_val_sc = val_array_split[idx][:, 0:39]
+            X_val_sc = val_array_split[idx][:, 0:DATA_FEATURES]
             pd.DataFrame(X_val_sc, columns=X_column_names).to_csv('../data/X_val_' + str(idx) + '.csv', index=False)
-            y_vl = val_array_split[idx][:,39]
+            y_vl = val_array_split[idx][:,DATA_FEATURES]
             pd.DataFrame(y_vl).to_csv('../data/y_vl_' + str(idx) + '.csv', index=False)
 
 
@@ -143,17 +155,17 @@ def load_partition(idx: int = -1, num_agents: int = 10):
       (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
 
 
-      train_array = np.insert(X_train_sc, 39, y_tr, axis=1)
-      val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
+      train_array = np.insert(X_train_sc, DATA_FEATURES, y_tr, axis=1)
+      val_array = np.insert(X_val_sc, DATA_FEATURES, y_vl, axis=1)
 
       #truncate data
       if idx in range(num_agents):
             train_array_split = np.array_split(train_array, num_agents)
             val_array_split = np.array_split(val_array, num_agents)
-            X_train_sc = train_array_split[idx][:,0:39]
-            y_tr = train_array_split[idx][:, 39]
-            X_val_sc = val_array_split[idx][:, 0:39]
-            y_vl = val_array_split[idx][:,39]
+            X_train_sc = train_array_split[idx][:,0:DATA_FEATURES]
+            y_tr = train_array_split[idx][:, DATA_FEATURES]
+            X_val_sc = val_array_split[idx][:, 0:DATA_FEATURES]
+            y_vl = val_array_split[idx][:,DATA_FEATURES]
 
 
       # Created tensordataset
@@ -170,17 +182,18 @@ def load_partition(idx: int = -1, num_agents: int = 10):
 def load_individual_data(agent_id):
       #global model training:
       if agent_id == -1:
-            (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
+      # Created tensordataset
+            MY_DATA_PATH = '../data'
+            X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train.csv')
+            X_column_names = X_train_sc.columns.tolist()
 
-                  # Created tensordataset
-            train_dataset = torch.utils.data.TensorDataset(
-                  torch.from_numpy(X_train_sc).float(), torch.from_numpy(y_tr).float())
-            val_dataset = torch.utils.data.TensorDataset(
-                  torch.from_numpy(X_val_sc).float(), torch.from_numpy(y_vl).float())
-            test_dataset = torch.utils.data.TensorDataset(
-                  torch.from_numpy(X_test_sc).float(), torch.from_numpy(y_te).float())
-      
-            return (train_dataset, val_dataset, test_dataset, X_column_names, X_test_sc)
+            y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr.csv')
+
+            X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val.csv')
+            y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl.csv')
+
+            X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
+            y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
 
       else:
 
@@ -196,6 +209,8 @@ def load_individual_data(agent_id):
             X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
             y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
 
+      exposure = sum(X_train_sc['Exposure'])
+
       # Created tensordataset
       train_dataset = torch.utils.data.TensorDataset(
             torch.tensor(X_train_sc.values).float(), torch.tensor(y_tr.values).float())
@@ -204,7 +219,7 @@ def load_individual_data(agent_id):
       test_dataset = torch.utils.data.TensorDataset(
             torch.tensor(X_test_sc.values).float(), torch.tensor(y_te.values).float())
       
-      return (train_dataset, val_dataset, test_dataset, X_column_names, torch.tensor(X_test_sc.values).float())
+      return (train_dataset, val_dataset, test_dataset, X_column_names, torch.tensor(X_test_sc.values).float(), exposure)
 
 def load_individual_data_lift(agent_id):
       MY_DATA_PATH = '../data'
@@ -252,20 +267,35 @@ def frequency_conversion(FACTOR, df, freq_dictionary):
 def one_way_graph(FACTOR, df, plot_name, ag,  *freq):
       data_preproc = df[[FACTOR+'_binned_midpoint', *freq]]
       plt.figure(figsize=(15,8))
-      sns.lineplot(data=pd.melt(data_preproc, [FACTOR+'_binned_midpoint']), x=FACTOR+'_binned_midpoint', y='value', hue='variable')
+      sns.set(style='dark',)
+
+      sns.lineplot(data=pd.melt(data_preproc, [FACTOR+'_binned_midpoint']), x=FACTOR+'_binned_midpoint', y='value', hue='variable', linewidth=2.0).set(title= plot_name)
+      #sns.set_style("ticks",{'axes.grid' : True})
+
       #plt.show()
-      plt.savefig(f'../ag_{ag}/' + plot_name)
+      plt.savefig(f'../plots/' + plot_name)
+
+      #plt.savefig(f'../ag_{ag}/' + plot_name)
+
 
 def predictions_check(run_name, model_global, model_partial, model_fl, ag):
       
       (X_train, X_val, X_test, y_train, y_val, y_test, X_column_names, scaler) = upload_dataset()
+      
+      MY_DATA_PATH = '../data'
+        
+      X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
+      y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
+      X_column_names = X_test_sc.columns.tolist()
+      
       test_dataset = torch.utils.data.TensorDataset(
-            torch.from_numpy(X_test).float(), torch.from_numpy(y_test).float())
+            torch.tensor(X_test_sc.values).float(), torch.tensor(y_te.values).float())
+            
       
       test_loader = DataLoader(dataset=test_dataset, batch_size=1)
 
 
-      test_complete_data=np.column_stack((X_test, y_test))
+      test_complete_data=np.column_stack((X_test_sc, y_te))
 
       X_column_names.append('ClaimNb')
 
@@ -273,6 +303,7 @@ def predictions_check(run_name, model_global, model_partial, model_fl, ag):
 
       df_test=pd.DataFrame(data=test_complete_data,    # values
                      columns=X_column_names)  # 1st row as the column names
+      
 
       df_test[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']]=scaler.inverse_transform(df_test[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']] )
       
@@ -298,10 +329,9 @@ def predictions_check(run_name, model_global, model_partial, model_fl, ag):
 
       df_sum=df_test.groupby([FACTOR+'_binned'])['Exposure','ClaimNb', 'ClaimNb_pred', 'ClaimNb_partial_pred', 'ClaimNb_fl_pred'].sum().reset_index()
 
-      frequency_conversion(FACTOR, df_sum, {'ClaimNb':'freq', 'ClaimNb_pred':'freq_pred', 'ClaimNb_partial_pred':'freq_partial_pred', 'ClaimNb_fl_pred':'freq_fl_pred'})
+      frequency_conversion(FACTOR, df_sum, {'ClaimNb':'Actual freq', 'ClaimNb_pred':'Freq pred global model', 'ClaimNb_partial_pred':'Freq pred local model', 'ClaimNb_fl_pred':'Freq pred FL model'})
 
-
-      one_way_graph(FACTOR, df_sum, run_name, ag,  'freq', 'freq_pred', 'freq_partial_pred','freq_fl_pred')
+      one_way_graph(FACTOR, df_sum, run_name, ag,  'Actual freq', 'Freq pred global model', 'Freq pred local model','Freq pred FL model')
 
 
 # Lorenz Curves
@@ -392,7 +422,7 @@ def uniform_partitions(agents:int = 10):
       pd.DataFrame(y_tr).to_csv(f'../data/y_tr.csv', index=False)
 
       # Test dataset
-      pd.DataFrame(X_test_sc[:,0:39], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
+      pd.DataFrame(X_test_sc[:,0:DATA_FEATURES], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
       pd.DataFrame(y_te).to_csv('../data/y_test.csv', index=False)
 
       # Validation dataset 
@@ -403,8 +433,8 @@ def uniform_partitions(agents:int = 10):
       train_array_dictionary = {}
       val_array_dictionary = {}
 
-      train_array = np.insert(X_train_sc, 39, y_tr, axis=1)
-      val_array = np.insert(X_val_sc, 39, y_vl, axis=1)
+      train_array = np.insert(X_train_sc, DATA_FEATURES, y_tr, axis=1)
+      val_array = np.insert(X_val_sc, DATA_FEATURES, y_vl, axis=1)
 
       # Seed numpy etc. for shuffling
       seed_torch()
@@ -418,8 +448,8 @@ def uniform_partitions(agents:int = 10):
 
       for i in range(agents):
             train_array_dictionary["X_train_{0}".format(i)] = train_array_split[i]
-            pd.DataFrame(train_array_split[i][:, 0:39], columns=X_column_names).to_csv(f'../data/X_train_{i}.csv' , index=False)
-            pd.DataFrame(train_array_split[i][:, 39]).to_csv(f'../data/y_tr_{i}.csv' , index=False)
+            pd.DataFrame(train_array_split[i][:, 0:DATA_FEATURES], columns=X_column_names).to_csv(f'../data/X_train_{i}.csv' , index=False)
+            pd.DataFrame(train_array_split[i][:, DATA_FEATURES]).to_csv(f'../data/y_tr_{i}.csv' , index=False)
             val_array_dictionary["X_val_{0}".format(i)] = val_array_split[i]
-            pd.DataFrame(val_array_split[i][:, 0:39], columns=X_column_names).to_csv(f'../data/X_val_{i}.csv' , index=False)
-            pd.DataFrame(val_array_split[i][:, 39]).to_csv(f'../data/y_vl_{i}.csv' , index=False)
+            pd.DataFrame(val_array_split[i][:, 0:DATA_FEATURES], columns=X_column_names).to_csv(f'../data/X_val_{i}.csv' , index=False)
+            pd.DataFrame(val_array_split[i][:, DATA_FEATURES]).to_csv(f'../data/y_vl_{i}.csv' , index=False)
