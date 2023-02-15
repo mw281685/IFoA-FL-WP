@@ -193,7 +193,6 @@ def plot_learning_curves(loss_stats, train_or_val):
 
         if ag_id == -1:
             x = range(1, EPOCHS_LOCAL_GLOBAL + 1)
-            print(loss_stats[ag_id])
             y = json.loads(loss_stats[ag_id][0][train_or_val])
             plt.plot(x, y, label = "global model" , linestyle="-")
         else:
@@ -244,7 +243,7 @@ def construct():
         model_fl.eval()
 
         # Save one_way-graph visualization
-        utils.predictions_check( 'One way graph: Company ' + str(ag + 1) + ' ; Training config: ' + str(run_config.server_config["num_rounds"]) + ' FL training rounds '  + str(run_config.model_architecture["epochs"]) + ' epochs ' + str(run_config.server_config["num_clients"]) + ' training participants', model_global, model_partial, model_fl, ag)
+        utils.predictions_check( 'One way graph Company ' + str(ag + 1) + ' ' + str(run_config.server_config["num_rounds"]) + ' FL training rounds '  + str(run_config.model_architecture["epochs"]) + ' epochs ' + str(run_config.server_config["num_clients"]) + ' training participants', model_global, model_partial, model_fl, ag)
 
         train_dataset, val_dataset, test_dataset, X_train_sc, y_tr, X_val_sc, y_vl, X_test_sc, y_te = utils.load_individual_data_lift(ag)        
         fig, ax = plt.subplots(figsize=(15, 8))
@@ -299,7 +298,7 @@ def construct():
         ax.legend(loc="upper left")
 
         # lift charts
-        plt.savefig(f'../plots/' + 'Lift chart: Company ' + str(ag) + '; Training config: ' + str(run_config.server_config["num_rounds"]) + ' FL training rounds '  + str(run_config.model_architecture["epochs"]) + ' epochs ' + str(run_config.server_config["num_clients"]) + ' training participants' )
+        plt.savefig(f'../plots/' + 'Lift chart Company ' + str(ag) + 'Training config ' + str(run_config.server_config["num_rounds"]) + ' FL training rounds '  + str(run_config.model_architecture["epochs"]) + ' epochs ' + str(run_config.server_config["num_clients"]) + ' training participants' )
 
     # Construct data shown in document
     counter = 0
