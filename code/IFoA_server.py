@@ -29,3 +29,5 @@ if __name__ == "__main__":
         server_address="[::]:8080",
         config=fl.server.ServerConfig(num_rounds=run_config.server_config["num_rounds"]), strategy=strategy
       )
+
+exit(0)

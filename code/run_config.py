@@ -24,22 +24,23 @@ from flwr.server.strategy.strategy import Strategy
 from flwr.common.typing import Status
 from flwr.common import NDArray, NDArrays
 
+EPOCHS_LOCAL_GLOBAL = 75
 
 
 model_architecture = {
     "dropout" : 0.12409392594394411, # remove
     "learning_rate": 6.888528294546944e-05, #  not needed for Adam optimizer
-    "epochs" : 20,
+    "epochs" : 30,
     "batch_size": 1000,
     "num_features": 39,
 }
 
 server_config = {
-    "num_clients": 5,
-    "num_rounds": 7
+    "num_clients": 10,
+    "num_rounds": 10
 }
 
-run_name = "uniform partitions, " + str(server_config["num_clients"]) + " agents," + str(server_config["num_rounds"]) + " rounds, " + str(model_architecture["epochs"]) + " epochs"
+run_name = "uniform partitions, " + str(server_config["num_clients"]) + " agents," + str(server_config["num_rounds"]) + " rounds, " + str(model_architecture["epochs"]) + " epochs " + str(EPOCHS_LOCAL_GLOBAL) + " epochs for local and global tr"
 
 # used in prepare_dataset.py 
 dataset_config = {
@@ -81,3 +82,9 @@ class LocalUpdatesStrategy(fl.server.strategy.FedAvg):
         return parameters_aggregated, metrics_aggregated
 
 
+def get_clients_no():
+    print(server_config["num_clients"])
+
+if __name__ == "__main__":
+    get_clients_no()
+    

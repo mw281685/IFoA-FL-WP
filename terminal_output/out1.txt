@@ -1,0 +1,547 @@
+args = Namespace(agent_id=1, agents_no=10, if_FL=1)
+Processing client 1
+Epoch 000: | Train Loss: 1.16653 | Val Loss: 1.14318
+Epoch 001: | Train Loss: 1.12818 | Val Loss: 1.10691
+Epoch 002: | Train Loss: 1.09263 | Val Loss: 1.07353
+Epoch 003: | Train Loss: 1.05978 | Val Loss: 1.04213
+Epoch 004: | Train Loss: 1.02837 | Val Loss: 1.01181
+Epoch 005: | Train Loss: 0.99849 | Val Loss: 0.98262
+Epoch 006: | Train Loss: 0.96943 | Val Loss: 0.95435
+Epoch 007: | Train Loss: 0.94058 | Val Loss: 0.92639
+Epoch 008: | Train Loss: 0.91257 | Val Loss: 0.89792
+Epoch 009: | Train Loss: 0.88313 | Val Loss: 0.86865
+Epoch 010: | Train Loss: 0.85327 | Val Loss: 0.83875
+Epoch 011: | Train Loss: 0.82354 | Val Loss: 0.80835
+Epoch 012: | Train Loss: 0.79261 | Val Loss: 0.77768
+Epoch 013: | Train Loss: 0.76092 | Val Loss: 0.74674
+Epoch 014: | Train Loss: 0.73038 | Val Loss: 0.71584
+Epoch 015: | Train Loss: 0.69961 | Val Loss: 0.68499
+Epoch 016: | Train Loss: 0.66903 | Val Loss: 0.65440
+Epoch 017: | Train Loss: 0.63801 | Val Loss: 0.62409
+Epoch 018: | Train Loss: 0.60766 | Val Loss: 0.59412
+Epoch 019: | Train Loss: 0.57795 | Val Loss: 0.56456
+Epoch 020: | Train Loss: 0.54864 | Val Loss: 0.53555
+Epoch 021: | Train Loss: 0.51928 | Val Loss: 0.50716
+Epoch 022: | Train Loss: 0.49112 | Val Loss: 0.47968
+Epoch 023: | Train Loss: 0.46443 | Val Loss: 0.45345
+Epoch 024: | Train Loss: 0.43835 | Val Loss: 0.42871
+Epoch 025: | Train Loss: 0.41466 | Val Loss: 0.40567
+Epoch 026: | Train Loss: 0.39171 | Val Loss: 0.38439
+Epoch 027: | Train Loss: 0.37150 | Val Loss: 0.36490
+Epoch 028: | Train Loss: 0.35266 | Val Loss: 0.34727
+Epoch 029: | Train Loss: 0.33531 | Val Loss: 0.33143
+Epoch 030: | Train Loss: 0.31987 | Val Loss: 0.31726
+Epoch 031: | Train Loss: 0.30683 | Val Loss: 0.30474
+Epoch 032: | Train Loss: 0.29380 | Val Loss: 0.29370
+Epoch 033: | Train Loss: 0.28313 | Val Loss: 0.28404
+Epoch 034: | Train Loss: 0.27491 | Val Loss: 0.27560
+Epoch 035: | Train Loss: 0.26651 | Val Loss: 0.26831
+Epoch 036: | Train Loss: 0.25861 | Val Loss: 0.26204
+Epoch 037: | Train Loss: 0.25240 | Val Loss: 0.25663
+Epoch 038: | Train Loss: 0.24652 | Val Loss: 0.25203
+Epoch 039: | Train Loss: 0.24278 | Val Loss: 0.24813
+Epoch 040: | Train Loss: 0.23821 | Val Loss: 0.24480
+Epoch 041: | Train Loss: 0.23423 | Val Loss: 0.24204
+Epoch 042: | Train Loss: 0.23109 | Val Loss: 0.23972
+Epoch 043: | Train Loss: 0.22928 | Val Loss: 0.23778
+Epoch 044: | Train Loss: 0.22723 | Val Loss: 0.23621
+Epoch 045: | Train Loss: 0.22558 | Val Loss: 0.23489
+Epoch 046: | Train Loss: 0.22412 | Val Loss: 0.23385
+Epoch 047: | Train Loss: 0.22269 | Val Loss: 0.23301
+Epoch 048: | Train Loss: 0.22128 | Val Loss: 0.23234
+Epoch 049: | Train Loss: 0.22034 | Val Loss: 0.23180
+Epoch 050: | Train Loss: 0.21906 | Val Loss: 0.23140
+Epoch 051: | Train Loss: 0.21873 | Val Loss: 0.23108
+Epoch 052: | Train Loss: 0.21873 | Val Loss: 0.23086
+Epoch 053: | Train Loss: 0.21774 | Val Loss: 0.23069
+Epoch 054: | Train Loss: 0.21780 | Val Loss: 0.23058
+Epoch 055: | Train Loss: 0.21721 | Val Loss: 0.23050
+Epoch 056: | Train Loss: 0.21702 | Val Loss: 0.23046
+Epoch 057: | Train Loss: 0.21636 | Val Loss: 0.23044
+Epoch 058: | Train Loss: 0.21638 | Val Loss: 0.23043
+Epoch 059: | Train Loss: 0.21631 | Val Loss: 0.23043
+Epoch 060: | Train Loss: 0.21593 | Val Loss: 0.23045
+Epoch 061: | Train Loss: 0.21597 | Val Loss: 0.23047
+Epoch 062: | Train Loss: 0.21653 | Val Loss: 0.23048
+Epoch 063: | Train Loss: 0.21536 | Val Loss: 0.23049
+Epoch 064: | Train Loss: 0.21539 | Val Loss: 0.23051
+Epoch 065: | Train Loss: 0.21557 | Val Loss: 0.23052
+Epoch 066: | Train Loss: 0.21482 | Val Loss: 0.23054
+Epoch 067: | Train Loss: 0.21544 | Val Loss: 0.23054
+Epoch 068: | Train Loss: 0.21532 | Val Loss: 0.23056
+Epoch 069: | Train Loss: 0.21458 | Val Loss: 0.23054
+Epoch 070: | Train Loss: 0.21468 | Val Loss: 0.23056
+Epoch 071: | Train Loss: 0.21460 | Val Loss: 0.23055
+Epoch 072: | Train Loss: 0.21506 | Val Loss: 0.23054
+Epoch 073: | Train Loss: 0.21546 | Val Loss: 0.23050
+Epoch 074: | Train Loss: 0.21466 | Val Loss: 0.23049
+[SET_PARAMETERS CALLED]:  tensor([-0.2285,  0.1689,  0.1091, -0.1576, -0.3214, -0.2245, -0.1733, -0.1646,
+        -0.2557,  0.3605, -0.1804,  0.3031,  0.1427,  0.0401, -0.1819,  0.2432,
+        -0.0437,  0.3413,  0.0955, -0.3160,  0.0368, -0.2531, -0.0573, -0.3042,
+         0.0601, -0.0401,  0.2457,  0.2734,  0.0156,  0.2394,  0.0233, -0.2072,
+        -0.1923,  0.1855, -0.1720, -0.0687,  0.3027,  0.0331,  0.3302])
+Epoch 000: | Train Loss: 1.16687 | Val Loss: 1.14398
+Epoch 001: | Train Loss: 1.12793 | Val Loss: 1.10763
+Epoch 002: | Train Loss: 1.09268 | Val Loss: 1.07419
+Epoch 003: | Train Loss: 1.05985 | Val Loss: 1.04268
+Epoch 004: | Train Loss: 1.02830 | Val Loss: 1.01226
+Epoch 005: | Train Loss: 0.99795 | Val Loss: 0.98312
+Epoch 006: | Train Loss: 0.96932 | Val Loss: 0.95480
+Epoch 007: | Train Loss: 0.94110 | Val Loss: 0.92679
+Epoch 008: | Train Loss: 0.91221 | Val Loss: 0.89821
+Epoch 009: | Train Loss: 0.88362 | Val Loss: 0.86891
+Epoch 010: | Train Loss: 0.85359 | Val Loss: 0.83901
+Epoch 011: | Train Loss: 0.82309 | Val Loss: 0.80862
+Epoch 012: | Train Loss: 0.79253 | Val Loss: 0.77790
+Epoch 013: | Train Loss: 0.76154 | Val Loss: 0.74702
+Epoch 014: | Train Loss: 0.73040 | Val Loss: 0.71609
+Epoch 015: | Train Loss: 0.69988 | Val Loss: 0.68526
+Epoch 016: | Train Loss: 0.66903 | Val Loss: 0.65466
+Epoch 017: | Train Loss: 0.63809 | Val Loss: 0.62435
+Epoch 018: | Train Loss: 0.60797 | Val Loss: 0.59438
+Epoch 019: | Train Loss: 0.57835 | Val Loss: 0.56488
+Epoch 020: | Train Loss: 0.54857 | Val Loss: 0.53589
+Epoch 021: | Train Loss: 0.51995 | Val Loss: 0.50759
+Epoch 022: | Train Loss: 0.49180 | Val Loss: 0.48018
+Epoch 023: | Train Loss: 0.46541 | Val Loss: 0.45395
+Epoch 024: | Train Loss: 0.43994 | Val Loss: 0.42931
+Epoch 025: | Train Loss: 0.41485 | Val Loss: 0.40630
+Epoch 026: | Train Loss: 0.39332 | Val Loss: 0.38505
+Epoch 027: | Train Loss: 0.37113 | Val Loss: 0.36558
+Epoch 028: | Train Loss: 0.35285 | Val Loss: 0.34800
+Epoch 029: | Train Loss: 0.33563 | Val Loss: 0.33216
+loss:  85.6805961728096 len(test_loader) 265  accuracy:  0.3233230044256966
+[INFO][GET_PARAMETERS CALLED ]: tensor([-0.1029,  0.2967,  0.2296, -0.0338, -0.1902, -0.1101, -0.0463, -0.0363,
+        -0.2294,  0.4247, -0.0467,  0.3683,  0.1696,  0.1446, -0.1058,  0.3370,
+         0.0373,  0.4050,  0.1302, -0.2930,  0.0919, -0.1547, -0.0211, -0.2936,
+         0.1472,  0.0322,  0.2778,  0.3179,  0.0824,  0.3328,  0.0762, -0.1297,
+        -0.1444,  0.2260, -0.0935, -0.0464,  0.3615,  0.1184,  0.3925])
+[SET_PARAMETERS CALLED]:  tensor([-0.0986,  0.2997,  0.2326, -0.0307, -0.1880, -0.1070, -0.0435, -0.0333,
+        -0.2353,  0.4275, -0.0441,  0.3731,  0.1764,  0.1482, -0.1047,  0.3391,
+         0.0451,  0.4075,  0.1306, -0.2795,  0.0897, -0.1531, -0.0166, -0.2850,
+         0.1441,  0.0345,  0.2782,  0.3170,  0.0914,  0.3370,  0.0805, -0.1284,
+        -0.1359,  0.2279, -0.0908, -0.0434,  0.3651,  0.1200,  0.3960])
+[SET_PARAMETERS CALLED]:  tensor([-0.0986,  0.2997,  0.2326, -0.0307, -0.1880, -0.1070, -0.0435, -0.0333,
+        -0.2353,  0.4275, -0.0441,  0.3731,  0.1764,  0.1482, -0.1047,  0.3391,
+         0.0451,  0.4075,  0.1306, -0.2795,  0.0897, -0.1531, -0.0166, -0.2850,
+         0.1441,  0.0345,  0.2782,  0.3170,  0.0914,  0.3370,  0.0805, -0.1284,
+        -0.1359,  0.2279, -0.0908, -0.0434,  0.3651,  0.1200,  0.3960])
+Epoch 000: | Train Loss: 0.32136 | Val Loss: 0.31869
+Epoch 001: | Train Loss: 0.30749 | Val Loss: 0.30607
+Epoch 002: | Train Loss: 0.29545 | Val Loss: 0.29491
+Epoch 003: | Train Loss: 0.28413 | Val Loss: 0.28517
+Epoch 004: | Train Loss: 0.27466 | Val Loss: 0.27665
+Epoch 005: | Train Loss: 0.26769 | Val Loss: 0.26933
+Epoch 006: | Train Loss: 0.25926 | Val Loss: 0.26297
+Epoch 007: | Train Loss: 0.25369 | Val Loss: 0.25755
+Epoch 008: | Train Loss: 0.24728 | Val Loss: 0.25290
+Epoch 009: | Train Loss: 0.24351 | Val Loss: 0.24898
+Epoch 010: | Train Loss: 0.23911 | Val Loss: 0.24565
+Epoch 011: | Train Loss: 0.23560 | Val Loss: 0.24285
+Epoch 012: | Train Loss: 0.23203 | Val Loss: 0.24050
+Epoch 013: | Train Loss: 0.23009 | Val Loss: 0.23856
+Epoch 014: | Train Loss: 0.22718 | Val Loss: 0.23699
+Epoch 015: | Train Loss: 0.22504 | Val Loss: 0.23568
+Epoch 016: | Train Loss: 0.22427 | Val Loss: 0.23461
+Epoch 017: | Train Loss: 0.22105 | Val Loss: 0.23378
+Epoch 018: | Train Loss: 0.22154 | Val Loss: 0.23311
+Epoch 019: | Train Loss: 0.22077 | Val Loss: 0.23258
+Epoch 020: | Train Loss: 0.21923 | Val Loss: 0.23218
+Epoch 021: | Train Loss: 0.21843 | Val Loss: 0.23189
+Epoch 022: | Train Loss: 0.21901 | Val Loss: 0.23168
+Epoch 023: | Train Loss: 0.21876 | Val Loss: 0.23153
+Epoch 024: | Train Loss: 0.21735 | Val Loss: 0.23144
+Epoch 025: | Train Loss: 0.21646 | Val Loss: 0.23138
+Epoch 026: | Train Loss: 0.21706 | Val Loss: 0.23136
+Epoch 027: | Train Loss: 0.21659 | Val Loss: 0.23136
+Epoch 028: | Train Loss: 0.21501 | Val Loss: 0.23139
+Epoch 029: | Train Loss: 0.21629 | Val Loss: 0.23142
+loss:  56.56385290622711 len(test_loader) 265  accuracy:  0.2134485015329325
+[INFO][GET_PARAMETERS CALLED ]: tensor([-0.0413,  0.3670,  0.3054,  0.0516, -0.1102, -0.0673,  0.0388,  0.0416,
+        -0.2079,  0.4489,  0.0269,  0.4065,  0.1967,  0.2174, -0.0162,  0.3455,
+         0.1030,  0.4220,  0.1726, -0.2206,  0.1505, -0.0695,  0.0203, -0.2019,
+         0.1902,  0.0884,  0.2930,  0.3340,  0.1508,  0.3609,  0.1460, -0.0142,
+        -0.0401,  0.2569, -0.0113,  0.0448,  0.4170,  0.1840,  0.4024])
+[SET_PARAMETERS CALLED]:  tensor([-0.0517,  0.3617,  0.2996,  0.0443, -0.1187, -0.0753,  0.0319,  0.0351,
+        -0.2021,  0.4477,  0.0230,  0.4049,  0.2066,  0.2052, -0.0239,  0.3436,
+         0.0998,  0.4179,  0.1761, -0.2214,  0.1382, -0.0820,  0.0221, -0.2096,
+         0.1793,  0.0939,  0.2930,  0.3335,  0.1505,  0.3598,  0.1390, -0.0245,
+        -0.0521,  0.2574, -0.0198,  0.0329,  0.4119,  0.1805,  0.4080])
+[SET_PARAMETERS CALLED]:  tensor([-0.0517,  0.3617,  0.2996,  0.0443, -0.1187, -0.0753,  0.0319,  0.0351,
+        -0.2021,  0.4477,  0.0230,  0.4049,  0.2066,  0.2052, -0.0239,  0.3436,
+         0.0998,  0.4179,  0.1761, -0.2214,  0.1382, -0.0820,  0.0221, -0.2096,
+         0.1793,  0.0939,  0.2930,  0.3335,  0.1505,  0.3598,  0.1390, -0.0245,
+        -0.0521,  0.2574, -0.0198,  0.0329,  0.4119,  0.1805,  0.4080])
+Epoch 000: | Train Loss: 0.21634 | Val Loss: 0.23135
+Epoch 001: | Train Loss: 0.21594 | Val Loss: 0.23139
+Epoch 002: | Train Loss: 0.21508 | Val Loss: 0.23144
+Epoch 003: | Train Loss: 0.21608 | Val Loss: 0.23149
+Epoch 004: | Train Loss: 0.21503 | Val Loss: 0.23154
+Epoch 005: | Train Loss: 0.21651 | Val Loss: 0.23159
+Epoch 006: | Train Loss: 0.21520 | Val Loss: 0.23163
+Epoch 007: | Train Loss: 0.21598 | Val Loss: 0.23169
+Epoch 008: | Train Loss: 0.21513 | Val Loss: 0.23174
+Epoch 009: | Train Loss: 0.21541 | Val Loss: 0.23177
+Epoch 010: | Train Loss: 0.21578 | Val Loss: 0.23181
+Epoch 011: | Train Loss: 0.21543 | Val Loss: 0.23184
+Epoch 012: | Train Loss: 0.21464 | Val Loss: 0.23186
+Epoch 013: | Train Loss: 0.21442 | Val Loss: 0.23190
+Epoch 014: | Train Loss: 0.21462 | Val Loss: 0.23191
+Epoch 015: | Train Loss: 0.21469 | Val Loss: 0.23193
+Epoch 016: | Train Loss: 0.21504 | Val Loss: 0.23195
+Epoch 017: | Train Loss: 0.21583 | Val Loss: 0.23197
+Epoch 018: | Train Loss: 0.21465 | Val Loss: 0.23196
+Epoch 019: | Train Loss: 0.21448 | Val Loss: 0.23199
+Epoch 020: | Train Loss: 0.21439 | Val Loss: 0.23198
+Epoch 021: | Train Loss: 0.21496 | Val Loss: 0.23200
+Epoch 022: | Train Loss: 0.21411 | Val Loss: 0.23200
+Epoch 023: | Train Loss: 0.21328 | Val Loss: 0.23202
+Epoch 024: | Train Loss: 0.21396 | Val Loss: 0.23202
+Epoch 025: | Train Loss: 0.21419 | Val Loss: 0.23202
+Epoch 026: | Train Loss: 0.21344 | Val Loss: 0.23204
+Epoch 027: | Train Loss: 0.21345 | Val Loss: 0.23207
+Epoch 028: | Train Loss: 0.21368 | Val Loss: 0.23205
+Epoch 029: | Train Loss: 0.21355 | Val Loss: 0.23204
+loss:  56.52206602692604 len(test_loader) 265  accuracy:  0.21329081519594734
+[INFO][GET_PARAMETERS CALLED ]: tensor([-0.1167,  0.3345,  0.2848,  0.0475, -0.1374, -0.1469,  0.0228,  0.0207,
+        -0.2387,  0.4422,  0.0085,  0.4066,  0.1957,  0.1886, -0.0233,  0.3079,
+         0.0906,  0.3975,  0.1916, -0.2246,  0.1657, -0.1204,  0.0038, -0.1910,
+         0.1884,  0.0865,  0.2906,  0.3392,  0.1432,  0.3432,  0.1509,  0.0264,
+        -0.0317,  0.2570, -0.0377,  0.0800,  0.4295,  0.1871,  0.3893])
+[SET_PARAMETERS CALLED]:  tensor([-0.1234,  0.3340,  0.2841,  0.0454, -0.1447, -0.1505,  0.0200,  0.0180,
+        -0.2279,  0.4416,  0.0091,  0.4056,  0.2199,  0.1766, -0.0293,  0.3080,
+         0.1029,  0.3929,  0.1948, -0.2192,  0.1524, -0.1317,  0.0121, -0.1912,
+         0.1757,  0.1041,  0.2915,  0.3382,  0.1543,  0.3534,  0.1450,  0.0119,
+        -0.0415,  0.2621, -0.0461,  0.0655,  0.4289,  0.1866,  0.3972])
+[SET_PARAMETERS CALLED]:  tensor([-0.1234,  0.3340,  0.2841,  0.0454, -0.1447, -0.1505,  0.0200,  0.0180,
+        -0.2279,  0.4416,  0.0091,  0.4056,  0.2199,  0.1766, -0.0293,  0.3080,
+         0.1029,  0.3929,  0.1948, -0.2192,  0.1524, -0.1317,  0.0121, -0.1912,
+         0.1757,  0.1041,  0.2915,  0.3382,  0.1543,  0.3534,  0.1450,  0.0119,
+        -0.0415,  0.2621, -0.0461,  0.0655,  0.4289,  0.1866,  0.3972])
+Epoch 000: | Train Loss: 0.21403 | Val Loss: 0.23170
+Epoch 001: | Train Loss: 0.21331 | Val Loss: 0.23177
+Epoch 002: | Train Loss: 0.21314 | Val Loss: 0.23181
+Epoch 003: | Train Loss: 0.21406 | Val Loss: 0.23185
+Epoch 004: | Train Loss: 0.21442 | Val Loss: 0.23188
+Epoch 005: | Train Loss: 0.21348 | Val Loss: 0.23190
+Epoch 006: | Train Loss: 0.21294 | Val Loss: 0.23197
+Epoch 007: | Train Loss: 0.21403 | Val Loss: 0.23196
+Epoch 008: | Train Loss: 0.21387 | Val Loss: 0.23197
+Epoch 009: | Train Loss: 0.21340 | Val Loss: 0.23198
+Epoch 010: | Train Loss: 0.21393 | Val Loss: 0.23197
+Epoch 011: | Train Loss: 0.21364 | Val Loss: 0.23197
+Epoch 012: | Train Loss: 0.21378 | Val Loss: 0.23197
+Epoch 013: | Train Loss: 0.21349 | Val Loss: 0.23200
+Epoch 014: | Train Loss: 0.21325 | Val Loss: 0.23200
+Epoch 015: | Train Loss: 0.21347 | Val Loss: 0.23197
+Epoch 016: | Train Loss: 0.21262 | Val Loss: 0.23201
+Epoch 017: | Train Loss: 0.21239 | Val Loss: 0.23200
+Epoch 018: | Train Loss: 0.21267 | Val Loss: 0.23203
+Epoch 019: | Train Loss: 0.21286 | Val Loss: 0.23201
+Epoch 020: | Train Loss: 0.21342 | Val Loss: 0.23206
+Epoch 021: | Train Loss: 0.21293 | Val Loss: 0.23204
+Epoch 022: | Train Loss: 0.21349 | Val Loss: 0.23202
+Epoch 023: | Train Loss: 0.21314 | Val Loss: 0.23206
+Epoch 024: | Train Loss: 0.21219 | Val Loss: 0.23205
+Epoch 025: | Train Loss: 0.21234 | Val Loss: 0.23207
+Epoch 026: | Train Loss: 0.21275 | Val Loss: 0.23206
+Epoch 027: | Train Loss: 0.21301 | Val Loss: 0.23208
+Epoch 028: | Train Loss: 0.21352 | Val Loss: 0.23205
+Epoch 029: | Train Loss: 0.21202 | Val Loss: 0.23210
+loss:  56.52378214895725 len(test_loader) 265  accuracy:  0.21329729112814058
+[INFO][GET_PARAMETERS CALLED ]: tensor([-1.8730e-01,  2.9821e-01,  2.6570e-01,  5.7200e-02, -1.6618e-01,
+        -2.1618e-01,  1.0541e-02, -3.4172e-04, -2.5828e-01,  4.3575e-01,
+        -1.5884e-02,  4.0366e-01,  2.0897e-01,  1.6782e-01, -3.1422e-02,
+         2.7338e-01,  9.3232e-02,  3.6911e-01,  2.0871e-01, -2.2691e-01,
+         1.7705e-01, -1.5476e-01,  1.3989e-04, -1.8623e-01,  1.8245e-01,
+         9.6485e-02,  2.8797e-01,  3.4424e-01,  1.4527e-01,  3.3284e-01,
+         1.5511e-01,  5.9181e-02, -2.8607e-02,  2.6196e-01, -5.6439e-02,
+         1.0944e-01,  4.4326e-01,  1.8975e-01,  3.7835e-01])
+[SET_PARAMETERS CALLED]:  tensor([-1.9087e-01,  3.0028e-01,  2.6755e-01,  5.6667e-02, -1.7117e-01,
+        -2.1749e-01,  1.1408e-02, -3.8580e-04, -2.4606e-01,  4.3509e-01,
+        -1.2051e-02,  4.0569e-01,  2.3204e-01,  1.5442e-01, -3.0782e-02,
+         2.7255e-01,  1.0599e-01,  3.6795e-01,  2.1171e-01, -2.1975e-01,
+         1.6356e-01, -1.6053e-01,  5.5734e-03, -1.7764e-01,  1.7169e-01,
+         1.1317e-01,  2.9080e-01,  3.4309e-01,  1.5724e-01,  3.4625e-01,
+         1.5010e-01,  4.1985e-02, -3.3762e-02,  2.6559e-01, -6.3847e-02,
+         9.4600e-02,  4.4140e-01,  1.9053e-01,  3.8778e-01])
+[SET_PARAMETERS CALLED]:  tensor([-1.9087e-01,  3.0028e-01,  2.6755e-01,  5.6667e-02, -1.7117e-01,
+        -2.1749e-01,  1.1408e-02, -3.8580e-04, -2.4606e-01,  4.3509e-01,
+        -1.2051e-02,  4.0569e-01,  2.3204e-01,  1.5442e-01, -3.0782e-02,
+         2.7255e-01,  1.0599e-01,  3.6795e-01,  2.1171e-01, -2.1975e-01,
+         1.6356e-01, -1.6053e-01,  5.5734e-03, -1.7764e-01,  1.7169e-01,
+         1.1317e-01,  2.9080e-01,  3.4309e-01,  1.5724e-01,  3.4625e-01,
+         1.5010e-01,  4.1985e-02, -3.3762e-02,  2.6559e-01, -6.3847e-02,
+         9.4600e-02,  4.4140e-01,  1.9053e-01,  3.8778e-01])
+Epoch 000: | Train Loss: 0.21274 | Val Loss: 0.23180
+Epoch 001: | Train Loss: 0.21149 | Val Loss: 0.23193
+Epoch 002: | Train Loss: 0.21322 | Val Loss: 0.23195
+Epoch 003: | Train Loss: 0.21233 | Val Loss: 0.23199
+Epoch 004: | Train Loss: 0.21269 | Val Loss: 0.23197
+Epoch 005: | Train Loss: 0.21135 | Val Loss: 0.23208
+Epoch 006: | Train Loss: 0.21257 | Val Loss: 0.23214
+Epoch 007: | Train Loss: 0.21199 | Val Loss: 0.23208
+Epoch 008: | Train Loss: 0.21148 | Val Loss: 0.23213
+Epoch 009: | Train Loss: 0.21204 | Val Loss: 0.23212
+Epoch 010: | Train Loss: 0.21267 | Val Loss: 0.23212
+Epoch 011: | Train Loss: 0.21272 | Val Loss: 0.23217
+Epoch 012: | Train Loss: 0.21187 | Val Loss: 0.23217
+Epoch 013: | Train Loss: 0.21194 | Val Loss: 0.23215
+Epoch 014: | Train Loss: 0.21241 | Val Loss: 0.23213
+Epoch 015: | Train Loss: 0.21269 | Val Loss: 0.23217
+Epoch 016: | Train Loss: 0.21157 | Val Loss: 0.23213
+Epoch 017: | Train Loss: 0.21190 | Val Loss: 0.23218
+Epoch 018: | Train Loss: 0.21107 | Val Loss: 0.23223
+Epoch 019: | Train Loss: 0.21221 | Val Loss: 0.23222
+Epoch 020: | Train Loss: 0.21158 | Val Loss: 0.23215
+Epoch 021: | Train Loss: 0.21078 | Val Loss: 0.23226
+Epoch 022: | Train Loss: 0.21195 | Val Loss: 0.23227
+Epoch 023: | Train Loss: 0.21072 | Val Loss: 0.23228
+Epoch 024: | Train Loss: 0.21115 | Val Loss: 0.23227
+Epoch 025: | Train Loss: 0.21130 | Val Loss: 0.23227
+Epoch 026: | Train Loss: 0.21075 | Val Loss: 0.23238
+Epoch 027: | Train Loss: 0.21007 | Val Loss: 0.23234
+Epoch 028: | Train Loss: 0.21156 | Val Loss: 0.23237
+Epoch 029: | Train Loss: 0.21116 | Val Loss: 0.23233
+loss:  56.5748755633831 len(test_loader) 265  accuracy:  0.2134900964655966
+[INFO][GET_PARAMETERS CALLED ]: tensor([-0.2445,  0.2708,  0.2539,  0.0765, -0.1860, -0.2785,  0.0138, -0.0101,
+        -0.2657,  0.4281, -0.0383,  0.4037,  0.2186,  0.1581, -0.0326,  0.2396,
+         0.0967,  0.3482,  0.2285, -0.2292,  0.1821, -0.1631, -0.0037, -0.1741,
+         0.1806,  0.1048,  0.2892,  0.3493,  0.1458,  0.3271,  0.1611,  0.0823,
+        -0.0195,  0.2665, -0.0658,  0.1337,  0.4497,  0.1918,  0.3679])
+[SET_PARAMETERS CALLED]:  tensor([-0.2477,  0.2751,  0.2589,  0.0801, -0.1870, -0.2756,  0.0149, -0.0077,
+        -0.2583,  0.4279, -0.0328,  0.4044,  0.2419,  0.1465, -0.0260,  0.2398,
+         0.1092,  0.3454,  0.2277, -0.2194,  0.1706, -0.1667,  0.0026, -0.1642,
+         0.1676,  0.1218,  0.2908,  0.3471,  0.1590,  0.3402,  0.1545,  0.0646,
+        -0.0265,  0.2689, -0.0698,  0.1205,  0.4490,  0.1923,  0.3781])
+[SET_PARAMETERS CALLED]:  tensor([-0.2477,  0.2751,  0.2589,  0.0801, -0.1870, -0.2756,  0.0149, -0.0077,
+        -0.2583,  0.4279, -0.0328,  0.4044,  0.2419,  0.1465, -0.0260,  0.2398,
+         0.1092,  0.3454,  0.2277, -0.2194,  0.1706, -0.1667,  0.0026, -0.1642,
+         0.1676,  0.1218,  0.2908,  0.3471,  0.1590,  0.3402,  0.1545,  0.0646,
+        -0.0265,  0.2689, -0.0698,  0.1205,  0.4490,  0.1923,  0.3781])
+Epoch 000: | Train Loss: 0.21064 | Val Loss: 0.23216
+Epoch 001: | Train Loss: 0.21122 | Val Loss: 0.23225
+Epoch 002: | Train Loss: 0.21121 | Val Loss: 0.23237
+Epoch 003: | Train Loss: 0.21076 | Val Loss: 0.23232
+Epoch 004: | Train Loss: 0.21203 | Val Loss: 0.23240
+Epoch 005: | Train Loss: 0.21131 | Val Loss: 0.23235
+Epoch 006: | Train Loss: 0.21025 | Val Loss: 0.23240
+Epoch 007: | Train Loss: 0.21041 | Val Loss: 0.23246
+Epoch 008: | Train Loss: 0.21164 | Val Loss: 0.23247
+Epoch 009: | Train Loss: 0.21061 | Val Loss: 0.23242
+Epoch 010: | Train Loss: 0.21003 | Val Loss: 0.23250
+Epoch 011: | Train Loss: 0.21061 | Val Loss: 0.23251
+Epoch 012: | Train Loss: 0.21029 | Val Loss: 0.23256
+Epoch 013: | Train Loss: 0.21044 | Val Loss: 0.23255
+Epoch 014: | Train Loss: 0.21016 | Val Loss: 0.23252
+Epoch 015: | Train Loss: 0.20952 | Val Loss: 0.23258
+Epoch 016: | Train Loss: 0.20995 | Val Loss: 0.23262
+Epoch 017: | Train Loss: 0.21088 | Val Loss: 0.23271
+Epoch 018: | Train Loss: 0.21007 | Val Loss: 0.23268
+Epoch 019: | Train Loss: 0.21074 | Val Loss: 0.23261
+Epoch 020: | Train Loss: 0.20932 | Val Loss: 0.23267
+Epoch 021: | Train Loss: 0.21037 | Val Loss: 0.23265
+Epoch 022: | Train Loss: 0.21013 | Val Loss: 0.23267
+Epoch 023: | Train Loss: 0.20917 | Val Loss: 0.23277
+Epoch 024: | Train Loss: 0.20932 | Val Loss: 0.23273
+Epoch 025: | Train Loss: 0.20893 | Val Loss: 0.23280
+Epoch 026: | Train Loss: 0.20950 | Val Loss: 0.23281
+Epoch 027: | Train Loss: 0.20991 | Val Loss: 0.23282
+Epoch 028: | Train Loss: 0.20914 | Val Loss: 0.23279
+Epoch 029: | Train Loss: 0.20962 | Val Loss: 0.23282
+loss:  56.67861324548721 len(test_loader) 265  accuracy:  0.21388155941693288
+[INFO][GET_PARAMETERS CALLED ]: tensor([-0.2916,  0.2516,  0.2509,  0.1007, -0.1973, -0.3317,  0.0210, -0.0104,
+        -0.2790,  0.4185, -0.0577,  0.4001,  0.2279,  0.1587, -0.0272,  0.2105,
+         0.0992,  0.3301,  0.2431, -0.2303,  0.1876, -0.1575, -0.0074, -0.1541,
+         0.1767,  0.1168,  0.2935,  0.3515,  0.1500,  0.3202,  0.1635,  0.0987,
+        -0.0118,  0.2659, -0.0645,  0.1535,  0.4510,  0.1911,  0.3581])
+[SET_PARAMETERS CALLED]:  tensor([-0.2947,  0.2583,  0.2548,  0.1056, -0.1967, -0.3287,  0.0239, -0.0060,
+        -0.2679,  0.4195, -0.0499,  0.4008,  0.2509,  0.1459, -0.0196,  0.2096,
+         0.1114,  0.3250,  0.2419, -0.2171,  0.1742, -0.1595,  0.0017, -0.1524,
+         0.1623,  0.1303,  0.2915,  0.3503,  0.1591,  0.3349,  0.1566,  0.0795,
+        -0.0191,  0.2698, -0.0675,  0.1424,  0.4502,  0.1916,  0.3683])
+[SET_PARAMETERS CALLED]:  tensor([-0.2947,  0.2583,  0.2548,  0.1056, -0.1967, -0.3287,  0.0239, -0.0060,
+        -0.2679,  0.4195, -0.0499,  0.4008,  0.2509,  0.1459, -0.0196,  0.2096,
+         0.1114,  0.3250,  0.2419, -0.2171,  0.1742, -0.1595,  0.0017, -0.1524,
+         0.1623,  0.1303,  0.2915,  0.3503,  0.1591,  0.3349,  0.1566,  0.0795,
+        -0.0191,  0.2698, -0.0675,  0.1424,  0.4502,  0.1916,  0.3683])
+Epoch 000: | Train Loss: 0.20929 | Val Loss: 0.23268
+Epoch 001: | Train Loss: 0.20999 | Val Loss: 0.23273
+Epoch 002: | Train Loss: 0.20929 | Val Loss: 0.23283
+Epoch 003: | Train Loss: 0.20980 | Val Loss: 0.23300
+Epoch 004: | Train Loss: 0.20845 | Val Loss: 0.23286
+Epoch 005: | Train Loss: 0.20894 | Val Loss: 0.23294
+Epoch 006: | Train Loss: 0.20890 | Val Loss: 0.23293
+Epoch 007: | Train Loss: 0.20883 | Val Loss: 0.23299
+Epoch 008: | Train Loss: 0.20810 | Val Loss: 0.23301
+Epoch 009: | Train Loss: 0.20890 | Val Loss: 0.23306
+Epoch 010: | Train Loss: 0.20903 | Val Loss: 0.23304
+Epoch 011: | Train Loss: 0.20840 | Val Loss: 0.23303
+Epoch 012: | Train Loss: 0.20840 | Val Loss: 0.23304
+Epoch 013: | Train Loss: 0.20840 | Val Loss: 0.23304
+Epoch 014: | Train Loss: 0.20833 | Val Loss: 0.23314
+Epoch 015: | Train Loss: 0.20887 | Val Loss: 0.23308
+Epoch 016: | Train Loss: 0.20886 | Val Loss: 0.23304
+Epoch 017: | Train Loss: 0.20946 | Val Loss: 0.23312
+Epoch 018: | Train Loss: 0.20914 | Val Loss: 0.23312
+Epoch 019: | Train Loss: 0.20815 | Val Loss: 0.23327
+Epoch 020: | Train Loss: 0.20854 | Val Loss: 0.23315
+Epoch 021: | Train Loss: 0.20933 | Val Loss: 0.23319
+Epoch 022: | Train Loss: 0.20876 | Val Loss: 0.23326
+Epoch 023: | Train Loss: 0.20881 | Val Loss: 0.23333
+Epoch 024: | Train Loss: 0.20803 | Val Loss: 0.23334
+Epoch 025: | Train Loss: 0.20781 | Val Loss: 0.23324
+Epoch 026: | Train Loss: 0.20836 | Val Loss: 0.23330
+Epoch 027: | Train Loss: 0.20858 | Val Loss: 0.23327
+Epoch 028: | Train Loss: 0.20804 | Val Loss: 0.23340
+Epoch 029: | Train Loss: 0.20827 | Val Loss: 0.23340
+loss:  56.80198258161545 len(test_loader) 265  accuracy:  0.21434710408156774
+[INFO][GET_PARAMETERS CALLED ]: tensor([-0.3292,  0.2393,  0.2449,  0.1174, -0.2074, -0.3804,  0.0273, -0.0069,
+        -0.2935,  0.4064, -0.0716,  0.3950,  0.2338,  0.1559, -0.0218,  0.1833,
+         0.1005,  0.3118,  0.2550, -0.2270,  0.1862, -0.1505, -0.0099, -0.1428,
+         0.1696,  0.1227,  0.2941,  0.3543,  0.1488,  0.3172,  0.1596,  0.1069,
+        -0.0100,  0.2654, -0.0567,  0.1736,  0.4483,  0.1890,  0.3472])
+[SET_PARAMETERS CALLED]:  tensor([-0.3313,  0.2460,  0.2505,  0.1256, -0.2062, -0.3779,  0.0314, -0.0018,
+        -0.2747,  0.4089, -0.0646,  0.3944,  0.2566,  0.1452, -0.0162,  0.1841,
+         0.1118,  0.3065,  0.2533, -0.2156,  0.1748, -0.1502,  0.0020, -0.1434,
+         0.1566,  0.1369,  0.2926,  0.3515,  0.1577,  0.3292,  0.1570,  0.0881,
+        -0.0142,  0.2698, -0.0610,  0.1601,  0.4463,  0.1895,  0.3582])
+[SET_PARAMETERS CALLED]:  tensor([-0.3313,  0.2460,  0.2505,  0.1256, -0.2062, -0.3779,  0.0314, -0.0018,
+        -0.2747,  0.4089, -0.0646,  0.3944,  0.2566,  0.1452, -0.0162,  0.1841,
+         0.1118,  0.3065,  0.2533, -0.2156,  0.1748, -0.1502,  0.0020, -0.1434,
+         0.1566,  0.1369,  0.2926,  0.3515,  0.1577,  0.3292,  0.1570,  0.0881,
+        -0.0142,  0.2698, -0.0610,  0.1601,  0.4463,  0.1895,  0.3582])
+Epoch 000: | Train Loss: 0.20806 | Val Loss: 0.23322
+Epoch 001: | Train Loss: 0.20861 | Val Loss: 0.23334
+Epoch 002: | Train Loss: 0.20799 | Val Loss: 0.23337
+Epoch 003: | Train Loss: 0.20784 | Val Loss: 0.23352
+Epoch 004: | Train Loss: 0.20820 | Val Loss: 0.23345
+Epoch 005: | Train Loss: 0.20741 | Val Loss: 0.23348
+Epoch 006: | Train Loss: 0.20740 | Val Loss: 0.23355
+Epoch 007: | Train Loss: 0.20789 | Val Loss: 0.23363
+Epoch 008: | Train Loss: 0.20777 | Val Loss: 0.23349
+Epoch 009: | Train Loss: 0.20779 | Val Loss: 0.23355
+Epoch 010: | Train Loss: 0.20828 | Val Loss: 0.23349
+Epoch 011: | Train Loss: 0.20871 | Val Loss: 0.23359
+Epoch 012: | Train Loss: 0.20821 | Val Loss: 0.23352
+Epoch 013: | Train Loss: 0.20732 | Val Loss: 0.23360
+Epoch 014: | Train Loss: 0.20726 | Val Loss: 0.23360
+Epoch 015: | Train Loss: 0.20772 | Val Loss: 0.23367
+Epoch 016: | Train Loss: 0.20815 | Val Loss: 0.23367
+Epoch 017: | Train Loss: 0.20750 | Val Loss: 0.23368
+Epoch 018: | Train Loss: 0.20689 | Val Loss: 0.23373
+Epoch 019: | Train Loss: 0.20779 | Val Loss: 0.23373
+Epoch 020: | Train Loss: 0.20760 | Val Loss: 0.23373
+Epoch 021: | Train Loss: 0.20716 | Val Loss: 0.23374
+Epoch 022: | Train Loss: 0.20751 | Val Loss: 0.23369
+Epoch 023: | Train Loss: 0.20704 | Val Loss: 0.23384
+Epoch 024: | Train Loss: 0.20723 | Val Loss: 0.23388
+Epoch 025: | Train Loss: 0.20666 | Val Loss: 0.23387
+Epoch 026: | Train Loss: 0.20810 | Val Loss: 0.23383
+Epoch 027: | Train Loss: 0.20734 | Val Loss: 0.23382
+Epoch 028: | Train Loss: 0.20741 | Val Loss: 0.23385
+Epoch 029: | Train Loss: 0.20662 | Val Loss: 0.23393
+loss:  56.924246087670326 len(test_loader) 265  accuracy:  0.21480847580252954
+[INFO][GET_PARAMETERS CALLED ]: tensor([-0.3558,  0.2278,  0.2402,  0.1322, -0.2170, -0.4250,  0.0320, -0.0028,
+        -0.3029,  0.3948, -0.0828,  0.3865,  0.2371,  0.1567, -0.0193,  0.1591,
+         0.0982,  0.2920,  0.2628, -0.2278,  0.1841, -0.1412, -0.0091, -0.1348,
+         0.1621,  0.1309,  0.2932,  0.3526,  0.1442,  0.3116,  0.1589,  0.1117,
+        -0.0075,  0.2653, -0.0501,  0.1864,  0.4392,  0.1872,  0.3365])
+[SET_PARAMETERS CALLED]:  tensor([-0.3581,  0.2361,  0.2452,  0.1390, -0.2165, -0.4224,  0.0364,  0.0026,
+        -0.2813,  0.3971, -0.0764,  0.3864,  0.2595,  0.1444, -0.0153,  0.1623,
+         0.1095,  0.2885,  0.2619, -0.2143,  0.1731, -0.1416,  0.0031, -0.1358,
+         0.1497,  0.1426,  0.2931,  0.3517,  0.1543,  0.3234,  0.1563,  0.0918,
+        -0.0117,  0.2683, -0.0533,  0.1749,  0.4384,  0.1858,  0.3475])
+[SET_PARAMETERS CALLED]:  tensor([-0.3581,  0.2361,  0.2452,  0.1390, -0.2165, -0.4224,  0.0364,  0.0026,
+        -0.2813,  0.3971, -0.0764,  0.3864,  0.2595,  0.1444, -0.0153,  0.1623,
+         0.1095,  0.2885,  0.2619, -0.2143,  0.1731, -0.1416,  0.0031, -0.1358,
+         0.1497,  0.1426,  0.2931,  0.3517,  0.1543,  0.3234,  0.1563,  0.0918,
+        -0.0117,  0.2683, -0.0533,  0.1749,  0.4384,  0.1858,  0.3475])
+Epoch 000: | Train Loss: 0.20815 | Val Loss: 0.23369
+Epoch 001: | Train Loss: 0.20699 | Val Loss: 0.23386
+Epoch 002: | Train Loss: 0.20727 | Val Loss: 0.23395
+Epoch 003: | Train Loss: 0.20654 | Val Loss: 0.23405
+Epoch 004: | Train Loss: 0.20681 | Val Loss: 0.23403
+Epoch 005: | Train Loss: 0.20642 | Val Loss: 0.23405
+Epoch 006: | Train Loss: 0.20697 | Val Loss: 0.23407
+Epoch 007: | Train Loss: 0.20710 | Val Loss: 0.23413
+Epoch 008: | Train Loss: 0.20718 | Val Loss: 0.23405
+Epoch 009: | Train Loss: 0.20709 | Val Loss: 0.23407
+Epoch 010: | Train Loss: 0.20713 | Val Loss: 0.23408
+Epoch 011: | Train Loss: 0.20618 | Val Loss: 0.23421
+Epoch 012: | Train Loss: 0.20727 | Val Loss: 0.23416
+Epoch 013: | Train Loss: 0.20686 | Val Loss: 0.23421
+Epoch 014: | Train Loss: 0.20647 | Val Loss: 0.23418
+Epoch 015: | Train Loss: 0.20688 | Val Loss: 0.23420
+Epoch 016: | Train Loss: 0.20655 | Val Loss: 0.23425
+Epoch 017: | Train Loss: 0.20717 | Val Loss: 0.23423
+Epoch 018: | Train Loss: 0.20653 | Val Loss: 0.23429
+Epoch 019: | Train Loss: 0.20616 | Val Loss: 0.23426
+Epoch 020: | Train Loss: 0.20741 | Val Loss: 0.23425
+Epoch 021: | Train Loss: 0.20745 | Val Loss: 0.23422
+Epoch 022: | Train Loss: 0.20699 | Val Loss: 0.23434
+Epoch 023: | Train Loss: 0.20625 | Val Loss: 0.23439
+Epoch 024: | Train Loss: 0.20581 | Val Loss: 0.23431
+Epoch 025: | Train Loss: 0.20666 | Val Loss: 0.23442
+Epoch 026: | Train Loss: 0.20656 | Val Loss: 0.23430
+Epoch 027: | Train Loss: 0.20666 | Val Loss: 0.23433
+Epoch 028: | Train Loss: 0.20632 | Val Loss: 0.23439
+Epoch 029: | Train Loss: 0.20612 | Val Loss: 0.23440
+loss:  57.03649404644966 len(test_loader) 265  accuracy:  0.2152320530054704
+[INFO][GET_PARAMETERS CALLED ]: tensor([-0.3728,  0.2201,  0.2351,  0.1417, -0.2280, -0.4635,  0.0351,  0.0021,
+        -0.3070,  0.3847, -0.0935,  0.3771,  0.2386,  0.1555, -0.0195,  0.1405,
+         0.0943,  0.2756,  0.2670, -0.2290,  0.1802, -0.1319, -0.0080, -0.1307,
+         0.1547,  0.1333,  0.2938,  0.3520,  0.1388,  0.3064,  0.1572,  0.1098,
+        -0.0062,  0.2628, -0.0405,  0.1957,  0.4310,  0.1825,  0.3272])
+[SET_PARAMETERS CALLED]:  tensor([-0.3764,  0.2277,  0.2393,  0.1481, -0.2285, -0.4607,  0.0393,  0.0067,
+        -0.2873,  0.3844, -0.0872,  0.3773,  0.2600,  0.1428, -0.0149,  0.1440,
+         0.1051,  0.2726,  0.2674, -0.2135,  0.1693, -0.1341,  0.0036, -0.1315,
+         0.1428,  0.1459,  0.2932,  0.3508,  0.1501,  0.3176,  0.1543,  0.0916,
+        -0.0106,  0.2648, -0.0461,  0.1854,  0.4288,  0.1813,  0.3369])
+[SET_PARAMETERS CALLED]:  tensor([-0.3764,  0.2277,  0.2393,  0.1481, -0.2285, -0.4607,  0.0393,  0.0067,
+        -0.2873,  0.3844, -0.0872,  0.3773,  0.2600,  0.1428, -0.0149,  0.1440,
+         0.1051,  0.2726,  0.2674, -0.2135,  0.1693, -0.1341,  0.0036, -0.1315,
+         0.1428,  0.1459,  0.2932,  0.3508,  0.1501,  0.3176,  0.1543,  0.0916,
+        -0.0106,  0.2648, -0.0461,  0.1854,  0.4288,  0.1813,  0.3369])
+Epoch 000: | Train Loss: 0.20640 | Val Loss: 0.23423
+Epoch 001: | Train Loss: 0.20675 | Val Loss: 0.23444
+Epoch 002: | Train Loss: 0.20597 | Val Loss: 0.23444
+Epoch 003: | Train Loss: 0.20698 | Val Loss: 0.23457
+Epoch 004: | Train Loss: 0.20590 | Val Loss: 0.23455
+Epoch 005: | Train Loss: 0.20607 | Val Loss: 0.23454
+Epoch 006: | Train Loss: 0.20609 | Val Loss: 0.23454
+Epoch 007: | Train Loss: 0.20559 | Val Loss: 0.23457
+Epoch 008: | Train Loss: 0.20625 | Val Loss: 0.23464
+Epoch 009: | Train Loss: 0.20664 | Val Loss: 0.23464
+Epoch 010: | Train Loss: 0.20589 | Val Loss: 0.23464
+Epoch 011: | Train Loss: 0.20584 | Val Loss: 0.23457
+Epoch 012: | Train Loss: 0.20540 | Val Loss: 0.23469
+Epoch 013: | Train Loss: 0.20529 | Val Loss: 0.23469
+Epoch 014: | Train Loss: 0.20662 | Val Loss: 0.23469
+Epoch 015: | Train Loss: 0.20613 | Val Loss: 0.23459
+Epoch 016: | Train Loss: 0.20697 | Val Loss: 0.23469
+Epoch 017: | Train Loss: 0.20626 | Val Loss: 0.23465
+Epoch 018: | Train Loss: 0.20541 | Val Loss: 0.23470
+Epoch 019: | Train Loss: 0.20566 | Val Loss: 0.23475
+Epoch 020: | Train Loss: 0.20606 | Val Loss: 0.23474
+Epoch 021: | Train Loss: 0.20580 | Val Loss: 0.23475
+Epoch 022: | Train Loss: 0.20569 | Val Loss: 0.23473
+Epoch 023: | Train Loss: 0.20560 | Val Loss: 0.23470
+Epoch 024: | Train Loss: 0.20599 | Val Loss: 0.23478
+Epoch 025: | Train Loss: 0.20558 | Val Loss: 0.23478
+Epoch 026: | Train Loss: 0.20604 | Val Loss: 0.23477
+Epoch 027: | Train Loss: 0.20585 | Val Loss: 0.23488
+Epoch 028: | Train Loss: 0.20518 | Val Loss: 0.23478
+Epoch 029: | Train Loss: 0.20575 | Val Loss: 0.23481
+loss:  57.13259322941303 len(test_loader) 265  accuracy:  0.21559469143174728
+[INFO][GET_PARAMETERS CALLED ]: tensor([-0.3863,  0.2128,  0.2284,  0.1451, -0.2431, -0.4984,  0.0368,  0.0054,
+        -0.3118,  0.3718, -0.1039,  0.3670,  0.2373,  0.1521, -0.0198,  0.1244,
+         0.0897,  0.2613,  0.2711, -0.2295,  0.1720, -0.1274, -0.0074, -0.1280,
+         0.1480,  0.1366,  0.2934,  0.3516,  0.1338,  0.3015,  0.1540,  0.1061,
+        -0.0060,  0.2582, -0.0349,  0.2040,  0.4207,  0.1780,  0.3148])
+[SET_PARAMETERS CALLED]:  tensor([-0.3872,  0.2214,  0.2333,  0.1545, -0.2414, -0.4924,  0.0416,  0.0112,
+        -0.2922,  0.3724, -0.0969,  0.3673,  0.2583,  0.1418, -0.0157,  0.1291,
+         0.1002,  0.2578,  0.2715, -0.2131,  0.1642, -0.1283,  0.0043, -0.1286,
+         0.1365,  0.1477,  0.2927,  0.3492,  0.1442,  0.3126,  0.1522,  0.0897,
+        -0.0110,  0.2602, -0.0400,  0.1930,  0.4184,  0.1765,  0.3258])
+FL training completed; loss_results saved!

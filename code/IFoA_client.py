@@ -23,6 +23,7 @@ import argparse
 import architecture as archit
 import copy
 import run_config
+import shutil
 
 MODEL_PATH = '.'
 EPOCHS = run_config.model_architecture["epochs"]
@@ -30,7 +31,8 @@ BATCH_SIZE = run_config.model_architecture["batch_size"] #1000 # Wutrich suggest
 NUM_FEATURES = run_config.model_architecture["num_features"]
 LEARNING_RATE = run_config.model_architecture["learning_rate"] #6.888528294546944e-05 #0.013433393353340668 #6.888528294546944e-05
 NUM_ROUNDS = run_config.server_config["num_rounds"] 
-EPOCHS_LOCAL_GLOBAL = EPOCHS*NUM_ROUNDS
+EPOCHS_LOCAL_GLOBAL = run_config.EPOCHS_LOCAL_GLOBAL
+
 
 device = torch.device("cpu" if torch.cuda.is_available() else "cpu")
 
@@ -216,37 +218,39 @@ def main():
     # Set loss function change to true and then exp the output
     criterion = nn.PoissonNLLLoss(log_input= True, full= True)
 
+    if args.agent_id ==-1 :
+        model_name = 'global_model.pt'
+        PATH = '../ag_global/'
+        AGENT_PATH = PATH + model_name
+    else:
+        model_name = 'local_model.pt'
+        PATH = '../ag_' + str(args.agent_id) + '/' 
+        AGENT_PATH = PATH + model_name 
+
+
+    # Delete agent specific folder and create new one 
+    try:
+        shutil.rmtree(PATH)
+        os.mkdir(PATH)
+    except FileNotFoundError:
+        os.mkdir(PATH)
+
+
     if args.if_FL==0:
         # Global model training args.partition =-1
         _, loss_stats = train(model, optimizer, criterion, train_loader, val_loader, epochs=EPOCHS_LOCAL_GLOBAL )
+        torch.save(model.state_dict(), AGENT_PATH)  
 
-        if args.agent_id ==-1 :
-            model_name = 'global_model.pt'
-            PATH = '../ag_global/'
-            AGENT_PATH = PATH + model_name
-        else:
-            model_name = 'local_model.pt'
-            PATH = '../ag_' + str(args.agent_id) + '/' 
-            AGENT_PATH = PATH + model_name 
-
-        import csv
         f = open('../ag_global/los_stats.csv', 'w')
-            #writer = csv.writer(f)
-        writer = csv.DictWriter(f, fieldnames=['train', 'val'])
-        writer.writeheader()
-        writer.writerows([loss_stats])
-        f.close()
+        loss_data = [loss_stats]
 
-    else:
+    else: 
+        #Fl training    
         model_l = copy.deepcopy(model)
         optimizer_l = optim.Adam(params=model_l.parameters(), lr=LEARNING_RATE)
         _, loss_stats = train(model_l, optimizer_l, criterion, train_loader, val_loader, epochs=EPOCHS_LOCAL_GLOBAL)
-        model_name = 'local_model.pt'      
-        AGENT_PATH = '../ag_' + str(args.agent_id) + '/' + model_name 
         torch.save(model_l.state_dict(), AGENT_PATH)  
 
-
-    #Fl training     
         model_name = 'fl_model.pt'
         AGENT_PATH = '../ag_' + str(args.agent_id) + '/' + model_name 
 
@@ -255,29 +259,24 @@ def main():
 
             agent = IFoAClient(model, optimizer, criterion, train_dataset, val_dataset, test_dataset, {}, exposure)
             fl.client.start_numpy_client(server_address="[::]:8080", client=agent,)     # FL server run locally
-            
-            import csv
-            f = open('../ag_' + str(args.agent_id) + '/los_stats.csv', 'w')
-            #writer = csv.writer(f)
-            writer = csv.DictWriter(f, fieldnames=['train', 'val'])
-            writer.writeheader()
-            writer.writerows(agent.stats)
-
-            #writer.writerow(['Train', 'Val'])
-            #for dictionary in agent.stats:
-            #    writer.writerow(dictionary.values())
-
-            f.close()
-
-
-
-
 #            fl.client.start_numpy_client("193.0.96.129:8080", client) # Polish server ! Make sure Malgorzata starts it :) , otherwise it won't work
+            
+            torch.save(model.state_dict(), AGENT_PATH)            
 
-#            fl.client.start_numpy_client("193.0.96.129:6555", client) # Polish server ! Make sure Malgorzata starts it :) , otherwise it won't work
-       
-    torch.save(model.state_dict(), AGENT_PATH)            
-    
+            f = open('../ag_' + str(args.agent_id) + '/los_stats.csv', 'w')
+            loss_data = agent.stats
+            #writer = csv.writer(f)
+
+
+    import csv
+    writer = csv.DictWriter(f, fieldnames=['train', 'val'])
+    writer.writeheader()
+    writer.writerows(loss_data)
+    f.close()
+
+    print("FL training completed; loss_results saved!")
+
+    return 0
 
 if __name__ == "__main__":
           main()

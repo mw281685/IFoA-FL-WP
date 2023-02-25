@@ -1,7 +1,8 @@
 # IFoA-FL-WP
 
 ---------------------------------------------------------
-DEPENDENCY MANAGEMENT:
+DEPENDENCY MANAGEMENT - FLOWER INSTALLATION:
+-----------------------------------------------------------
 
 We recommend Poetry to install those dependencies and manage your virtual environment (Poetry installation: https://python-poetry.org/docs/#installing-with-the-official-installer ), but feel free to use a different way of installing dependencies and managing virtual environments if you have other preferences.
 
@@ -14,24 +15,31 @@ If you don't see any errors you're good to go!
 
 
 -----------------------------------------------------------
-
+PROJECT STRUCTURE - TO DO 
+-----------------------------------------------------------
 IFoA Use case [Privacy preserving ML collaboration on claims modelling]. We use Flower.dev framework to federate workflow. 
 
 1. pip install flwr
-2. start server: python3 IFoAserver.py     [please see the configuration of FL run in IFoAserver.py ; later on we will separate configuration from server code]
-3. start FL training participants, --partition=i i in range(3) identifies participant's data chunk eg. to start client0 we call: python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=0
+2. start server: python3 IFoA_server.py     [please see the configuration of FL run in IFoAserver.py ; later on we will separate configuration from server code]
+3. start FL training participants, --partition=i i in range(3) identifies participant's data chunk eg. to start client0 we call: python3 'IFoA_client.py' --agent_id=0
 4. Individual data are stored in data folder
 5. results are stored in dedicated folders ag_0 .... ag_3 . Resulting models:
     fl_model.pt -> model trained using FL pipeline
     local_model.pl - > model trained on single participant's dataset
 
 
-
 -----------------------------------------------------------
-
-Running FL training :
+STARTING FL TRAINING :
+-------------------------------------------------------------
 
 1. Setup config in run_config.py
+
+Mac users: 
+2. run ./START_TRAINING.sh
+
+
+
+Windows users: follow 2-4 or test if .sh script works on Windows too :) 
 2. Prepare datasets for each individual agent with  
     1. python3 prepare_dataset.py
 3. Train FL model by:
@@ -40,36 +48,15 @@ Running FL training :
 4. Train Global model by running python3 IFoA_client.py —agent_id=-1
 
 
+All operating systems : 
+
 Generating report:
-python3 report.py
+5. Run python3 report.py
+
 
 -------------------------------------------------------------
-
-Execution:
-1. Global model training ( no FL loop ):
-conda activate py38_flw
-python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=-1 --if_FL=0
-
-2. FL training ( assuming 10 participants). 
-
-
-a) Start FL server (make sure the ip adress used in the code is correct):
-
-
-b) Start participant == 0 with a call (make sure you use right ip adress and port when connecting to the server):
-conda activate py38_flw
-python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=0
-
-conda activate py38_flw
-python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=1
-
-conda activate py38_flw
-python3 'IFoA client  [ Multilayer ] [freMTPL2freq].py' --agent_id=9
-
-
-
-
-( you need to start 3 such processes representing participant==i i in range(3) ) 
+DEPRECATED: 
+-------------------------------------------------------------
 
 
 

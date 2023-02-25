@@ -1,7 +1,7 @@
 from cProfile import label
 from calendar import EPOCH
 from fpdf import FPDF
-from IFoA_client import EPOCHS_LOCAL_GLOBAL
+from run_config import EPOCHS_LOCAL_GLOBAL
 import utils
 import run_config
 import architecture
@@ -25,6 +25,7 @@ NUM_AGENTS = utils.run_config.dataset_config["num_agents"]
 NUM_ROUNDS = utils.run_config.server_config["num_rounds"]
 NUM_FEATURES = run_config.model_architecture["num_features"]
 EPOCHS = run_config.model_architecture["epochs"]
+EPOCHS_LOCAL_GLOBAL = run_config.EPOCHS_LOCAL_GLOBAL
 
 MARGIN = 10 # Margin
 pw = 210 - 2*MARGIN # Page width: Width of A4 is 210mm
@@ -69,7 +70,7 @@ pdf = PDF()
 pdf.add_page()
 pdf.set_font('Arial', '', 12)
 
-text = "Run Results: num_agents: " + str(NUM_AGENTS) + "; num_rounds: " + str(NUM_ROUNDS) + "; epochs: " + str(EPOCHS) + "; epochs local and global: " + str(NUM_ROUNDS * EPOCHS)
+text = "Run Results: num_agents: " + str(NUM_AGENTS) + "; num_rounds: " + str(NUM_ROUNDS) + "; epochs: " + str(EPOCHS) + "; epochs local and global: " + str(EPOCHS_LOCAL_GLOBAL)
 pdf.cell(w=0, h=ch, txt=text, border=1, ln=1)
 
 #------------------------------------------------------------------------------------------------
@@ -117,7 +118,7 @@ def claims_counts(agents):
         agents_counts[agent_id] =  df['Prc']
     return agents_counts
 
-#------------------------- grouped bar plot:
+#------------------------- grouped bar plot: - TO DO : automate for 4 +  agents!!!!!!!!!
 
 labels = ['0', '1', '2', '3', '4']
 agents_claims_counts = claims_counts(NUM_AGENTS)
@@ -196,8 +197,9 @@ def plot_learning_curves(loss_stats, train_or_val):
             y = json.loads(loss_stats[ag_id][0][train_or_val])
             plt.plot(x, y, label = "global model" , linestyle="-")
         else:
-            x = range(1, EPOCHS + 1)    
-            for rnd_no in range(1, NUM_ROUNDS):
+            x = range(1, EPOCHS + 1)   
+            for rnd_no in range(1, NUM_ROUNDS): # FIXED : TO_FIX !!!!!!!!    MS: -1 added temporarly!!!! I need to find out why some clients join from 2nd round ( ask Malgorzata if that is not clear :) 
+                print('ag_id ', ag_id, 'rnd_no ', rnd_no)
                 y = json.loads(loss_stats[ag_id][rnd_no][train_or_val])
                 plt.plot(x, y, label = "round_" + str(rnd_no + 1) , linestyle="-")
 
@@ -262,18 +264,20 @@ def construct():
                 y_te, y_pred, X_test_sc["Exposure"]
             )
             gini = 1 - 2 * auc(cum_exposure, cum_claims)
+            print('Gini ', gini)
+
             if fl:
-                label = "(FL model Gini: {:.2f})".format(gini)
+                label = "(FL model Gini: {:.3f})".format(gini)
                 fl = 0
                 partial = 1
                 color = "red"
             elif partial:
-                label = "(Partial model Gini: {:.2f})".format(gini)
+                label = "(Partial model Gini: {:.3f})".format(gini)
                 fl = 0
                 partial = 0
                 color = "green"
             else: 
-                label = "(Global model Gini: {:.2f})".format(gini)
+                label = "(Global model Gini: {:.3f})".format(gini)
                 fl = 1
                 color = "orange"
 
@@ -285,7 +289,7 @@ def construct():
             y_te, y_te, X_test_sc["Exposure"]
         )
         gini = 1 - 2 * auc(cum_exposure, cum_claims)
-        label = "Oracle (Gini: {:.2f})".format(gini)
+        label = "Oracle (Gini: {:.3f})".format(gini)
         ax.plot(cum_exposure, cum_claims, linestyle="-.", linewidth=2.0, color="gray", label=label)
 
         # Random Baseline
@@ -334,7 +338,7 @@ def exp_model_predictions(model):
     y_pred_list_exp = np.exp(log_y_pred)
     return y_pred_list_exp
 
-from sklearn.metrics import auc, mean_squared_error, r2_score, mean_poisson_deviance
+from sklearn.metrics import auc, mean_squared_error, r2_score, mean_poisson_deviance, explained_variance_score
 from scipy import stats
 
 def test_statistics(model, y_test, ag_no):
@@ -342,6 +346,8 @@ def test_statistics(model, y_test, ag_no):
     mpd = mean_poisson_deviance(y_test, y_pred_list_exp)
     mse = mean_squared_error(y_test, y_pred_list_exp)
     r_square = r2_score(y_test, y_pred_list_exp)
+    explained_variance = explained_variance_score(y_test, y_pred_list_exp)
+
     pdf.set_font('Arial', '', 12)
     if ag_no ==-1:
         pdf.cell(w=0, h=ch, txt="Test statistics for global model " , border=1, ln=1)
@@ -351,9 +357,11 @@ def test_statistics(model, y_test, ag_no):
         pdf.cell(w=0, h=ch, txt="Test statistics for agent_no " + str(ag_no), border=1, ln=1)
     
     pdf.set_font('Arial', '', 11)
-    pdf.cell(w=0, h=ch, txt="Mean Poisson Deviance : " + str(mpd), border=0, ln=1)
-    pdf.cell(w=0, h=ch, txt="Mean Squared Error : " + str(mse), border=0, ln=1)
-    pdf.cell(w=0, h=ch, txt="R^2  : " + str(r_square), border=0, ln=1)
+    pdf.cell(w=0, h=ch, txt="Mean Poisson Deviance : {:.3f} ".format(mpd), border=0, ln=1)
+    pdf.cell(w=0, h=ch, txt="Mean Squared Error : {:.3f} ".format(mse), border=0, ln=1)
+    pdf.cell(w=0, h=ch, txt="R^2 : {:.3f} ".format(r_square), border=0, ln=1)
+    pdf.cell(w=0, h=ch, txt="EV  : {:.3f} ".format(explained_variance), border=0, ln=1)
+
     #pdf.cell(w=0, h=ch, txt="Stats: " + str(stats.describe(y_pred_list_exp)), border=0, ln=1)
 
     pdf.set_font('Arial', '', 12)
