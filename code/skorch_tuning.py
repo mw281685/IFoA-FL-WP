@@ -219,6 +219,34 @@ def main():
     # Combine list of results into datafrane, and then save
     all_results_df = pd.concat(all_results_list)
     all_results_df.to_csv('../results/all_results.csv')
-        
+
+    # Select local top 5 hyperparameters
+    top_5_results_df = all_results_df[(all_results_df['agent']!=-1) & (all_results_df['rank_test_score']<=5)]
+
+    # Output learning rate distribution
+    utils.hyperparameter_counts(top_5_results_df, hyperparameter='param_optimizer__lr', x_label='Learning Rate', title='Best Local Learning Rates', name='learning_rate_chart')
+
+    # Output layer 1 neurons distribution
+    utils.hyperparameter_counts(top_5_results_df, hyperparameter='param_module__num_units_1', x_label='Layer 1 Neurons', title='Best Local Layer 1 Neurons', name='layer_1_neuron_chart')
+
+    # Output layer 2 neurons distribution
+    utils.hyperparameter_counts(top_5_results_df, hyperparameter='param_module__num_units_2', x_label='Layer 2 Neurons', title='Best Local Layer 2 Neurons', name='layer_2_neuron_chart')
+
+    # Output best epochs
+    utils.hyperparameter_counts(top_5_results_df, hyperparameter='best_epochs', x_label='Epochs', title='Best Local Epochs', name='epochs_chart')
+
+    # Overal HPT set
+    top_5_results_df.index.value_counts().plot(kind='bar',figsize=(10,8))
+    plt.grid()
+    plt.xlabel('HPT set')
+    plt.xticks(rotation=0)
+    plt.ylabel('Count')
+    plt.title('Best HPT Sets')
+    plt.savefig('../results/HPT_chart', facecolor='white')
+
+    # Randomly select 1 of the Top 5
+    best_HPT_randomly_chosen_df = top_5_results_df.sample(random_state=SEED)
+    best_HPT_randomly_chosen_df.to_csv('../results/best_HPT_randomly_chosen.csv')
+
 if __name__ == "__main__":
           main()

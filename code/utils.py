@@ -516,3 +516,13 @@ def training_loss_curve(estimator, ag):
       plt.legend(bbox_to_anchor=(1.08, 0.94), loc='upper left', borderaxespad=0)
 
       plt.savefig(f'../ag_{ag}/' + 'agent_' + str(ag) + '_training_loss_chart')
+
+def hyperparameter_counts(dataframe, hyperparameter, x_label, title, name):
+      fig, ax = plt.subplots(figsize=(10, 8))
+      dataframe[str(hyperparameter)].value_counts().plot(kind='bar')
+      plt.grid()
+      plt.xlabel(x_label)
+      plt.xticks(rotation=0)
+      plt.ylabel('Count')
+      plt.title(title)
+      plt.savefig('../results/'+name, facecolor='white')
