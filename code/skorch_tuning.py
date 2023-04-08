@@ -3,6 +3,7 @@ import argparse
 import utils
 import run_config
 from matplotlib import pyplot as plt
+import matplotlib.ticker as mtick
 import torch as th
 import torch.nn.functional as F
 import torch.nn as nn 
@@ -25,7 +26,8 @@ import utils
 
 DATA_PATH = run_config.dataset_config["path"]
 SEED = run_config.dataset_config["seed"]
-
+ 
+# Formatting options to print dataframe to terminal
 pd.set_option('display.max_columns', 7)
 pd.set_option('display.width', 200)
 
@@ -56,7 +58,6 @@ class MultipleRegression(nn.Module):
         self.layer_out = nn.Linear(num_units_2, 1)
         self.dropout = nn.Dropout(dropout_rate)
         
-        #self.relu = nn.ReLU()
         self.act = activation()
 
         th.nn.init.xavier_uniform_(self.layer_1.weight)
@@ -79,19 +80,22 @@ class MultipleRegression(nn.Module):
         x = th.exp(self.layer_out(x))
 
         return (x)
-    
-pde_score = make_scorer(d2_tweedie_score, power=1)
-pde_callback = callbacks.EpochScoring(pde_score, lower_is_better=False, name='PDE')
 
+# Create PDE score to print during training/tuning
+pde_score = make_scorer(d2_tweedie_score, power=1)
+# Create callback to display PDE after each epoch on validation set
+pde_callback = callbacks.EpochScoring(pde_score, lower_is_better=False, name='PDE')
+# Create callback to do early stopping if PDE doesn't improve for 5 epochs on validation PDE
 early_stopping_callback = callbacks.EarlyStopping(monitor='PDE', lower_is_better=False, patience=5)
+# Create callback to save and reload highest PDE on validation set
 check_point_callback = callbacks.Checkpoint(monitor='PDE_best', load_best=True)
 
-
+# Grid Search space dictionary
 params = {
     'optimizer__lr': [0.0001, 0.001, 0.01], # 3
     'batch_size':[1_00, 1_000, 10_000], # 3
-    'module__num_units_1': [40, 50, 60],# 3
-    'module__num_units_2': [40, 50, 60], # 3
+    'module__num_units_1': [20, 40 ,60],# 3
+    'module__num_units_2': [20, 40 ,60], # 3
 }
 
 def main():
@@ -118,15 +122,17 @@ def main():
 
         ps = PredefinedSplit(val_fold)
     
+        # Define weighted PDE scorer
         weighted_pde_score = make_scorer(d2_tweedie_score, sample_weight=X_val['Exposure'], power=1, greater_is_better=True)
 
+        # Define skorch neural network
         net_regr = NeuralNetRegressor(
             MultipleRegression().double(),
             optimizer=optim.NAdam,
             criterion=nn.PoissonNLLLoss(log_input= False, full= True),
             max_epochs=50,
-            batch_size=10_000,
-            train_split=skorch.dataset.ValidSplit(0.1, stratified=False, random_state=rng), # use 10% to set early stopping
+            #batch_size=10_000,
+            train_split=skorch.dataset.ValidSplit(0.1, stratified=False, random_state=SEED), # use 10% to set early stopping
             callbacks=[pde_callback, early_stopping_callback, check_point_callback],
             device=None, # ignore CUDA for now
             iterator_train__shuffle=True
@@ -139,12 +145,15 @@ def main():
                         scoring=weighted_pde_score,
                         n_iter=15, # grid size
                         #n_jobs=4, # turning off mutli-threading as issues with reproducibility
-                        random_state=rng
+                        random_state=SEED
                         )
         
         gs.fit(X_trainval_ordered.astype(np.float32), y_trainval_ordered.reshape(-1, 1).astype(np.float32))
 
-        gs.best_estimator_.save_params(f_params='agent_' + str(ag) + '_model.pkl', f_optimizer='agent_' + str(ag) + '_opt.pkl', f_history='agent_' + str(ag) + '_history.json')
+        # Save model
+        gs.best_estimator_.save_params(f_params=f'../ag_{ag}/agent_' + str(ag) + '_model.pkl', 
+                                       f_optimizer=f'../ag_{ag}/agent_' + str(ag) + '_opt.pkl', 
+                                       f_history=f'../ag_{ag}/agent_' + str(ag) + '_history.json')
 
         print(f'\n Agent={ag} Results:', end='\n')
         
@@ -157,8 +166,7 @@ def main():
         
         print(results_df[["params", "rank_test_score", "mean_test_score", "std_test_score", "mean_fit_time"]])
 
-        results_df.to_csv('agent_' + str(ag) + '_results.csv')
-
+        # Create model predictions
         predictions = gs.best_estimator_.predict(X_test.to_numpy().astype(np.float32))
 
         print(f'\n Agent={ag} Test Statistics:')
@@ -196,12 +204,18 @@ def main():
         results_df['test_mean_pred']=np.mean(predictions)
         results_df['test_var_pred']=np.var(predictions)
 
+        # Save HPT results
+        results_df.to_csv(f'../ag_{ag}/agent_' + str(ag) + '_results.csv')
+
         # Append dataframe to list
         all_results_list.append(results_df)
 
+        # Save and graph training loss curves
+        utils.training_loss_curve(gs.best_estimator_, ag)
+
     # Combine list of results into datafrane, and then save
     all_results_df = pd.concat(all_results_list)
-    all_results_df.to_csv('all_results.csv')
+    all_results_df.to_csv('../results/all_results.csv')
         
 if __name__ == "__main__":
           main()

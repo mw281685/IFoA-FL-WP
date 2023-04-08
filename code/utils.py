@@ -7,6 +7,7 @@ import torch
 import random
 from torch.utils.data import TensorDataset, DataLoader
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
 import seaborn as sns
 import run_config
 
@@ -487,3 +488,31 @@ def load_individual_skorch_data(agent_id):
       exposure = sum(X_train_sc['Exposure'])
       
       return (X_train_sc, y_tr, X_val_sc, y_vl, X_test_sc, y_te, X_column_names, exposure)
+
+def training_loss_curve(estimator, ag):
+      # Save and graph training loss curves
+
+      train_val_loss_df = pd.DataFrame(estimator.history[:, ['train_loss', 'valid_loss', 'PDE']], columns=['train_loss', 'valid_loss', 'PDE'])
+
+      #plt.style.use('default')
+
+      fig, ax = plt.subplots(figsize=(40, 15))
+      plt.plot(train_val_loss_df ['train_loss'],  label='Training Loss')
+      plt.plot(train_val_loss_df ['valid_loss'],  label='Validation Loss')
+      plt.legend(bbox_to_anchor=(1.08, 1), loc='upper left', borderaxespad=0)
+      plt.xlabel('Epochs')
+      plt.ylabel('Loss')
+      plt.ylabel('Loss')
+      plt.grid()
+      plt.title(f"Agent {ag}'s Best Model's Training Loss Curve")
+
+      # Get second axis
+      ax2 = ax.twinx()
+      plt.plot(train_val_loss_df ['PDE'], label='PDE', color='g')
+      plt.ylabel('% of Poisson Deviance Explained', color='g')
+      #adjust y-axis label position
+      ax2.yaxis.set_label_coords(1.06, 0.5)
+      ax2.yaxis.set_major_formatter(mtick.PercentFormatter(1))
+      plt.legend(bbox_to_anchor=(1.08, 0.94), loc='upper left', borderaxespad=0)
+
+      plt.savefig(f'../ag_{ag}/' + 'agent_' + str(ag) + '_training_loss_chart')
