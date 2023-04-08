@@ -453,3 +453,37 @@ def uniform_partitions(agents:int = 10):
             val_array_dictionary["X_val_{0}".format(i)] = val_array_split[i]
             pd.DataFrame(val_array_split[i][:, 0:DATA_FEATURES], columns=X_column_names).to_csv(f'../data/X_val_{i}.csv' , index=False)
             pd.DataFrame(val_array_split[i][:, DATA_FEATURES]).to_csv(f'../data/y_vl_{i}.csv' , index=False)
+
+def load_individual_skorch_data(agent_id):
+      #global model training:
+      if agent_id == -1:
+      # Created tensordataset
+            MY_DATA_PATH = '../data'
+            X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train.csv')
+            X_column_names = X_train_sc.columns.tolist()
+
+            y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr.csv')
+
+            X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val.csv')
+            y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl.csv')
+
+            X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
+            y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
+
+      else:
+
+            MY_DATA_PATH = '../data'
+            X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train_' + str(agent_id) + '.csv')
+            X_column_names = X_train_sc.columns.tolist()
+
+            y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr_' + str(agent_id) +  '.csv')
+
+            X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val_' + str(agent_id) + '.csv')
+            y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl_' + str(agent_id) + '.csv')
+
+            X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
+            y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
+
+      exposure = sum(X_train_sc['Exposure'])
+      
+      return (X_train_sc, y_tr, X_val_sc, y_vl, X_test_sc, y_te, X_column_names, exposure)
