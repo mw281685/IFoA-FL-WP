@@ -103,7 +103,7 @@ def main():
     # Create list to store results
     all_results_list = []
     
-    for ag in range(0,10):
+    for ag in range(-1,10):
         
         print(f'\n Tuning Agent = {ag}', end='\n')
         
@@ -165,6 +165,9 @@ def main():
         results_df['agent']=ag
         
         print(results_df[["params", "rank_test_score", "mean_test_score", "std_test_score", "mean_fit_time"]])
+
+        # Get number of epochs
+        results_df['best_epochs'] = len(gs.best_estimator_.history)
 
         # Create model predictions
         predictions = gs.best_estimator_.predict(X_test.to_numpy().astype(np.float32))
