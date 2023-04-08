@@ -34,13 +34,8 @@ pd.set_option('display.width', 200)
 
 def seed_torch(seed=SEED):
     th.manual_seed(seed)
-    #random.seed(seed)
-    #os.environ['PYTHONHASHSEED'] = str(seed)
     th.cuda.manual_seed(seed)
     th.cuda.manual_seed_all(seed)  # if you are using multi-GPU.
-    #np.random.seed(seed)  # Numpy module.
-    #random.seed(seed)  # Python random module.
-    #th.manual_seed(seed)
     th.backends.cudnn.benchmark = True
     th.backends.cudnn.deterministic = True
 
@@ -247,6 +242,17 @@ def main():
     # Randomly select 1 of the Top 5
     best_HPT_randomly_chosen_df = top_5_results_df.sample(random_state=SEED)
     best_HPT_randomly_chosen_df.to_csv('../results/best_HPT_randomly_chosen.csv')
+
+    # Alternative HPT method
+    # Filter to just local HPT results
+    all_local_results_df = all_results_df[all_results_df['agent']!=-1]
+    # Compute average performance by each HPT set across all agents
+    local_average_results_df = all_local_results_df[['mean_test_score','best_epochs']].groupby(level=0).mean()
+    # Rank and sort data
+    local_average_results_df['mean_test_score_rank'] = local_average_results_df['mean_test_score'].rank(ascending=False)
+    local_average_results_df=local_average_results_df.sort_values(by='mean_test_score_rank', ascending=True)
+    # Save result
+    local_average_results_df.to_csv('../results/local_average_HPT_performance.csv')
 
 if __name__ == "__main__":
           main()
