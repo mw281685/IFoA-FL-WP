@@ -231,10 +231,9 @@ def main():
     utils.hyperparameter_counts(top_5_results_df, hyperparameter='best_epochs', x_label='Epochs', title='Best Local Epochs', name='epochs_chart')
 
     # Overal HPT set
-    top_5_results_df.index.value_counts().plot(kind='bar',figsize=(10,8))
+    top_5_results_df.index.value_counts().plot(kind='bar',figsize=(10,12))
     plt.grid()
     plt.xlabel('HPT set')
-    plt.xticks(rotation=0)
     plt.ylabel('Count')
     plt.title('Best HPT Sets')
     plt.savefig('../results/HPT_chart', facecolor='white')

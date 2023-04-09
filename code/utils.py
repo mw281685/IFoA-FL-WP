@@ -515,7 +515,7 @@ def training_loss_curve(estimator, ag):
       ax2.yaxis.set_major_formatter(mtick.PercentFormatter(1))
       plt.legend(bbox_to_anchor=(1.08, 0.94), loc='upper left', borderaxespad=0)
 
-      plt.savefig(f'../ag_{ag}/' + 'agent_' + str(ag) + '_training_loss_chart')
+      plt.savefig(f'../ag_{ag}/' + 'agent_' + str(ag) + '_training_loss_chart', facecolor='white')
 
 def hyperparameter_counts(dataframe, hyperparameter, x_label, title, name):
       fig, ax = plt.subplots(figsize=(10, 8))
