@@ -102,7 +102,7 @@ def main():
     # Create list to store results
     all_results_list = []
     
-    for ag in range(-1,3):
+    for ag in range(-1,10):
         
         print(f'\n Tuning Agent = {ag}', end='\n')
         
