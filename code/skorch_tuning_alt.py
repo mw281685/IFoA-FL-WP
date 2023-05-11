@@ -142,7 +142,7 @@ def main():
                         refit=True,
                         cv=ps,
                         scoring=weighted_pde_score,
-                        n_iter=3, # grid size
+                        n_iter=15, # grid size
                         #n_jobs=4, # turning off mutli-threading as issues with reproducibility
                         random_state=SEED
                         )
