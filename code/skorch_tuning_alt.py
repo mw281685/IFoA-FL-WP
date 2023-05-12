@@ -149,6 +149,11 @@ def main():
         
         gs.fit(X_trainval_ordered.astype(np.float32), y_trainval_ordered.reshape(-1, 1).astype(np.float32))
 
+        # Save model
+        gs.best_estimator_.save_params(f_params=f'../ag_{ag}/agent_' + str(ag) + '_model.pkl', 
+                                       f_optimizer=f'../ag_{ag}/agent_' + str(ag) + '_opt.pkl', 
+                                       f_history=f'../ag_{ag}/agent_' + str(ag) + '_history.json')
+
         print(f'\n Agent={ag} Results:', end='\n')
         
         results_df = pd.DataFrame(gs.cv_results_)
