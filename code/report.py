@@ -18,6 +18,7 @@ import os
 import calendar
 from datetime import datetime
 import torch
+from torch import nn, optim
 from sklearn.metrics import auc
 
 # Run config:
@@ -230,17 +231,17 @@ def construct():
     for ag in range(NUM_AGENTS):
 
         AGENT_PATH =  '../ag_global/global_model.pt'
-        model_global = architecture.NeuralNetworks(NUM_FEATURES) 
+        model_global = architecture.MultipleRegression(num_features=39, num_units_1=60, num_units_2=20)  #architecture.NeuralNetworks(NUM_FEATURES) 
         model_global.load_state_dict(torch.load(AGENT_PATH))
         model_global.eval()
 
         AGENT_PATH =  f'../ag_{ag}/local_model.pt'
-        model_partial = architecture.NeuralNetworks(NUM_FEATURES)
+        model_partial = architecture.MultipleRegression(num_features=39, num_units_1=60, num_units_2=20)  #architecture.NeuralNetworks(NUM_FEATURES)
         model_partial.load_state_dict(torch.load(AGENT_PATH))
         model_partial.eval()
 
         AGENT_PATH = f'../ag_{ag}/fl_model.pt'
-        model_fl = architecture.NeuralNetworks(NUM_FEATURES)
+        model_fl = architecture.MultipleRegression(num_features=39, num_units_1=60, num_units_2=20) #architecture.NeuralNetworks(NUM_FEATURES)
         model_fl.load_state_dict(torch.load(AGENT_PATH))
         model_fl.eval()
 
@@ -329,24 +330,25 @@ def construct():
 X_test_sc = pd.read_csv( '../data/X_test.csv')
 y_te = pd.read_csv('../data/y_test.csv')
 
-def exp_model_predictions(model):
+def model_predictions(model):
     log_y_pred = []
     with torch.no_grad():
         model.eval()
         log_y_pred = model(torch.tensor(X_test_sc.values).float())
     log_y_pred = [a.squeeze().tolist() for a in log_y_pred]
-    y_pred_list_exp = np.exp(log_y_pred)
-    return y_pred_list_exp
+    #y_pred_list_exp = np.exp(log_y_pred)
+    return log_y_pred
 
-from sklearn.metrics import auc, mean_squared_error, r2_score, mean_poisson_deviance, explained_variance_score
+from sklearn.metrics import auc, mean_squared_error, r2_score, mean_poisson_deviance, explained_variance_score, d2_tweedie_score
 from scipy import stats
 
 def test_statistics(model, y_test, ag_no):
-    y_pred_list_exp = exp_model_predictions(model)
-    mpd = mean_poisson_deviance(y_test, y_pred_list_exp)
-    mse = mean_squared_error(y_test, y_pred_list_exp)
-    r_square = r2_score(y_test, y_pred_list_exp)
-    explained_variance = explained_variance_score(y_test, y_pred_list_exp)
+    y_pred_list = model_predictions(model) # it doesn't exp actually 
+    mpd = mean_poisson_deviance(y_test, y_pred_list)
+    ppde = d2_tweedie_score(y_test, y_pred_list, sample_weight=X_test_sc['Exposure'], power=1) # percentage of poisson deviance explained
+    mse = mean_squared_error(y_test, y_pred_list)
+    r_square = r2_score(y_test, y_pred_list)
+    explained_variance = explained_variance_score(y_test, y_pred_list)
 
     pdf.set_font('Arial', '', 12)
     if ag_no ==-1:
@@ -358,11 +360,12 @@ def test_statistics(model, y_test, ag_no):
     
     pdf.set_font('Arial', '', 11)
     pdf.cell(w=0, h=ch, txt="Mean Poisson Deviance : {:.3f} ".format(mpd), border=0, ln=1)
+    pdf.cell(w=0, h=ch, txt="Prc Poisson Deviance Explained : {:.3f} ".format(ppde), border=0, ln=1)
     pdf.cell(w=0, h=ch, txt="Mean Squared Error : {:.3f} ".format(mse), border=0, ln=1)
     pdf.cell(w=0, h=ch, txt="R^2 : {:.3f} ".format(r_square), border=0, ln=1)
     pdf.cell(w=0, h=ch, txt="EV  : {:.3f} ".format(explained_variance), border=0, ln=1)
 
-    #pdf.cell(w=0, h=ch, txt="Stats: " + str(stats.describe(y_pred_list_exp)), border=0, ln=1)
+    #pdf.cell(w=0, h=ch, txt="Stats: " + str(stats.describe(y_pred_list)), border=0, ln=1)
 
     pdf.set_font('Arial', '', 12)
 
@@ -378,8 +381,9 @@ for ag_no in range(-2, NUM_AGENTS):
         model_name = 'local_model.pt'
         AGENT_PATH = '../ag_' + str(ag_no) + '/' + model_name 
     
-    
-    model = architecture.NeuralNetworks(NUM_FEATURES)
+
+    model = architecture.MultipleRegression(num_features=39, num_units_1=60, num_units_2=20) # 2 layer NN, new architecture used in Optuna tuning
+
 
     model.load_state_dict(torch.load(AGENT_PATH))
     model.eval()

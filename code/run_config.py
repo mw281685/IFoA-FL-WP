@@ -27,11 +27,12 @@ from flwr.common import NDArray, NDArrays
 EPOCHS_LOCAL_GLOBAL = 75
 
 
+# OPTUNA ARCHITECTURE
 model_architecture = {
-    "dropout" : 0.12409392594394411, # remove
-    "learning_rate": 6.888528294546944e-05, #  not needed for Adam optimizer
+    "dropout" : 0, #0.12409392594394411, # remove
+    "learning_rate": 0.001, #6.888528294546944e-05, #  not needed for Adam optimizer
     "epochs" : 30,
-    "batch_size": 1000,
+    "batch_size": 100,
     "num_features": 39,
 }
 

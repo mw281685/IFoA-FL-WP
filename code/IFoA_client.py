@@ -42,7 +42,7 @@ class IFoAClient(fl.client.NumPyClient):
     
     def __init__(
         self,
-        model: archit.NeuralNetworks(NUM_FEATURES),
+        model: archit.MultipleRegression(num_features=39, num_units_1=60, num_units_2=20),  #archit.NeuralNetworks(NUM_FEATURES),
         optimizer, 
         criterion,
         trainset: torch.utils.data.dataset,
@@ -65,7 +65,7 @@ class IFoAClient(fl.client.NumPyClient):
         """Get local model parameters """
 
         state_dict_elements = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
-        print('[INFO][GET_PARAMETERS CALLED ]:', self.model.state_dict()['hid1.weight'][0])
+        #print('[INFO][GET_PARAMETERS CALLED ]:', self.model.state_dict()['hid1.weight'][0])
 
         self.model.train()
         return [val.cpu().numpy() for _, val in self.model.state_dict().items()]
@@ -77,7 +77,7 @@ class IFoAClient(fl.client.NumPyClient):
         params_dict = zip(self.model.state_dict().keys(), parameters)
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
         self.model.load_state_dict(state_dict, strict=True)
-        print('[SET_PARAMETERS CALLED]: ', self.model.state_dict()['hid1.weight'][0])
+        #print('[SET_PARAMETERS CALLED]: ', self.model.state_dict()['hid1.weight'][0])
 
 
     def fit(
@@ -210,13 +210,16 @@ def main():
     val_loader = DataLoader(dataset=val_dataset, batch_size=1)
     test_loader = DataLoader(dataset=test_dataset, batch_size=1)
 
+    # Basic architecture
+    #model = archit.NeuralNetworks(NUM_FEATURES)
+    # Optuna architecture
+    model = archit.MultipleRegression(num_features=39, num_units_1=60, num_units_2=20)
 
-    model = archit.NeuralNetworks(NUM_FEATURES)
     model.to(device)
     optimizer = optim.Adam(params=model.parameters(), lr=LEARNING_RATE)
 
     # Set loss function change to true and then exp the output
-    criterion = nn.PoissonNLLLoss(log_input= True, full= True)
+    criterion = nn.PoissonNLLLoss(log_input= False, full= True) 
 
     if args.agent_id ==-1 :
         model_name = 'global_model.pt'
