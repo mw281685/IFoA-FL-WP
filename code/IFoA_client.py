@@ -216,7 +216,7 @@ def main():
     model = archit.MultipleRegression(num_features=39, num_units_1=60, num_units_2=20)
 
     model.to(device)
-    optimizer = optim.Adam(params=model.parameters(), lr=LEARNING_RATE)
+    optimizer = optim.Adam(params=model.parameters(), lr=LEARNING_RATE)  # (params=model.parameters(), lr=LEARNING_RATE)  #optim.NAdam(model.parameters())
 
     # Set loss function change to true and then exp the output
     criterion = nn.PoissonNLLLoss(log_input= False, full= True) 
@@ -250,7 +250,7 @@ def main():
     else: 
         #Fl training    
         model_l = copy.deepcopy(model)
-        optimizer_l = optim.Adam(params=model_l.parameters(), lr=LEARNING_RATE)
+        optimizer_l = optim.Adam(params=model_l.parameters(), lr=LEARNING_RATE) #optim.NAdam(model_l.parameters())
         _, loss_stats = train(model_l, optimizer_l, criterion, train_loader, val_loader, epochs=EPOCHS_LOCAL_GLOBAL)
         torch.save(model_l.state_dict(), AGENT_PATH)  
 
