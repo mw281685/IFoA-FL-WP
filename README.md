@@ -36,6 +36,11 @@ STARTING FL TRAINING :
 
 Mac users: 
 2. run ./START_TRAINING.sh
+if this doesn't work you can start clients manually using
+python3 'IFoA_client.py' --agent_id=3 >../terminal_output/out_3.txt 2>../terminal_output/err_3.txt
+
+
+(>../terminal_output/out_3.txt 2>../terminal_output/err_3.txt) --> this bit of code redirects results to .txt files .   You need to create a folder named terminal_output on the same level as code folder 
 
 
 
@@ -52,6 +57,7 @@ All operating systems :
 
 Generating report:
 5. Run python3 report.py
+
 
 
 -------------------------------------------------------------

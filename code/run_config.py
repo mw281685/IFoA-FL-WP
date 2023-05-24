@@ -31,14 +31,14 @@ EPOCHS_LOCAL_GLOBAL = 75
 model_architecture = {
     "dropout" : 0, #0.12409392594394411, # remove
     "learning_rate": 0.001, #6.888528294546944e-05, #  not needed for Adam optimizer
-    "epochs" : 30,
+    "epochs" : 5,
     "batch_size": 100,
     "num_features": 39,
 }
 
 server_config = {
     "num_clients": 10,
-    "num_rounds": 10
+    "num_rounds": 5
 }
 
 run_name = "uniform partitions, " + str(server_config["num_clients"]) + " agents," + str(server_config["num_rounds"]) + " rounds, " + str(model_architecture["epochs"]) + " epochs " + str(EPOCHS_LOCAL_GLOBAL) + " epochs for local and global tr"
