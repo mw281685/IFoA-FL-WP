@@ -15,16 +15,14 @@ DATA_PATH = run_config.dataset_config["path"]
 SEED = run_config.dataset_config["seed"]
 DATA_FEATURES = run_config.dataset_config["num_features"]
 
-
-
 def seed_torch(seed=SEED):
       th.manual_seed(seed)
       random.seed(seed)
       th.cuda.manual_seed(seed)
       th.cuda.manual_seed_all(seed)  # if you are using multi-GPU.
       np.random.seed(seed)  # Numpy module.
-      random.seed(seed)  # Python random module.
-      th.manual_seed(seed)
+      #random.seed(seed)  # Python random module.
+      #th.manual_seed(seed)
       th.backends.cudnn.benchmark = True
       th.backends.cudnn.deterministic = True
 
@@ -61,28 +59,38 @@ def upload_dataset():
       #Apply MinMaxScaler as per Wuthrich
       #TODO this should really be done for each train, val, test data
       
-      scaler = MinMaxScaler()
-      df_new_encoded[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']] = scaler.fit_transform(df_new_encoded[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']])
+      #scaler = MinMaxScaler()
+      #df_new_encoded[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']] = scaler.fit_transform(df_new_encoded[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']])
 
       #Convert to numpy array 
-      df_array=df_new_encoded.to_numpy()
+      #df_array=df_new_encoded.to_numpy()
 
       # Create Input and Output Data
-      X = df_array[:, 1:]
-      y = df_array[:, 0]
+      X = df_new_encoded.iloc[:, 1:]
+      y = df_new_encoded.iloc[:, 0] 
 
       #Data Splitting
-      #Split data into train and final test
+      # Split data into train and final test
       X_trainval, X_test, y_trainval, y_test = train_test_split(X, y, test_size=0.2,  random_state=SEED)
       
-      #Split train into train and validation
+      #S plit train into train and validation
       X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_size=0.1,  random_state=SEED)
 
-      train_array = np.insert(X_train, 39, y_train, axis=1)
-      val_array = np.insert(X_val, 39, y_val, axis=1)
+      # Apply MinMaxScaler - NB the scaling only comes from the training data
+      scaler = MinMaxScaler()
+      X_train[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']] = scaler.fit_transform(X_train[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']])
+      X_val[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']] = scaler.transform(X_val[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']])
+      X_test[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']] = scaler.transform(X_test[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']])
 
+      # Convert to numpy array 
+      X_train_array = X_train.to_numpy()
+      X_val_array = X_val.to_numpy()
+      X_test_array= X_test.to_numpy()
 
-      return (X_train, X_val, X_test, y_train, y_val, y_test, df_new_encoded.columns.tolist()[1:], scaler)
+      #train_array = np.insert(X_train, 39, y_train, axis=1)
+      #val_array = np.insert(X_val, 39, y_val, axis=1)
+
+      return (X_train_array, X_val_array, X_test_array, y_train, y_val, y_test, df_new_encoded.columns.tolist()[1:], scaler)
 
 
 
@@ -407,7 +415,7 @@ def row_check(agents:int = 10):
                   claim_sum  += sum(list(dataframe_y_train_dictionary.values())[i]['0'])
                   claim_sum  += sum(list(dataframe_y_val_dictionary.values())[i]['0'])
 
-            total_claim_sum = claim_sum + sum(y_test['0'])
+            total_claim_sum = claim_sum + sum(y_test.to_numpy()).item()
 
             # Note the underscores are just for readability they don't affect the calculation  
             print(f'Claims check:  {total_claim_sum == 36_056}')
@@ -441,8 +449,8 @@ def uniform_partitions(agents:int = 10):
       seed_torch()
 
       # Shuffle arrays
-      np.random.shuffle(train_array)
-      np.random.shuffle(val_array)
+      #np.random.shuffle(train_array)
+      #np.random.shuffle(val_array)
 
       val_array_split = np.array_split(val_array, agents)
       train_array_split = np.array_split(train_array, agents)

@@ -1,4 +1,3 @@
-
 import argparse
 import utils
 import run_config
@@ -23,58 +22,19 @@ from skorch.helper import predefined_split
 import skorch
 from skorch.dataset import Dataset, ValidSplit
 import utils
+import architecture as archit
 
 DATA_PATH = run_config.dataset_config["path"]
 SEED = run_config.dataset_config["seed"]
+BATCH_SIZE = 10_000
  
 # Formatting options to print dataframe to terminal
 pd.set_option('display.max_columns', 7)
 pd.set_option('display.width', 200)
 
-
-def seed_torch(seed=SEED):
-    th.manual_seed(seed)
-    th.cuda.manual_seed(seed)
-    th.cuda.manual_seed_all(seed)  # if you are using multi-GPU.
-    th.backends.cudnn.benchmark = True
-    th.backends.cudnn.deterministic = True
-
-seed_torch()
+utils.seed_torch()
 
 rng = np.random.RandomState(SEED) 
-
-# Define architecture
-class MultipleRegression(nn.Module):
-    def __init__(self, num_features=39, num_units_1=50, num_units_2=60, activation=nn.Tanh, dropout_rate=0):
-        super(MultipleRegression, self).__init__()
-        
-        self.layer_1 = nn.Linear(num_features, num_units_1)
-        self.layer_2 = nn.Linear(num_units_1, num_units_2)
-        self.layer_out = nn.Linear(num_units_2, 1)
-        self.dropout = nn.Dropout(dropout_rate)
-        
-        self.act = activation()
-
-        th.nn.init.xavier_uniform_(self.layer_1.weight)
-        th.nn.init.zeros_(self.layer_1.bias)
-        th.nn.init.xavier_uniform_(self.layer_2.weight)
-        th.nn.init.zeros_(self.layer_2.bias)
-        th.nn.init.xavier_uniform_(self.layer_out.weight)
-        th.nn.init.zeros_(self.layer_out.bias)
-    
-    def forward(self, inputs):
-        x = self.dropout(self.act(self.layer_1(inputs)))
-        x = self.dropout(self.act(self.layer_2(x)))
-        x = th.exp(self.layer_out(x))
-
-        return (x)
-
-    def predict(self, test_inputs):
-        x = self.act(self.layer_1(test_inputs))
-        x = self.act(self.layer_2(x))
-        x = th.exp(self.layer_out(x))
-
-        return (x)
 
 # Create PDE score to print during training/tuning
 pde_score = make_scorer(d2_tweedie_score, power=1)
@@ -87,8 +47,8 @@ check_point_callback = callbacks.Checkpoint(monitor='PDE_best', load_best=True)
 
 # Grid Search space dictionary
 params = {
-    'optimizer__lr': [0.0001, 0.001, 0.01], # 3
-    'batch_size':[1_00, 1_000, 10_000], # 3
+    #'optimizer__lr': [0.0001, 0.001, 0.01], # 3
+    'batch_size':[1_000, 10_000, 100_000], # 3
     'module__num_units_1': [20, 40 ,60],# 3
     'module__num_units_2': [20, 40 ,60], # 3
 }
@@ -116,19 +76,24 @@ def main():
         val_fold = np.append(train_indices, val_indices)
 
         ps = PredefinedSplit(val_fold)
+
+        valid_ds = Dataset(X_val.to_numpy().astype(np.float32), y_val.to_numpy().astype(np.float32))
     
         # Define weighted PDE scorer
         weighted_pde_score = make_scorer(d2_tweedie_score, sample_weight=X_val['Exposure'], power=1, greater_is_better=True)
 
         # Define skorch neural network
         net_regr = NeuralNetRegressor(
-            MultipleRegression().double(),
+            archit.MultipleRegression(num_features=39, num_units_1=20, num_units_2=40).double(),
             optimizer=optim.NAdam,
             criterion=nn.PoissonNLLLoss(log_input= False, full= True),
-            max_epochs=50,
-            #batch_size=10_000,
-            train_split=skorch.dataset.ValidSplit(0.1, stratified=False, random_state=SEED), # use 10% to set early stopping
-            callbacks=[pde_callback, early_stopping_callback, check_point_callback],
+            max_epochs=100,
+            batch_size=BATCH_SIZE,
+            #train_split=skorch.dataset.ValidSplit(0.1, stratified=False, random_state=SEED), # use 10% to set early stopping
+            train_split = predefined_split(valid_ds),
+            #train_split=None,
+            #callbacks=[pde_callback, early_stopping_callback, check_point_callback],
+            callbacks=[pde_callback],
             device=None, # ignore CUDA for now
             iterator_train__shuffle=True
             )
@@ -219,7 +184,7 @@ def main():
     top_5_results_df = all_results_df[(all_results_df['agent']!=-1) & (all_results_df['rank_test_score']<=5)]
 
     # Output learning rate distribution
-    utils.hyperparameter_counts(top_5_results_df, hyperparameter='param_optimizer__lr', x_label='Learning Rate', title='Best Local Learning Rates', name='learning_rate_chart')
+    #utils.hyperparameter_counts(top_5_results_df, hyperparameter='param_optimizer__lr', x_label='Learning Rate', title='Best Local Learning Rates', name='learning_rate_chart')
 
     # Output layer 1 neurons distribution
     utils.hyperparameter_counts(top_5_results_df, hyperparameter='param_module__num_units_1', x_label='Layer 1 Neurons', title='Best Local Layer 1 Neurons', name='layer_1_neuron_chart')
