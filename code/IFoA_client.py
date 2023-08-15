@@ -24,8 +24,10 @@ import architecture as archit
 import copy
 import run_config
 import shutil
+import csv
 
 MODEL_PATH = '.'
+ROUND_NO = 0
 EPOCHS = run_config.model_architecture["epochs"]
 BATCH_SIZE = run_config.model_architecture["batch_size"] #1000 # Wutrich suggestion this may be better at 6,000 or so, 488169
 NUM_FEATURES = run_config.model_architecture["num_features"]
@@ -34,7 +36,15 @@ NUM_ROUNDS = run_config.server_config["num_rounds"]
 EPOCHS_LOCAL_GLOBAL = run_config.EPOCHS_LOCAL_GLOBAL
 
 
+
 device = torch.device("cpu" if torch.cuda.is_available() else "cpu")
+
+def load_noise(file):
+    with open(file, 'r') as read_obj:
+        csv_reader = csv.reader(read_obj)
+        return list(csv_reader)
+      
+    
 
 
 class IFoAClient(fl.client.NumPyClient):
@@ -50,6 +60,7 @@ class IFoAClient(fl.client.NumPyClient):
         testset: torch.utils.data.dataset,
         num_examples: Dict,
         exposure: float,
+        noise: List,
     ) -> None:
         self.model = model
         self.optimizer = optimizer
@@ -60,6 +71,7 @@ class IFoAClient(fl.client.NumPyClient):
         self.num_examples = num_examples
         self.exposure = round(exposure)
         self.stats = []  # list of dictionaries
+        self.noise = noise
 
     def get_parameters(self, config) -> List[np.ndarray]:
         """Get local model parameters """
@@ -68,7 +80,23 @@ class IFoAClient(fl.client.NumPyClient):
         #print('[INFO][GET_PARAMETERS CALLED ]:', self.model.state_dict()['hid1.weight'][0])
 
         self.model.train()
-        return [val.cpu().numpy() for _, val in self.model.state_dict().items()]
+        st_dict_np = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
+            
+        k = 0
+        global ROUND_NO
+
+        for i in range(len(st_dict_np)):
+            for j in range(len(st_dict_np[i])):
+                st_dict_np[i][j] += float(self.noise[ROUND_NO][k])                
+                k = k + 1
+
+        
+        ROUND_NO = ROUND_NO + 1
+
+
+
+        return st_dict_np
+        #return [val.cpu().numpy() for _, val in self.model.state_dict().items()]
 
     def set_parameters(self, parameters: List[np.ndarray]) -> None:
         """ Set model parameters from a list of NumPy ndarrays"""
@@ -248,7 +276,11 @@ def main():
         loss_data = [loss_stats]
 
     else: 
-        #Fl training    
+        #Fl training
+
+        noise = load_noise('noise_'+ str(args.agent_id) + '.csv')
+
+        
         model_l = copy.deepcopy(model)
         optimizer_l = optim.Adam(params=model_l.parameters(), lr=LEARNING_RATE) #optim.NAdam(model_l.parameters())
         _, loss_stats = train(model_l, optimizer_l, criterion, train_loader, val_loader, epochs=EPOCHS_LOCAL_GLOBAL)
@@ -260,7 +292,7 @@ def main():
         if args.agent_id in range(10):
             AGENT_PATH = '../ag_' + str(args.agent_id) + '/' + model_name 
 
-            agent = IFoAClient(model, optimizer, criterion, train_dataset, val_dataset, test_dataset, {}, exposure)
+            agent = IFoAClient(model, optimizer, criterion, train_dataset, val_dataset, test_dataset, {}, exposure, noise)
             fl.client.start_numpy_client(server_address="[::]:8080", client=agent,)     # FL server run locally
 #            fl.client.start_numpy_client("193.0.96.129:8080", client) # Polish server ! Make sure Malgorzata starts it :) , otherwise it won't work
             

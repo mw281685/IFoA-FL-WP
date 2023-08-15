@@ -37,8 +37,8 @@ model_architecture = {
 }
 
 server_config = {
-    "num_clients": 10,
-    "num_rounds": 5
+    "num_clients": 2,
+    "num_rounds": 2
 }
 
 run_name = "uniform partitions, " + str(server_config["num_clients"]) + " agents," + str(server_config["num_rounds"]) + " rounds, " + str(model_architecture["epochs"]) + " epochs " + str(EPOCHS_LOCAL_GLOBAL) + " epochs for local and global tr"

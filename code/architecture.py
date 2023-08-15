@@ -107,3 +107,6 @@ class MultipleRegression(nn.Module):
         x = torch.exp(self.layer_out(x))
 
         return (x)
+
+def get_parameters(model) -> List[np.ndarray]:
+    return [val.cpu().numpy() for _, val in model.state_dict().items()]
