@@ -37,7 +37,7 @@ model_architecture = {
 }
 
 server_config = {
-    "num_clients": 2,
+    "num_clients": 10,
     "num_rounds": 2
 }
 

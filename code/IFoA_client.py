@@ -43,7 +43,39 @@ def load_noise(file):
     with open(file, 'r') as read_obj:
         csv_reader = csv.reader(read_obj)
         return list(csv_reader)
-      
+
+
+def calc_noise(file, ag_no):
+    with open(file, mode='r') as infile:
+        reader = csv.reader(infile)
+        seeds = {int(rows[0]): rows[1:] for rows in reader}   # round_no : seeds for each collaborators
+ 
+    noises ={}
+    for rnd_no,v in seeds.items(): # round no, collaborators' seeds
+        vect = np.zeros(162)
+        for i in range(len(v)):
+            np.random.seed(int(v[i]))
+            if i == ag_no:
+                vect = vect + np.around(np.random.random(162),5)
+            else:
+                vect = vect - np.around(np.random.random(162),5)
+
+
+#        for el in v:
+#            np.random.seed(int(el))
+#            vect = vect - np.random.random(162)
+#        np.random.seed(int(seeds[k][ag_no]))
+#        vect = vect + 2*np.random.random(162)
+        print(vect)
+        noises[rnd_no] = vect
+    return noises
+
+
+    
+    
+
+
+
     
 
 
@@ -74,7 +106,7 @@ class IFoAClient(fl.client.NumPyClient):
         self.noise = noise
 
     def get_parameters(self, config) -> List[np.ndarray]:
-        """Get local model parameters """
+        """Get local model parameters. Noise is applied to model parameters """
 
         state_dict_elements = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
         #print('[INFO][GET_PARAMETERS CALLED ]:', self.model.state_dict()['hid1.weight'][0])
@@ -278,7 +310,10 @@ def main():
     else: 
         #Fl training
 
-        noise = load_noise('noise_'+ str(args.agent_id) + '.csv')
+        # calculate noise vectors
+        #noise = load_noise('noise_'+ str(args.agent_id) + '.csv')
+        noise = calc_noise('../data/seeds.csv', args.agent_id)
+    
 
         
         model_l = copy.deepcopy(model)
