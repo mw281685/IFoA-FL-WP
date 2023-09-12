@@ -56,9 +56,9 @@ def calc_noise(file, ag_no):
         for i in range(len(v)):
             np.random.seed(int(v[i]))
             if i == ag_no:
-                vect = vect + np.around(np.random.random(162),5)
+                vect = vect + np.around(np.random.random(162)*100,2)
             else:
-                vect = vect - np.around(np.random.random(162),5)
+                vect = vect - np.around(np.random.random(162)*100,2)
 
 
 #        for el in v:
@@ -68,6 +68,7 @@ def calc_noise(file, ag_no):
 #        vect = vect + 2*np.random.random(162)
         print(vect)
         noises[rnd_no] = vect
+
     return noises
 
 
@@ -101,31 +102,36 @@ class IFoAClient(fl.client.NumPyClient):
         self.valset = valset
         self.testset = testset
         self.num_examples = num_examples
-        self.exposure = round(exposure)
+        self.exposure = round(exposure) # we round it to int as we will use it to weight the parameter updates
         self.stats = []  # list of dictionaries
         self.noise = noise
 
     def get_parameters(self, config) -> List[np.ndarray]:
         """Get local model parameters. Noise is applied to model parameters """
 
-        state_dict_elements = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
+        #state_dict_elements = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
         #print('[INFO][GET_PARAMETERS CALLED ]:', self.model.state_dict()['hid1.weight'][0])
 
         self.model.train()
-        st_dict_np = [val.cpu().numpy() for _, val in self.model.state_dict().items()]
-            
+        #st_dict_np = [np.round(val.cpu().numpy(),3) for _, val in self.model.state_dict().items()]
+        st_dict_np = [val.cpu().numpy().astype(np.float64) for _, val in self.model.state_dict().items()]
+
+        print('get parameters st_dict_np:')
+        print(st_dict_np)
+
+
         k = 0
         global ROUND_NO
 
         for i in range(len(st_dict_np)):
             for j in range(len(st_dict_np[i])):
-                st_dict_np[i][j] += float(self.noise[ROUND_NO][k])                
+                st_dict_np[i][j] += np.float64(self.noise[ROUND_NO][k])                
                 k = k + 1
 
-        
         ROUND_NO = ROUND_NO + 1
 
-
+        print('get parameters st_dict_np after noise:')
+        print(st_dict_np)
 
         return st_dict_np
         #return [val.cpu().numpy() for _, val in self.model.state_dict().items()]
@@ -137,7 +143,7 @@ class IFoAClient(fl.client.NumPyClient):
         params_dict = zip(self.model.state_dict().keys(), parameters)
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
         self.model.load_state_dict(state_dict, strict=True)
-        #print('[SET_PARAMETERS CALLED]: ', self.model.state_dict()['hid1.weight'][0])
+        print('[SET_PARAMETERS CALLED]: ', self.model.state_dict()['layer_1.weight'])
 
 
     def fit(
@@ -159,7 +165,7 @@ class IFoAClient(fl.client.NumPyClient):
 
         print('loss: ', loss, 'len(test_loader)', len(testloader), ' accuracy: ', accuracy )
         
-        return self.get_parameters(config), len(self.trainset), {'exposure': self.exposure}
+        return self.get_parameters(config), 1, {'exposure': self.exposure}  # ms to test now 10.09.2023 prev :self.get_parameters(config), len(self.trainset), {'exposure': self.exposure}
 
     def evaluate(
         self, parameters: List[np.ndarray], config: Dict[str, str]
@@ -311,8 +317,8 @@ def main():
         #Fl training
 
         # calculate noise vectors
-        #noise = load_noise('noise_'+ str(args.agent_id) + '.csv')
-        noise = calc_noise('../data/seeds.csv', args.agent_id)
+        noise = load_noise('noise_'+ str(args.agent_id) + '.csv')
+        #noise = calc_noise('../data/seeds.csv', args.agent_id)
     
 
         

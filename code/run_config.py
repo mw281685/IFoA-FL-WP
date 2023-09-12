@@ -23,6 +23,7 @@ from flwr.server.strategy.aggregate import aggregate
 from flwr.server.strategy.strategy import Strategy
 from flwr.common.typing import Status
 from flwr.common import NDArray, NDArrays
+import numpy as np
 
 EPOCHS_LOCAL_GLOBAL = 75
 
@@ -37,8 +38,8 @@ model_architecture = {
 }
 
 server_config = {
-    "num_clients": 10,
-    "num_rounds": 2
+    "num_clients": 2,
+    "num_rounds": 1
 }
 
 run_name = "uniform partitions, " + str(server_config["num_clients"]) + " agents," + str(server_config["num_rounds"]) + " rounds, " + str(model_architecture["epochs"]) + " epochs " + str(EPOCHS_LOCAL_GLOBAL) + " epochs for local and global tr"
@@ -50,6 +51,46 @@ dataset_config = {
     "num_features": 39,
     "num_agents" : server_config["num_clients"],
 }
+
+from functools import reduce
+
+def aggregate2(results: List[Tuple[NDArrays, int]]) -> NDArrays:
+    """Compute weighted average."""
+    # Calculate the total number of examples used during training
+    num_examples_total = sum([num_examples for _, num_examples in results])
+    print('num examples total:')
+    print(num_examples_total)
+
+    # Create a list of weights, each multiplied by the related number of examples
+    weighted_weights = [
+        [layer.astype(np.float64) * num_examples for layer in weights] for weights, num_examples in results
+    ]
+
+    print('weighted_weights: ')
+    print(weighted_weights[0][0])
+    print('agent1:')
+    print(weighted_weights[1][0])
+
+    print('zip:\n')
+    x = 0
+    for layer_updates in zip(*weighted_weights):
+        if x==0:
+            print('layer_updates:')
+            print(layer_updates)
+        x = x+1
+
+
+    # Compute average weights of each layer
+    weights_prime: NDArrays = [
+        reduce(np.add, layer_updates).astype(np.float64) / num_examples_total
+        for layer_updates in zip(*weighted_weights)
+    ]
+
+    print('weights_prime')
+    print(weights_prime[0])
+
+    return weights_prime
+
 
 class LocalUpdatesStrategy(fl.server.strategy.FedAvg):
 
@@ -68,10 +109,13 @@ class LocalUpdatesStrategy(fl.server.strategy.FedAvg):
             return None, {}
 
     # Convert results
+
         weights_results = [
-            (parameters_to_ndarrays(fit_res.parameters), fit_res.metrics['exposure']) for _, fit_res in results
+            (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples) for _, fit_res in results # ms test 10.09.2023 prev: (parameters_to_ndarrays(fit_res.parameters), fit_res.metrics['exposure']) for _, fit_res in results
         ]
-        parameters_aggregated = ndarrays_to_parameters(aggregate(weights_results))
+
+
+        parameters_aggregated = ndarrays_to_parameters(aggregate2(weights_results))
 
         metrics_aggregated = {}
         if self.fit_metrics_aggregation_fn:
@@ -79,6 +123,7 @@ class LocalUpdatesStrategy(fl.server.strategy.FedAvg):
             metrics_aggregated = self.fit_metrics_aggregation_fn(fit_metrics)
         elif server_round == 1:  # Only log this warning once
             log(WARNING, "No fit_metrics_aggregation_fn provided")
+
 
         return parameters_aggregated, metrics_aggregated
 
