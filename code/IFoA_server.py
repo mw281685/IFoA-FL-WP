@@ -10,23 +10,19 @@ if __name__ == "__main__":
 
     # Define metric aggregation function
     def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
-
         accuracies = [num_examples * m["accuracy"] for num_examples, m in metrics] 
         examples = [num_examples for num_examples, _ in metrics]
 
         return {"accuracy": sum(accuracies) / sum(examples)} 
 
     def init_parameters():
-        print('---------init_parameters called-------------')
         PATH = "./init_state_dict.pt"
         model = archit.MultipleRegression(num_features=39, num_units_1=60, num_units_2=20)
         model.load_state_dict(torch.load(PATH))
         params = archit.get_parameters(model)
-        return fl.common.ndarrays_to_parameters(params)
-    
-
         
-    
+        return fl.common.ndarrays_to_parameters(params)
+
     strategy = run_config.LocalUpdatesStrategy(
         fraction_fit = 1.0,
         fraction_evaluate = 1.0,

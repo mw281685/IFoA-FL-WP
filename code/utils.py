@@ -9,10 +9,154 @@ from torch.utils.data import TensorDataset, DataLoader
 import matplotlib.pyplot as plt
 import seaborn as sns
 import run_config
+import matplotlib.ticker as mtick
+from run_config import NUM_FEATURES
 
 DATA_PATH = run_config.dataset_config["path"]
 SEED = run_config.dataset_config["seed"]
-DATA_FEATURES = run_config.dataset_config["num_features"]
+
+
+
+
+
+def row_check(agents:int = 10):
+      try:
+            # Create empty dictionaries for validation and training data
+            dataframe_X_train_dictionary = {}
+            dataframe_X_val_dictionary = {}
+            dataframe_y_train_dictionary = {}
+            dataframe_y_val_dictionary = {}
+
+            # Import training and validation data
+            for i in range(agents):
+                  dataframe_X_train_dictionary["X_train_{0}".format(i)] = pd.read_csv(f'../data/X_train_{i}.csv')
+                  dataframe_X_val_dictionary["X_val_{0}".format(i)] = pd.read_csv(f'../data/X_val_{i}.csv')
+                  dataframe_y_train_dictionary["y_tr_{0}".format(i)] = pd.read_csv(f'../data/y_tr_{i}.csv')
+                  dataframe_y_val_dictionary["y_vl_{0}".format(i)] = pd.read_csv(f'../data/y_vl_{i}.csv')
+      
+            # Import test data
+            X_test = pd.read_csv('../data/X_test.csv')  
+            y_test = pd.read_csv('../data/y_test.csv')
+
+            # Set row_count variable to sum
+            row_count = 0
+
+            # Set exposure_sum variable to sum
+            exposure_sum = 0
+
+            # Set claim_sum variable to sum
+            claim_sum = 0
+
+            # Add together row count of training and validation datasets
+            for i in range(agents):
+                  row_count += len(list(dataframe_X_train_dictionary.values())[i].index)
+                  row_count += len(list(dataframe_X_val_dictionary.values())[i].index)
+
+            total_row_count = row_count + len(X_test)
+
+            assert total_row_count == 678_013, "Total number of rows should be 678 013"
+            print('Total row count OK')
+
+            # Add together exposure of training and validation datasets
+            for i in range(agents):
+                  exposure_sum  += list(dataframe_X_train_dictionary.values())[i]['Exposure'].sum()
+                  exposure_sum  += list(dataframe_X_val_dictionary.values())[i]['Exposure'].sum()
+
+            total_exposure_sum = exposure_sum + X_test['Exposure'].sum()
+
+            assert round(total_exposure_sum, 2) == round(358_360.10546277853,2), "Exposure test failed"
+            print('Total exposure OK')
+
+            # Add together claims of training and validation datasets
+            for i in range(agents):
+                  claim_sum  += sum(list(dataframe_y_train_dictionary.values())[i]['0'])
+                  claim_sum  += sum(list(dataframe_y_val_dictionary.values())[i]['0'])
+
+            total_claim_sum = claim_sum + sum(y_test['0'])
+
+            # Note the underscores are just for readability they don't affect the calculation  
+            assert total_claim_sum == 36_056, "Claims check failed"
+            print('Total claims sum OK')
+
+      except Exception as e:
+            print('Handling run-time error:', e)
+
+
+def training_loss_curve(estimator, ag):
+      # Save and graph training loss curves
+
+      train_val_loss_df = pd.DataFrame(estimator.history[:, ['train_loss', 'valid_loss', 'PDE']], columns=['train_loss', 'valid_loss', 'PDE'])
+
+      #plt.style.use('default')
+
+      fig, ax = plt.subplots(figsize=(40, 15))
+      plt.plot(train_val_loss_df ['train_loss'],  label='Training Loss')
+      plt.plot(train_val_loss_df ['valid_loss'],  label='Validation Loss')
+      plt.legend(bbox_to_anchor=(1.08, 1), loc='upper left', borderaxespad=0)
+      plt.xlabel('Epochs')
+      plt.ylabel('Loss')
+      plt.ylabel('Loss')
+      plt.grid()
+      plt.title(f"Agent {ag}'s Best Model's Training Loss Curve")
+
+      # Get second axis
+      ax2 = ax.twinx()
+      plt.plot(train_val_loss_df ['PDE'], label='PDE', color='g')
+      plt.ylabel('% of Poisson Deviance Explained', color='g')
+      #adjust y-axis label position
+      ax2.yaxis.set_label_coords(1.06, 0.5)
+      ax2.yaxis.set_major_formatter(mtick.PercentFormatter(1))
+      plt.legend(bbox_to_anchor=(1.08, 0.94), loc='upper left', borderaxespad=0)
+
+      plt.savefig(f'../ag_{ag}/' + 'agent_' + str(ag) + '_training_loss_chart', facecolor='white')
+
+def hyperparameter_counts(dataframe, hyperparameter, x_label, title, name):
+      fig, ax = plt.subplots(figsize=(10, 8))
+      dataframe[str(hyperparameter)].value_counts().plot(kind='bar')
+      plt.grid()
+      plt.xlabel(x_label)
+      plt.xticks(rotation=0)
+      plt.ylabel('Count')
+      plt.title(title)
+      plt.savefig('../results/'+name, facecolor='white')
+
+
+
+
+
+def load_individual_skorch_data(agent_id):
+      #global model training:
+      if agent_id == -1:
+      # Created tensordataset
+            MY_DATA_PATH = '../data'
+            X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train.csv')
+            X_column_names = X_train_sc.columns.tolist()
+
+            y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr.csv')
+
+            X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val.csv')
+            y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl.csv')
+
+            X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
+            y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
+
+      else:
+
+            MY_DATA_PATH = '../data'
+            X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train_' + str(agent_id) + '.csv')
+            X_column_names = X_train_sc.columns.tolist()
+
+            y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr_' + str(agent_id) +  '.csv')
+
+            X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val_' + str(agent_id) + '.csv')
+            y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl_' + str(agent_id) + '.csv')
+
+            X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
+            y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
+
+      exposure = sum(X_train_sc['Exposure'])
+      
+      return (X_train_sc, y_tr, X_val_sc, y_vl, X_test_sc, y_te, X_column_names, exposure)
 
 
 
@@ -92,15 +236,15 @@ def prep_partitions(agents:int = 10):
       pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train.csv' , index=False)
       pd.DataFrame(y_tr).to_csv(f'../data/y_tr.csv', index=False)
 
-      pd.DataFrame(X_test_sc[:,0:DATA_FEATURES], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
+      pd.DataFrame(X_test_sc[:,0:NUM_FEATURES], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
       pd.DataFrame(y_te).to_csv('../data/y_test.csv', index=False)
 
-      pd.DataFrame(X_val_sc[:,0:DATA_FEATURES], columns=X_column_names).to_csv('../data/X_val.csv', index=False)
+      pd.DataFrame(X_val_sc[:,0:NUM_FEATURES], columns=X_column_names).to_csv('../data/X_val.csv', index=False)
       pd.DataFrame(y_vl).to_csv('../data/y_vl.csv', index=False)
 
 
-      train_array = np.insert(X_train_sc, DATA_FEATURES, y_tr, axis=1)
-      val_array = np.insert(X_val_sc, DATA_FEATURES, y_vl, axis=1)
+      train_array = np.insert(X_train_sc, NUM_FEATURES, y_tr, axis=1)
+      val_array = np.insert(X_val_sc, NUM_FEATURES, y_vl, axis=1)
 
       print(f'train_array shape = {train_array.shape}, val_array shape = {val_array.shape}')
 
@@ -111,40 +255,33 @@ def prep_partitions(agents:int = 10):
       idx=[]
 
       if agents == 1:
-            idx_0 = train_array_len
-            idx.append(0)
-            idx.append(idx_0)
-
+            idx = [0, train_array_len]
       elif agents == 3:
-            idx_0 = 1*train_array_len//6
-            idx_1 = idx_0 + 1*train_array_len//6
-            print(f'idx_0 = {idx_0} , idx_1 = {idx_1}')
-            idx.append(0)
-            idx.append(idx_0)
-            idx.append(idx_1)
-            idx.append(train_array_len)
-
+            idx = [0, 1 * train_array_len // 6, 2 * train_array_len // 6, train_array_len]
       elif agents == 10:
+            print('train_array_len: ', train_array_len)
             part = train_array_len//40
 
-            parts=[0,2,3,4,5,5,5,5,5,5,1]
+            parts=[0,1,3,5,5,5,5,5,5,5,1]
             idx.append(parts[0]*part)
-            for no in range(1, agents + 1):
+            for no in range(1, agents):
                   idx.append(idx[no-1] + parts[no]*part)
+            idx.append(train_array_len)
+
 
       for ag_no in range(1, agents + 1):
-            X_train_sc = train_array[idx[ag_no-1]:idx[ag_no]][:,0:DATA_FEATURES]
+            X_train_sc = train_array[idx[ag_no-1]:idx[ag_no]][:,0:NUM_FEATURES]
             print(f' Agent no = {ag_no} has ranges : {idx[ag_no-1]} to {idx[ag_no]}')
             pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train_{ag_no - 1}.csv' , index=False)
-            y_tr = train_array[idx[ag_no - 1]:idx[ag_no]][:, DATA_FEATURES]
+            y_tr = train_array[idx[ag_no - 1]:idx[ag_no]][:, NUM_FEATURES]
             pd.DataFrame(y_tr).to_csv(f'../data/y_tr_{ag_no -1}.csv', index=False)
 
       #truncate datas
       for idx in range(agents):
             print(f'Processing idx = {idx}')
-            X_val_sc = val_array_split[idx][:, 0:DATA_FEATURES]
+            X_val_sc = val_array_split[idx][:, 0:NUM_FEATURES]
             pd.DataFrame(X_val_sc, columns=X_column_names).to_csv('../data/X_val_' + str(idx) + '.csv', index=False)
-            y_vl = val_array_split[idx][:,DATA_FEATURES]
+            y_vl = val_array_split[idx][:,NUM_FEATURES]
             pd.DataFrame(y_vl).to_csv('../data/y_vl_' + str(idx) + '.csv', index=False)
 
 
@@ -155,17 +292,17 @@ def load_partition(idx: int = -1, num_agents: int = 10):
       (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
 
 
-      train_array = np.insert(X_train_sc, DATA_FEATURES, y_tr, axis=1)
-      val_array = np.insert(X_val_sc, DATA_FEATURES, y_vl, axis=1)
+      train_array = np.insert(X_train_sc, NUM_FEATURES, y_tr, axis=1)
+      val_array = np.insert(X_val_sc, NUM_FEATURES, y_vl, axis=1)
 
       #truncate data
       if idx in range(num_agents):
             train_array_split = np.array_split(train_array, num_agents)
             val_array_split = np.array_split(val_array, num_agents)
-            X_train_sc = train_array_split[idx][:,0:DATA_FEATURES]
-            y_tr = train_array_split[idx][:, DATA_FEATURES]
-            X_val_sc = val_array_split[idx][:, 0:DATA_FEATURES]
-            y_vl = val_array_split[idx][:,DATA_FEATURES]
+            X_train_sc = train_array_split[idx][:,0:NUM_FEATURES]
+            y_tr = train_array_split[idx][:, NUM_FEATURES]
+            X_val_sc = val_array_split[idx][:, 0:NUM_FEATURES]
+            y_vl = val_array_split[idx][:,NUM_FEATURES]
 
 
       # Created tensordataset
@@ -353,66 +490,6 @@ def lorenz_curve(y_true, y_pred, exposure):
     
     return cumulated_exposure, cumulated_claims
     
-def row_check(agents:int = 10):
-      try:
-            # Create empty dictionaries for validation and training data
-            dataframe_X_train_dictionary = {}
-            dataframe_X_val_dictionary = {}
-            dataframe_y_train_dictionary = {}
-            dataframe_y_val_dictionary = {}
-
-            # Import training and validation data
-            for i in range(agents):
-                  dataframe_X_train_dictionary["X_train_{0}".format(i)] = pd.read_csv(f'..\data\X_train_{i}.csv')
-                  dataframe_X_val_dictionary["X_val_{0}".format(i)] = pd.read_csv(f'..\data\X_val_{i}.csv')
-                  dataframe_y_train_dictionary["y_tr_{0}".format(i)] = pd.read_csv(f'..\data\y_tr_{i}.csv')
-                  dataframe_y_val_dictionary["y_vl_{0}".format(i)] = pd.read_csv(f'..\data\y_vl_{i}.csv')
-      
-            # Import test data
-            X_test = pd.read_csv('..\data\X_test.csv')  
-            y_test = pd.read_csv('..\data\y_test.csv')
-
-            # Set row_count variable to sum
-            row_count = 0
-
-            # Set exposure_sum variable to sum
-            exposure_sum = 0
-
-            # Set claim_sum variable to sum
-            claim_sum = 0
-
-            # Add together row count of training and validation datasets
-            for i in range(agents):
-                  row_count += len(list(dataframe_X_train_dictionary.values())[i].index)
-                  row_count += len(list(dataframe_X_val_dictionary.values())[i].index)
-
-            total_row_count = row_count + len(X_test)
-
-            # Note the underscores are just for readability they don't affect the calculation  
-            print(f'Row Count check:  {total_row_count == 678_013}')
-
-            # Add together exposure of training and validation datasets
-            for i in range(agents):
-                  exposure_sum  += list(dataframe_X_train_dictionary.values())[i]['Exposure'].sum()
-                  exposure_sum  += list(dataframe_X_val_dictionary.values())[i]['Exposure'].sum()
-
-            total_exposure_sum = exposure_sum + X_test['Exposure'].sum()
-
-            # Note the underscores are just for readability they don't affect the calculation  
-            print(f'Exposure check:  {round(total_exposure_sum, 2) == round(358_360.10546277853,2)}')
-
-            # Add together claims of training and validation datasets
-            for i in range(agents):
-                  claim_sum  += sum(list(dataframe_y_train_dictionary.values())[i]['0'])
-                  claim_sum  += sum(list(dataframe_y_val_dictionary.values())[i]['0'])
-
-            total_claim_sum = claim_sum + sum(y_test['0'])
-
-            # Note the underscores are just for readability they don't affect the calculation  
-            print(f'Claims check:  {total_claim_sum == 36_056}')
-
-      except:
-            print('Checks failed')
 
 def uniform_partitions(agents:int = 10):
       (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
@@ -422,7 +499,7 @@ def uniform_partitions(agents:int = 10):
       pd.DataFrame(y_tr).to_csv(f'../data/y_tr.csv', index=False)
 
       # Test dataset
-      pd.DataFrame(X_test_sc[:,0:DATA_FEATURES], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
+      pd.DataFrame(X_test_sc[:,0:NUM_FEATURES], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
       pd.DataFrame(y_te).to_csv('../data/y_test.csv', index=False)
 
       # Validation dataset 
@@ -433,8 +510,8 @@ def uniform_partitions(agents:int = 10):
       train_array_dictionary = {}
       val_array_dictionary = {}
 
-      train_array = np.insert(X_train_sc, DATA_FEATURES, y_tr, axis=1)
-      val_array = np.insert(X_val_sc, DATA_FEATURES, y_vl, axis=1)
+      train_array = np.insert(X_train_sc, NUM_FEATURES, y_tr, axis=1)
+      val_array = np.insert(X_val_sc, NUM_FEATURES, y_vl, axis=1)
 
       # Seed numpy etc. for shuffling
       seed_torch()
@@ -448,8 +525,8 @@ def uniform_partitions(agents:int = 10):
 
       for i in range(agents):
             train_array_dictionary["X_train_{0}".format(i)] = train_array_split[i]
-            pd.DataFrame(train_array_split[i][:, 0:DATA_FEATURES], columns=X_column_names).to_csv(f'../data/X_train_{i}.csv' , index=False)
-            pd.DataFrame(train_array_split[i][:, DATA_FEATURES]).to_csv(f'../data/y_tr_{i}.csv' , index=False)
+            pd.DataFrame(train_array_split[i][:, 0:NUM_FEATURES], columns=X_column_names).to_csv(f'../data/X_train_{i}.csv' , index=False)
+            pd.DataFrame(train_array_split[i][:, NUM_FEATURES]).to_csv(f'../data/y_tr_{i}.csv' , index=False)
             val_array_dictionary["X_val_{0}".format(i)] = val_array_split[i]
-            pd.DataFrame(val_array_split[i][:, 0:DATA_FEATURES], columns=X_column_names).to_csv(f'../data/X_val_{i}.csv' , index=False)
-            pd.DataFrame(val_array_split[i][:, DATA_FEATURES]).to_csv(f'../data/y_vl_{i}.csv' , index=False)
+            pd.DataFrame(val_array_split[i][:, 0:NUM_FEATURES], columns=X_column_names).to_csv(f'../data/X_val_{i}.csv' , index=False)
+            pd.DataFrame(val_array_split[i][:, NUM_FEATURES]).to_csv(f'../data/y_vl_{i}.csv' , index=False)
