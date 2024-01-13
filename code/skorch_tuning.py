@@ -1,5 +1,6 @@
 import argparse
-from run_config import dataset_config
+import utils
+import run_config
 from matplotlib import pyplot as plt
 import matplotlib.ticker as mtick
 import torch as th
@@ -8,6 +9,7 @@ import torch.nn as nn
 from torch import optim
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 from sklearn.model_selection import train_test_split,  RandomizedSearchCV, PredefinedSplit
 from sklearn.metrics import mean_squared_error, r2_score, mean_poisson_deviance, d2_tweedie_score, make_scorer, auc
 import seaborn as sns
@@ -22,9 +24,9 @@ from skorch.dataset import Dataset, ValidSplit
 import utils
 import architecture as archit
 
-DATA_PATH = dataset_config["path"]
-SEED = dataset_config["seed"]
-BATCH_SIZE = 10_000
+DATA_PATH = run_config.dataset_config["path"]
+SEED = run_config.dataset_config["seed"]
+BATCH_SIZE = 5_00
  
 # Formatting options to print dataframe to terminal
 pd.set_option('display.max_columns', 7)
@@ -39,18 +41,18 @@ pde_score = make_scorer(d2_tweedie_score, power=1)
 # Create callback to display PDE after each epoch on validation set
 pde_callback = callbacks.EpochScoring(pde_score, lower_is_better=False, name='PDE')
 # Create callback to do early stopping if PDE doesn't improve for 5 epochs on validation PDE
-early_stopping_callback = callbacks.EarlyStopping(monitor='PDE', lower_is_better=False, patience=5)
-
-
-
+early_stopping_callback = callbacks.EarlyStopping(monitor='weighted_PDE', lower_is_better=False, patience=5)
 # Create callback to save and reload highest PDE on validation set
-check_point_callback = callbacks.Checkpoint(monitor='PDE_best', load_best=True)
+check_point_callback = callbacks.Checkpoint(monitor='weighted_PDE_best', load_best=True)
 
 # Grid Search space dictionary
 params = {
-    'batch_size':[100, 1_000, 10_000, 100_000], 
-    'module__num_units_1': [2, 5, 10, 15, 20, 25, 30, 40 ,60, 80],
-    'module__num_units_2': [2, 5, 10, 15, 20, 25, 30, 40 ,60, 80], 
+    'optimizer__lr': [0.001, 0.01], # 3
+    #'optimizer__momentum': [0.9],
+    #'batch_size':[500, 5_000, 50_000], # 3
+    'module__num_units_1': [5, 10, 15],# 3
+    'module__num_units_2': [5, 10, 15], # 3
+    #'module__num_units_3': [10, 20, 30, 40], # 3
 }
 
 def main():
@@ -67,10 +69,10 @@ def main():
         X_trainval_ordered = np.concatenate((X_train, X_val))
         y_trainval_ordered = np.concatenate((y_train, y_val))
 
-        # The indices which have the value -1 will be kept in train_indices.
+        # The indices which have the value -1 will be kept in val.
         train_indices = np.full((len(X_train),), -1, dtype=int)
 
-        # The indices which have zero or positive values, will be kept in val_indices
+        # The indices which have zero or positive values, will be kept in val
         val_indices = np.full((len(X_val),), 0, dtype=int)
 
         val_fold = np.append(train_indices, val_indices)
@@ -78,16 +80,31 @@ def main():
         ps = PredefinedSplit(val_fold)
 
         valid_ds = Dataset(X_val.to_numpy().astype(np.float32), y_val.to_numpy().astype(np.float32))
-    
-        # Define weighted PDE scorer
-        weighted_pde_score = make_scorer(d2_tweedie_score, sample_weight=X_val['Exposure'], power=1, greater_is_better=True)
 
-        weighted_pde_callback = callbacks.EpochScoring(weighted_pde_score, lower_is_better=False, name='PDE_weighted')
-        early_stopping_callback = callbacks.EarlyStopping(monitor='PDE_weighted', lower_is_better=False, patience=5)
+        def weighted_pde(ground_truth, predictions, sample_val_weight=X_val['Exposure'], sample_train_weight=X_train['Exposure']):
+
+            ground_truth_len = ground_truth.shape[0]
+            
+            if ground_truth_len == sample_train_weight.shape[0]:
+                chosen_sample_weight = sample_train_weight
+            else:
+                chosen_sample_weight = sample_val_weight
+
+            d2_tweedie_score_1 = d2_tweedie_score(ground_truth, predictions, sample_weight=chosen_sample_weight, power=1)
+
+            return d2_tweedie_score_1.item()
+        
+        # Define weighted PDE scorer
+        #weighted_pde_score = make_scorer(d2_tweedie_score, sample_weight=X_val['Exposure'], power=1, greater_is_better=True)
+        weighted_pde_score = make_scorer(weighted_pde, greater_is_better=True)
+
+        # Create callback to display weighted PDE after each epoch on validation set
+        weighted_pde_callback = callbacks.EpochScoring(weighted_pde_score, lower_is_better=False, name='weighted_PDE')
 
         # Define skorch neural network
         net_regr = NeuralNetRegressor(
             archit.MultipleRegression(num_features=39, num_units_1=20, num_units_2=40).double(),
+            #optimizer=optim.SGD,
             optimizer=optim.NAdam,
             criterion=nn.PoissonNLLLoss(log_input= False, full= True),
             max_epochs=100,
@@ -96,8 +113,9 @@ def main():
             train_split = predefined_split(valid_ds),
             #train_split=None,
             #callbacks=[pde_callback, early_stopping_callback, check_point_callback],
-            callbacks=[pde_callback, weighted_pde_callback, early_stopping_callback],
+            callbacks=[weighted_pde_callback],
             device=None, # ignore CUDA for now
+            #device='cuda', # ignore CUDA for now
             iterator_train__shuffle=True
             )
                 
@@ -106,9 +124,10 @@ def main():
                         refit=True,
                         cv=ps,
                         scoring=weighted_pde_score,
-                        n_iter=400, # grid size
-                        #n_jobs=4, # turning off mutli-threading as issues with reproducibility
-                        random_state=SEED
+                        n_iter=18, # grid size
+                        #n_jobs=-1, # turning off mutli-threading as issues with reproducibility
+                        random_state=SEED,
+                        return_train_score=True
                         )
         
         gs.fit(X_trainval_ordered.astype(np.float32), y_trainval_ordered.reshape(-1, 1).astype(np.float32))
@@ -127,7 +146,7 @@ def main():
         ).rename_axis("params_key")
         results_df['agent']=ag
         
-        print(results_df[["params", "rank_test_score", "mean_test_score", "std_test_score", "mean_fit_time"]])
+        print(results_df[["params", "rank_test_score", "mean_train_score", "mean_test_score", "std_test_score", "mean_fit_time"]])
 
         # Get number of epochs
         results_df['best_epochs'] = len(gs.best_estimator_.history)

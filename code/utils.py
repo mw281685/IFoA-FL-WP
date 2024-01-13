@@ -85,7 +85,7 @@ def row_check(agents:int = 10):
 def training_loss_curve(estimator, ag):
       # Save and graph training loss curves
 
-      train_val_loss_df = pd.DataFrame(estimator.history[:, ['train_loss', 'valid_loss', 'PDE']], columns=['train_loss', 'valid_loss', 'PDE'])
+      train_val_loss_df = pd.DataFrame(estimator.history[:, ['train_loss', 'valid_loss', 'weighted_PDE_best']], columns=['train_loss', 'valid_loss', 'PDE'])
 
       #plt.style.use('default')
 

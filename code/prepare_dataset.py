@@ -22,6 +22,6 @@ import run_config
 
 
 if __name__ == "__main__":
-    #utils.uniform_partitions(int(run_config.dataset_config["num_agents"]))  # args.partition
-    utils.prep_partitions(int(run_config.dataset_config["num_agents"]))
+    utils.uniform_partitions(int(run_config.dataset_config["num_agents"]))  # args.partition
+    #utils.prep_partitions(int(run_config.dataset_config["num_agents"]))
 

@@ -16,7 +16,7 @@ from collections import OrderedDict
 
 
 class MultipleRegression(nn.Module):
-    def __init__(self, num_features=39, num_units_1=60, num_units_2=20, activation=nn.Tanh, dropout_rate=0):
+    def __init__(self, num_features=39, num_units_1=25, num_units_2=2, activation=nn.Tanh, dropout_rate=0):
         super(MultipleRegression, self).__init__()
         
         self.layer_1 = nn.Linear(num_features, num_units_1)

@@ -16,6 +16,7 @@ import copy
 import csv
 from utils_quantisation import quantize, dequantize, modulus,  N, M, CR
 from smpc_utils import load_noise, calc_noise, calc_noise_zero
+import run_config
 from run_config import EPOCHS, BATCH_SIZE, NUM_FEATURES, NUM_UNITS_1, NUM_UNITS_2, EPOCHS_LOCAL_GLOBAL, QUANTISATION, SMPC_NOISE
 
 MODEL_PATH = '.'
@@ -28,7 +29,7 @@ class IFoAClient(fl.client.NumPyClient):
     
     def __init__(
         self,
-        model: archit.MultipleRegression(num_features=NUM_FEATURES, num_units_1=NUM_UNITS_1, num_units_2=NUM_UNITS_2),  #archit.NeuralNetworks(NUM_FEATURES),
+        model: archit.MultipleRegression(num_features=run_config.NUM_FEATURES, num_units_1=25, num_units_2=2),  #archit.NeuralNetworks(NUM_FEATURES),
         optimizer, 
         criterion,
         trainset: torch.utils.data.dataset,
@@ -223,7 +224,7 @@ def main():
     val_loader = DataLoader(dataset=val_dataset, batch_size=1)
     test_loader = DataLoader(dataset=test_dataset, batch_size=1)
 
-    model = archit.MultipleRegression(num_features=NUM_FEATURES, num_units_1=NUM_UNITS_1, num_units_2=NUM_UNITS_2)
+    model = archit.MultipleRegression(num_features=39, num_units_1=25, num_units_2=2)
 
     model.to(device)
     optimizer = optim.NAdam(model.parameters()) #optim.Adam(params=model.parameters(), lr=LEARNING_RATE)  
@@ -288,6 +289,7 @@ def main():
 
             if args.agent_id == 0:
                 torch.save(model.state_dict(), '../ag_-1/' + model_name ) 
+                print(model)
 
 
             f = open('../ag_' + str(args.agent_id) + '/los_stats.csv', 'w')

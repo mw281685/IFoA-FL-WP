@@ -41,8 +41,9 @@ EPOCHS_LOCAL_GLOBAL = 75
 EPOCHS = 10
 BATCH_SIZE = 10000
 NUM_FEATURES = 39
-NUM_UNITS_1 = 20 #list(top_results_dict[0].items())[0][1]
-NUM_UNITS_2 = 60 #list(top_results_dict[0].items())[1][1]
+NUM_UNITS_1 = 25 #list(top_results_dict[-1].items())[0][1]
+NUM_UNITS_2 = 2 #list(top_results_dict[-1].items())[1][1]
+
 
 
 
