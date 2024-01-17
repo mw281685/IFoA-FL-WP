@@ -29,7 +29,7 @@ class IFoAClient(fl.client.NumPyClient):
     
     def __init__(
         self,
-        model: archit.MultipleRegression(num_features=run_config.NUM_FEATURES, num_units_1=25, num_units_2=2),  #archit.NeuralNetworks(NUM_FEATURES),
+        model: archit.MultipleRegression(num_features=run_config.NUM_FEATURES, num_units_1=run_config.NUM_UNITS_1, num_units_2=run_config.NUM_UNITS_2),  #archit.NeuralNetworks(NUM_FEATURES),
         optimizer, 
         criterion,
         trainset: torch.utils.data.dataset,
@@ -224,7 +224,7 @@ def main():
     val_loader = DataLoader(dataset=val_dataset, batch_size=1)
     test_loader = DataLoader(dataset=test_dataset, batch_size=1)
 
-    model = archit.MultipleRegression(num_features=39, num_units_1=25, num_units_2=2)
+    model = archit.MultipleRegression(num_features=run_config.NUM_FEATURES, num_units_1=run_config.NUM_UNITS_1, num_units_2=run_config.NUM_UNITS_2)
 
     model.to(device)
     optimizer = optim.NAdam(model.parameters()) #optim.Adam(params=model.parameters(), lr=LEARNING_RATE)  
