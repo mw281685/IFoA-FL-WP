@@ -372,14 +372,14 @@ def row_check(agents:int = 10):
 
             # Import training and validation data
             for i in range(agents):
-                  dataframe_X_train_dictionary["X_train_{0}".format(i)] = pd.read_csv(f'..\data\X_train_{i}.csv')
-                  dataframe_X_val_dictionary["X_val_{0}".format(i)] = pd.read_csv(f'..\data\X_val_{i}.csv')
-                  dataframe_y_train_dictionary["y_tr_{0}".format(i)] = pd.read_csv(f'..\data\y_tr_{i}.csv')
-                  dataframe_y_val_dictionary["y_vl_{0}".format(i)] = pd.read_csv(f'..\data\y_vl_{i}.csv')
+                  dataframe_X_train_dictionary["X_train_{0}".format(i)] = pd.read_csv(f'../data/X_train_{i}.csv')
+                  dataframe_X_val_dictionary["X_val_{0}".format(i)] = pd.read_csv(f'../data/X_val_{i}.csv')
+                  dataframe_y_train_dictionary["y_tr_{0}".format(i)] = pd.read_csv(f'../data/y_tr_{i}.csv')
+                  dataframe_y_val_dictionary["y_vl_{0}".format(i)] = pd.read_csv(f'../data/y_vl_{i}.csv')
       
             # Import test data
-            X_test = pd.read_csv('..\data\X_test.csv')  
-            y_test = pd.read_csv('..\data\y_test.csv')
+            X_test = pd.read_csv('../data/X_test.csv')  
+            y_test = pd.read_csv('../data/y_test.csv')
 
             # Set row_count variable to sum
             row_count = 0
@@ -398,7 +398,7 @@ def row_check(agents:int = 10):
             total_row_count = row_count + len(X_test)
 
             # Note the underscores are just for readability they don't affect the calculation  
-            print(f'Row Count check:  {total_row_count == 678_013}')
+            print(f'Row Count check: {total_row_count} 678013  {total_row_count == 678_013}')
 
             # Add together exposure of training and validation datasets
             for i in range(agents):
@@ -420,8 +420,8 @@ def row_check(agents:int = 10):
             # Note the underscores are just for readability they don't affect the calculation  
             print(f'Claims check:  {total_claim_sum == 36_056}')
 
-      except:
-            print('Checks failed')
+      except Exception as e:
+            print(f'Checks failed: {e}')
 
 def uniform_partitions(agents:int = 10):
       (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
@@ -500,7 +500,7 @@ def load_individual_skorch_data(agent_id):
 def training_loss_curve(estimator, ag):
       # Save and graph training loss curves
 
-      train_val_loss_df = pd.DataFrame(estimator.history[:, ['train_loss', 'valid_loss', 'PDE']], columns=['train_loss', 'valid_loss', 'PDE'])
+      train_val_loss_df = pd.DataFrame(estimator.history[:, ['train_loss', 'valid_loss', 'weighted_PDE']], columns=['train_loss', 'valid_loss', 'PDE'])
 
       #plt.style.use('default')
 
