@@ -56,6 +56,9 @@ def dequantize(
     shift = -clipping_range*ag_no
     for arr in quantized_parameters:
         recon_arr = arr.view(np.ndarray).astype(np.float_)
+        print('recon_arr', recon_arr)
+        print('quantizer', quantizer)
+        print('shift', shift)
         recon_arr = cast(NDArrayFloat, recon_arr * quantizer + shift)   
         reverse_quantized_list.append(recon_arr)
     return reverse_quantized_list

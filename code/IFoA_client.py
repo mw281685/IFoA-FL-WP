@@ -108,7 +108,7 @@ class IFoAClient(fl.client.NumPyClient):
         testloader = DataLoader(self.testset, batch_size=BATCH_SIZE)
         loss = test(self.model, self.criterion, testloader)
         
-        return self.get_parameters(config), 1, {'exposure': self.exposure}  # ms to test now 10.09.2023 prev :self.get_parameters(config), len(self.trainset), {'exposure': self.exposure}
+        return self.get_parameters(config), len(self.trainset), {'exposure': self.exposure}  # ms to test now 10.09.2023 prev :self.get_parameters(config), len(self.trainset), {'exposure': self.exposure}
 
 
     def evaluate(

@@ -16,15 +16,15 @@ if __name__ == "__main__":
         return {"accuracy": sum(accuracies) / sum(examples)} 
 
     def init_parameters():
-        #PATH = "./init_state_dict.pt"
+        PATH = "./init_state_dict.pt"
         model = archit.MultipleRegression(num_features=run_config.NUM_FEATURES, num_units_1=run_config.NUM_UNITS_1, num_units_2=run_config.NUM_UNITS_2)
 
         # Initialize the state dictionary with zeros
-        state_dict = model.state_dict()
-        for key in state_dict:
-            state_dict[key].zero_()
+        #state_dict = model.state_dict()
+        #for key in state_dict:
+        #    state_dict[key].zero_()
 
-        #model.load_state_dict(torch.load(PATH))
+        model.load_state_dict(torch.load(PATH))
         params = archit.get_parameters(model)
         
         return fl.common.ndarrays_to_parameters(params)

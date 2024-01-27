@@ -37,12 +37,13 @@ top_results_dict = top_results_df[['agent', 'param_module__num_units_1', 'param_
 
 QUANTISATION = 0
 SMPC_NOISE = 0  
-EPOCHS_LOCAL_GLOBAL = 75 
+
+EPOCHS_LOCAL_GLOBAL = 10 
 EPOCHS = 10
-BATCH_SIZE = 10000
+BATCH_SIZE = 500
 NUM_FEATURES = 39
-NUM_UNITS_1 = list(top_results_dict[-1].items())[0][1]
-NUM_UNITS_2 = list(top_results_dict[-1].items())[1][1]
+NUM_UNITS_1 = 10 #list(top_results_dict[-1].items())[0][1]
+NUM_UNITS_2 = 15 #list(top_results_dict[-1].items())[1][1]
 
 
 
@@ -50,8 +51,9 @@ NUM_UNITS_2 = list(top_results_dict[-1].items())[1][1]
 
 server_config = {
     "num_clients": 10,
-    "num_rounds": 150
+    "num_rounds": 25
 }
+
 
 run_name = "uniform partitions, " + str(server_config["num_clients"]) + " agents," + str(server_config["num_rounds"]) + " rounds, " + str(EPOCHS) + " epochs " + str(EPOCHS_LOCAL_GLOBAL) + " epochs for local and global tr"
 
@@ -60,6 +62,7 @@ dataset_config = {
     "path" : '../data/freMTPL2freq.csv',
     "seed" : 300,
     "num_agents" : server_config["num_clients"],
+    "num_features": 39.
 }
 
 
