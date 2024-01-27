@@ -24,8 +24,8 @@ if __name__ == "__main__":
         #for key in state_dict:
         #    state_dict[key].zero_()
 
-        model.load_state_dict(torch.load(PATH))
-        params = archit.get_parameters(model)
+        #model.load_state_dict(torch.load(PATH))
+        params = archit.get_parameters(model)  # Xavier initialization
         
         return fl.common.ndarrays_to_parameters(params)
 
