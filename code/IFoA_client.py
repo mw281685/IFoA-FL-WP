@@ -218,7 +218,7 @@ def main():
     utils.seed_torch() 
     
     print(f'Processing client {args.agent_id}')
-    train_dataset, val_dataset, test_dataset, train_column_names, X_test_sc, exposure = utils.load_individual_data(args.agent_id)  # in folder data each training participant is storing their private, unique dataset 
+    train_dataset, val_dataset, test_dataset, train_column_names, X_test_sc, exposure = utils.load_individual_data(args.agent_id, run_config.IF_TRAIN_VAL)  # in folder data each training participant is storing their private, unique dataset 
 
     train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(dataset=val_dataset, batch_size=1)

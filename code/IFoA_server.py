@@ -5,6 +5,7 @@ from flwr.common import Metrics
 import run_config
 import architecture as archit
 import torch
+import utils
 
 if __name__ == "__main__":
 
@@ -16,7 +17,7 @@ if __name__ == "__main__":
         return {"accuracy": sum(accuracies) / sum(examples)} 
 
     def init_parameters():
-        PATH = "./init_state_dict.pt"
+        #PATH = "./init_state_dict.pt"
         model = archit.MultipleRegression(num_features=run_config.NUM_FEATURES, num_units_1=run_config.NUM_UNITS_1, num_units_2=run_config.NUM_UNITS_2)
 
         # Initialize the state dictionary with zeros
@@ -29,6 +30,8 @@ if __name__ == "__main__":
         
         return fl.common.ndarrays_to_parameters(params)
 
+    utils.seed_torch() 
+    
     strategy = run_config.LocalUpdatesStrategy(
         fraction_fit = 1.0,
         fraction_evaluate = 1.0,
@@ -39,6 +42,7 @@ if __name__ == "__main__":
         initial_parameters = init_parameters(),
     )
 
+    
 
     fl.server.start_server(
         server_address="[::]:8080",

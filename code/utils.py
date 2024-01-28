@@ -316,7 +316,7 @@ def load_partition(idx: int = -1, num_agents: int = 10):
       return (train_dataset, val_dataset, test_dataset, X_column_names)
 
 
-def load_individual_data(agent_id):
+def load_individual_data(agent_id, if_train_val=0): #if_train_val: True then validation data included in training set, else not included
       #global model training:
       if agent_id == -1:
       # Created tensordataset
@@ -347,6 +347,16 @@ def load_individual_data(agent_id):
             y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
 
       exposure = sum(X_train_sc['Exposure'])
+
+      print(f"Shape of the X_train_sc:  {X_train_sc.shape} y_tr {y_tr.shape} X_val_sc: {X_val_sc.shape} y_vl: {y_vl.shape} exposure {exposure}")
+
+      #to align the code with scorch tuning where validation set is included in training set
+      if if_train_val:
+            X_train_sc = pd.concat([X_train_sc, X_val_sc], axis=0)
+            y_tr = pd.concat([y_tr, y_vl], axis=0)
+            exposure = sum(X_train_sc['Exposure']) + sum(X_val_sc['Exposure'])
+            print(f"After concat: Shape of the X_train_sc:  {X_train_sc.shape} y_tr {y_tr.shape} exposure {exposure}")
+
 
       # Created tensordataset
       train_dataset = torch.utils.data.TensorDataset(
