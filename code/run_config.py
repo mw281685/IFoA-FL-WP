@@ -50,12 +50,12 @@ NUM_UNITS_2 = 15 #list(top_results_dict[-1].items())[1][1]
 
 server_config = {
     "num_clients": 10,
-    "num_rounds": 25
+    "num_rounds": 250
 }
 
 
-run_name = "uniform partitions, " + str(server_config["num_clients"]) + " agents," + str(server_config["num_rounds"]) + " rounds, " + str(EPOCHS) + " epochs " + str(EPOCHS_LOCAL_GLOBAL) + " epochs for local and global tr"
-
+#run_name = "uniform partitions, " + str(server_config["num_clients"]) + " agents," + str(server_config["num_rounds"]) + " rounds, " + str(EPOCHS) + " epochs " + str(EPOCHS_LOCAL_GLOBAL) + " epochs for local and global tr"
+run_name = 'UP_'+ str(server_config["num_clients"])+'ag_'+ str(server_config["num_rounds"])+'rnd_'+ str(EPOCHS)+'ep_'+ str(QUANTISATION) +'qt_'+ str(SMPC_NOISE) +'SMPCn'
 # used in prepare_dataset.py 
 dataset_config = {
     "path" : '../data/freMTPL2freq.csv',

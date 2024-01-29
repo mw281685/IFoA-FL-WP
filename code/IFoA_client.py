@@ -274,7 +274,7 @@ def main():
         _, loss_stats = train(model_l, optimizer_l, criterion, train_loader, val_loader, epochs=EPOCHS_LOCAL_GLOBAL)
         torch.save(model_l.state_dict(), AGENT_PATH)  
 
-        model_name = 'fl_model.pt'
+        model_name = 'fl_model_'+ run_config.run_name + '.pt'
         AGENT_PATH = '../ag_' + str(args.agent_id) + '/' + model_name 
 
         if args.agent_id in range(10):
