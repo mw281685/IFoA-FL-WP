@@ -108,7 +108,7 @@ class IFoAClient(fl.client.NumPyClient):
         testloader = DataLoader(self.testset, batch_size=BATCH_SIZE)
         loss = test(self.model, self.criterion, testloader)
         
-        return self.get_parameters(config), len(self.trainset), {'exposure': self.exposure}  # ms to test now 10.09.2023 prev :self.get_parameters(config), len(self.trainset), {'exposure': self.exposure}
+        return self.get_parameters(config), 1, {'exposure': self.exposure}  # ms to test now 10.09.2023 prev :self.get_parameters(config), len(self.trainset), {'exposure': self.exposure}
 
 
     def evaluate(
@@ -265,9 +265,9 @@ def main():
         #noise = load_noise('noise_'+ str(args.agent_id) + '.csv')
 
         if SMPC_NOISE:
-            noise = calc_noise('../data/seeds.csv', args.agent_id) #quantized
+            noise = calc_noise('../data/seeds_250.csv', args.agent_id) #quantized
         else:
-            noise = calc_noise_zero('../data/seeds.csv', args.agent_id) #quantized
+            noise = calc_noise_zero('../data/seeds_250.csv', args.agent_id) #quantized
     
         model_l = copy.deepcopy(model)
         optimizer_l = optim.NAdam(model_l.parameters()) #optim.Adam(params=model_l.parameters(), lr=LEARNING_RATE) #

@@ -35,7 +35,7 @@ top_results_df = tuning_results_df.loc[tuning_results_df['rank_test_score']==1]
 top_results_dict = top_results_df[['agent', 'param_module__num_units_1', 'param_module__num_units_2']].set_index('agent').to_dict('index')
 
 IF_TRAIN_VAL = 1 # 1: validation dataset included in training
-QUANTISATION = 0
+QUANTISATION = 1
 SMPC_NOISE = 0  
 EPOCHS_LOCAL_GLOBAL = 10 
 EPOCHS = 10
