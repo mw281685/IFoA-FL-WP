@@ -15,10 +15,6 @@ from run_config import NUM_FEATURES
 DATA_PATH = run_config.dataset_config["path"]
 SEED = run_config.dataset_config["seed"]
 
-
-
-
-
 def row_check(agents:int = 10):
       try:
             # Create empty dictionaries for validation and training data
@@ -85,43 +81,23 @@ def row_check(agents:int = 10):
 def training_loss_curve(estimator, ag):
       # Save and graph training loss curves
 
-      train_val_loss_df = pd.DataFrame(estimator.history[:, ['train_loss', 'valid_loss', 'weighted_PDE_best']], columns=['train_loss', 'valid_loss', 'PDE'])
+      train_val_loss_df = pd.DataFrame(estimator.history[:, ['train_loss', 'valid_loss']], columns=['train_loss', 'valid_loss'])
 
       #plt.style.use('default')
 
-      fig, ax = plt.subplots(figsize=(40, 15))
+      fig, ax = plt.subplots(figsize=(15,8))
       plt.plot(train_val_loss_df ['train_loss'],  label='Training Loss')
       plt.plot(train_val_loss_df ['valid_loss'],  label='Validation Loss')
-      plt.legend(bbox_to_anchor=(1.08, 1), loc='upper left', borderaxespad=0)
-      plt.xlabel('Epochs')
-      plt.ylabel('Loss')
-      plt.ylabel('Loss')
+      plt.legend(
+            loc='upper right', 
+            fontsize=15
+            )
+      plt.xlabel('Epochs', fontsize=15)
+      plt.ylabel('Loss', fontsize=15)
       plt.grid()
-      plt.title(f"Agent {ag}'s Best Model's Training Loss Curve")
-
-      # Get second axis
-      ax2 = ax.twinx()
-      plt.plot(train_val_loss_df ['PDE'], label='PDE', color='g')
-      plt.ylabel('% of Poisson Deviance Explained', color='g')
-      #adjust y-axis label position
-      ax2.yaxis.set_label_coords(1.06, 0.5)
-      ax2.yaxis.set_major_formatter(mtick.PercentFormatter(1))
-      plt.legend(bbox_to_anchor=(1.08, 0.94), loc='upper left', borderaxespad=0)
+      plt.title(f"Agent {ag}'s Best Model's Training Loss Curve", fontsize=15)
 
       plt.savefig(f'../ag_{ag}/' + 'agent_' + str(ag) + '_training_loss_chart', facecolor='white')
-
-def hyperparameter_counts(dataframe, hyperparameter, x_label, title, name):
-      fig, ax = plt.subplots(figsize=(10, 8))
-      dataframe[str(hyperparameter)].value_counts().plot(kind='bar')
-      plt.grid()
-      plt.xlabel(x_label)
-      plt.xticks(rotation=0)
-      plt.ylabel('Count')
-      plt.title(title)
-      plt.savefig('../results/'+name, facecolor='white')
-
-
-
 
 
 def load_individual_skorch_data(agent_id):
