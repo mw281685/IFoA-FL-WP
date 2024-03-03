@@ -93,7 +93,9 @@ def training_loss_curve(estimator, ag):
             fontsize=15
             )
       plt.xlabel('Epochs', fontsize=15)
+      plt.xticks(fontsize=15)
       plt.ylabel('Loss', fontsize=15)
+      plt.yticks(fontsize=15)
       plt.grid()
       plt.title(f"Agent {ag}'s Best Model's Training Loss Curve", fontsize=15)
 
