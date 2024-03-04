@@ -27,6 +27,9 @@ import architecture as archit
 DATA_PATH = run_config.dataset_config["path"]
 SEED = run_config.dataset_config["seed"]
 BATCH_SIZE = 5_00
+NUM_AGENTS = 10
+GRID_SIZE = 18
+EPOCHS = 100
  
 # Formatting options to print dataframe to terminal
 pd.set_option('display.max_columns', 7)
@@ -47,12 +50,11 @@ check_point_callback = callbacks.Checkpoint(monitor='weighted_PDE_best', load_be
 
 # Grid Search space dictionary
 params = {
-    'optimizer__lr': [0.001, 0.01], # 3
+    'optimizer__lr': [0.001, 0.01], # 2
     #'optimizer__momentum': [0.9],
     #'batch_size':[500, 5_000, 50_000], # 3
     'module__num_units_1': [5, 10, 15],# 3
     'module__num_units_2': [5, 10, 15], # 3
-    #'module__num_units_3': [10, 20, 30, 40], # 3
 }
 
 def main():
@@ -60,7 +62,7 @@ def main():
     # Create list to store results
     all_results_list = []
     
-    for ag in range(-1,10):
+    for ag in range(-1,NUM_AGENTS):
         
         print(f'\n Tuning Agent = {ag}', end='\n')
         
@@ -95,7 +97,6 @@ def main():
             return d2_tweedie_score_1.item()
         
         # Define weighted PDE scorer
-        #weighted_pde_score = make_scorer(d2_tweedie_score, sample_weight=X_val['Exposure'], power=1, greater_is_better=True)
         weighted_pde_score = make_scorer(weighted_pde, greater_is_better=True)
 
         # Create callback to display weighted PDE after each epoch on validation set
@@ -104,19 +105,15 @@ def main():
         # Define skorch neural network
         net_regr = NeuralNetRegressor(
             archit.MultipleRegression(num_features=39, num_units_1=20, num_units_2=40).double(),
-            #optimizer=optim.SGD,
             optimizer=optim.NAdam,
             criterion=nn.PoissonNLLLoss(log_input= False, full= True),
-            max_epochs=100,
+            max_epochs=EPOCHS,
             batch_size=BATCH_SIZE,
-            #train_split=skorch.dataset.ValidSplit(0.1, stratified=False, random_state=SEED), # use 10% to set early stopping
             train_split = predefined_split(valid_ds),
-            #train_split=None,
-            #callbacks=[pde_callback, early_stopping_callback, check_point_callback],
-            callbacks=[weighted_pde_callback],
+            #callbacks=[pde_callback, early_stopping_callback, check_point_callback, weighted_pde_callback],
             device=None, # ignore CUDA for now
-            #device='cuda', # ignore CUDA for now
-            iterator_train__shuffle=True
+            iterator_train__shuffle=True,
+            verbose=0 # stops printing to save time
             )
                 
         gs = RandomizedSearchCV(net_regr,
@@ -124,8 +121,7 @@ def main():
                         refit=True,
                         cv=ps,
                         scoring=weighted_pde_score,
-                        n_iter=18, # grid size
-                        #n_jobs=-1, # turning off mutli-threading as issues with reproducibility
+                        n_iter=GRID_SIZE, 
                         random_state=SEED,
                         return_train_score=True
                         )
@@ -202,34 +198,6 @@ def main():
     all_results_df = pd.concat(all_results_list)
     all_results_df.to_csv('../results/all_results.csv')
 
-    # Select local top 5 hyperparameters
-    top_5_results_df = all_results_df[(all_results_df['agent']!=-1) & (all_results_df['rank_test_score']<=5)]
-
-    # Output learning rate distribution
-    #utils.hyperparameter_counts(top_5_results_df, hyperparameter='param_optimizer__lr', x_label='Learning Rate', title='Best Local Learning Rates', name='learning_rate_chart')
-
-    # Output layer 1 neurons distribution
-    utils.hyperparameter_counts(top_5_results_df, hyperparameter='param_module__num_units_1', x_label='Layer 1 Neurons', title='Best Local Layer 1 Neurons', name='layer_1_neuron_chart')
-
-    # Output layer 2 neurons distribution
-    utils.hyperparameter_counts(top_5_results_df, hyperparameter='param_module__num_units_2', x_label='Layer 2 Neurons', title='Best Local Layer 2 Neurons', name='layer_2_neuron_chart')
-
-    # Output best epochs
-    utils.hyperparameter_counts(top_5_results_df, hyperparameter='best_epochs', x_label='Epochs', title='Best Local Epochs', name='epochs_chart')
-
-    # Overal HPT set
-    top_5_results_df.index.value_counts().plot(kind='bar',figsize=(10,12))
-    plt.grid()
-    plt.xlabel('HPT set')
-    plt.ylabel('Count')
-    plt.title('Best HPT Sets')
-    plt.savefig('../results/HPT_chart', facecolor='white')
-
-    # Randomly select 1 of the Top 5
-    best_HPT_randomly_chosen_df = top_5_results_df.sample(random_state=SEED)
-    best_HPT_randomly_chosen_df.to_csv('../results/best_HPT_randomly_chosen.csv')
-
-    # Alternative HPT method
     # Filter to just local HPT results
     all_local_results_df = all_results_df[all_results_df['agent']!=-1]
     # Compute average performance by each HPT set across all agents
