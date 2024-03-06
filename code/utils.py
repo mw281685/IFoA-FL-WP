@@ -3,540 +3,532 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
-import torch
 import random
 from torch.utils.data import TensorDataset, DataLoader
 import matplotlib.pyplot as plt
-import seaborn as sns
-import run_config
 import matplotlib.ticker as mtick
-from run_config import NUM_FEATURES
-
-DATA_PATH = run_config.dataset_config["path"]
-SEED = run_config.dataset_config["seed"]
+from run_config import NUM_FEATURES, DATA_PATH, SEED
 
 
+#---------------------- DATASET CHECKS: ----------------------------------------------------------------------------
+
+import pandas as pd
+
+def row_check(agents: int = 10):
+    """
+    Validates the integrity of the dataset across multiple agents by checking the total number of rows, 
+    the sum of exposure values, and the sum of claims across training, validation, and test datasets.
+
+    This function ensures that the combined dataset from multiple agents, along with the test dataset,
+    matches expected values for total row count, total exposure, and total claims. These checks are critical for
+    verifying data integrity and consistency before proceeding with further data analysis or model training.
+
+    Parameters:
+        agents : int, optional
+            The number of agents (or partitions) for which training and validation datasets are available.
+            Defaults to 10.
+
+    Raises:
+        AssertionError
+            If the total number of rows, total exposure, or total claims do not match expected values, 
+            an AssertionError is raised indicating which specific integrity check has failed.
+
+    Notes:
+        - Assumes existence of CSV files in '../data/' following specific naming conventions.
+        - Useful for data preprocessing in machine learning workflows involving multiple sources or agents.
+        - 'Exposure' and '0' are assumed to be column names in the respective CSV files for exposure and claims.
+
+    Example:
+        >>> row_check(agents=5)
+        # Checks datasets for 5 agents, along with the test dataset, and prints the status of each check.
+    """
+    # Helper function to load a CSV file into a DataFrame
+    def load_data_frame(prefix: str, index: int) -> pd.DataFrame:
+        return pd.read_csv(f'../data/{prefix}_{index}.csv')
+
+    # Initialize expected values
+    expected_row_count = 678_013
+    expected_exposure_sum = 358_360.11
+    expected_claims_sum = 36_056
+
+    # Load and aggregate datasets
+    datasets = {'X_train': [], 'X_val': [], 'y_train': [], 'y_val': []}
+    for prefix in datasets.keys():
+        for i in range(agents):
+            datasets[prefix].append(load_data_frame(prefix, i))
+    X_test = pd.read_csv('../data/X_test.csv')
+    y_test = pd.read_csv('../data/y_test.csv')
+
+    # Calculate totals
+    total_row_count = sum(df.shape[0] for prefix in ['X_train', 'X_val'] for df in datasets[prefix]) + X_test.shape[0]
+    total_exposure_sum = sum(df['Exposure'].sum() for prefix in ['X_train', 'X_val'] for df in datasets[prefix]) + X_test['Exposure'].sum()
+    total_claims_sum = sum(df['0'].sum() for prefix in ['y_train', 'y_val'] for df in datasets[prefix]) + y_test['0'].sum()
+
+    # Validate dataset integrity
+    assert total_row_count == expected_row_count, f"Total row count mismatch: expected {expected_row_count}, got {total_row_count}"
+    assert round(total_exposure_sum, 2) == round(expected_exposure_sum, 2), f"Total exposure mismatch: expected {expected_exposure_sum}, got {round(total_exposure_sum, 2)}"
+    assert total_claims_sum == expected_claims_sum, f"Total claims sum mismatch: expected {expected_claims_sum}, got {total_claims_sum}"
+
+    print('All checks passed successfully.')
 
 
 
-def row_check(agents:int = 10):
-      try:
-            # Create empty dictionaries for validation and training data
-            dataframe_X_train_dictionary = {}
-            dataframe_X_val_dictionary = {}
-            dataframe_y_train_dictionary = {}
-            dataframe_y_val_dictionary = {}
+#---------------------------- SKORCH_TUNING_UTILS ------------------------------------------------------
+def training_loss_curve(estimator, agent_id):
+    """
+    Plots the training and validation loss curves along with the percentage of Poisson Deviance Explained (PDE).
 
-            # Import training and validation data
-            for i in range(agents):
-                  dataframe_X_train_dictionary["X_train_{0}".format(i)] = pd.read_csv(f'../data/X_train_{i}.csv')
-                  dataframe_X_val_dictionary["X_val_{0}".format(i)] = pd.read_csv(f'../data/X_val_{i}.csv')
-                  dataframe_y_train_dictionary["y_tr_{0}".format(i)] = pd.read_csv(f'../data/y_tr_{i}.csv')
-                  dataframe_y_val_dictionary["y_vl_{0}".format(i)] = pd.read_csv(f'../data/y_vl_{i}.csv')
-      
-            # Import test data
-            X_test = pd.read_csv('../data/X_test.csv')  
-            y_test = pd.read_csv('../data/y_test.csv')
+    Parameters:
+        estimator : object
+            The trained model or estimator that contains the training history. It is expected
+            to have a 'history' attribute that is a NumPy array or a similar structure with
+            'train_loss', 'valid_loss', and 'weighted_PDE_best' columns.
+        agent_id : int or str
+            Identifier for the agent. Used for titling the plot and naming the saved figure file.
+    
+    Notes:
+        - This function saves the generated plot as a PNG file in a directory named after the agent.
+        - Ensure the directory '../ag_{agent_id}/' exists or adjust the save path accordingly.
+        - The function uses matplotlib for plotting and requires this library to be installed.
+    """
+    
+    # Creating a DataFrame from the estimator's history for easier manipulation
+    train_val_loss_df = pd.DataFrame(estimator.history, columns=['train_loss', 'valid_loss', 'weighted_PDE_best'])
+    train_val_loss_df.rename(columns={'weighted_PDE_best': 'PDE'}, inplace=True)
 
-            # Set row_count variable to sum
-            row_count = 0
+    # Plotting setup
+    fig, ax1 = plt.subplots(figsize=(40, 15))
+    ax1.set_xlabel('Epochs')
+    ax1.set_ylabel('Loss')
+    ax1.plot(train_val_loss_df['train_loss'], label='Training Loss', color='tab:blue')
+    ax1.plot(train_val_loss_df['valid_loss'], label='Validation Loss', color='tab:orange')
+    ax1.tick_params(axis='y')
+    ax1.grid()
+    ax1.legend(loc='upper left')
 
-            # Set exposure_sum variable to sum
-            exposure_sum = 0
+    # Twin axis for PDE
+    ax2 = ax1.twinx()
+    ax2.set_ylabel('% of Poisson Deviance Explained', color='g')
+    ax2.plot(train_val_loss_df['PDE'], label='PDE', color='g')
+    ax2.tick_params(axis='y', labelcolor='g')
+    ax2.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+    ax2.legend(loc='upper right')
 
-            # Set claim_sum variable to sum
-            claim_sum = 0
-
-            # Add together row count of training and validation datasets
-            for i in range(agents):
-                  row_count += len(list(dataframe_X_train_dictionary.values())[i].index)
-                  row_count += len(list(dataframe_X_val_dictionary.values())[i].index)
-
-            total_row_count = row_count + len(X_test)
-
-            assert total_row_count == 678_013, "Total number of rows should be 678 013"
-            print('Total row count OK')
-
-            # Add together exposure of training and validation datasets
-            for i in range(agents):
-                  exposure_sum  += list(dataframe_X_train_dictionary.values())[i]['Exposure'].sum()
-                  exposure_sum  += list(dataframe_X_val_dictionary.values())[i]['Exposure'].sum()
-
-            total_exposure_sum = exposure_sum + X_test['Exposure'].sum()
-
-            assert round(total_exposure_sum, 2) == round(358_360.10546277853,2), "Exposure test failed"
-            print('Total exposure OK')
-
-            # Add together claims of training and validation datasets
-            for i in range(agents):
-                  claim_sum  += sum(list(dataframe_y_train_dictionary.values())[i]['0'])
-                  claim_sum  += sum(list(dataframe_y_val_dictionary.values())[i]['0'])
-
-            total_claim_sum = claim_sum + sum(y_test['0'])
-
-            # Note the underscores are just for readability they don't affect the calculation  
-            assert total_claim_sum == 36_056, "Claims check failed"
-            print('Total claims sum OK')
-
-      except Exception as e:
-            print('Handling run-time error:', e)
+    # Title and save figure
+    plt.title(f"Agent {agent_id}'s Best Model's Training Loss Curve")
+    plt.savefig(f'../ag_{agent_id}/agent_{agent_id}_training_loss_chart.png', facecolor='white')
+    plt.close(fig)
 
 
-def training_loss_curve(estimator, ag):
-      # Save and graph training loss curves
-
-      train_val_loss_df = pd.DataFrame(estimator.history[:, ['train_loss', 'valid_loss', 'weighted_PDE_best']], columns=['train_loss', 'valid_loss', 'PDE'])
-
-      #plt.style.use('default')
-
-      fig, ax = plt.subplots(figsize=(40, 15))
-      plt.plot(train_val_loss_df ['train_loss'],  label='Training Loss')
-      plt.plot(train_val_loss_df ['valid_loss'],  label='Validation Loss')
-      plt.legend(bbox_to_anchor=(1.08, 1), loc='upper left', borderaxespad=0)
-      plt.xlabel('Epochs')
-      plt.ylabel('Loss')
-      plt.ylabel('Loss')
-      plt.grid()
-      plt.title(f"Agent {ag}'s Best Model's Training Loss Curve")
-
-      # Get second axis
-      ax2 = ax.twinx()
-      plt.plot(train_val_loss_df ['PDE'], label='PDE', color='g')
-      plt.ylabel('% of Poisson Deviance Explained', color='g')
-      #adjust y-axis label position
-      ax2.yaxis.set_label_coords(1.06, 0.5)
-      ax2.yaxis.set_major_formatter(mtick.PercentFormatter(1))
-      plt.legend(bbox_to_anchor=(1.08, 0.94), loc='upper left', borderaxespad=0)
-
-      plt.savefig(f'../ag_{ag}/' + 'agent_' + str(ag) + '_training_loss_chart', facecolor='white')
 
 def hyperparameter_counts(dataframe, hyperparameter, x_label, title, name):
-      fig, ax = plt.subplots(figsize=(10, 8))
-      dataframe[str(hyperparameter)].value_counts().plot(kind='bar')
-      plt.grid()
-      plt.xlabel(x_label)
-      plt.xticks(rotation=0)
-      plt.ylabel('Count')
-      plt.title(title)
-      plt.savefig('../results/'+name, facecolor='white')
+    """
+    Plots and saves a bar chart of the value counts for a specified hyperparameter in a given DataFrame.
 
+    This function visualizes the distribution of values for a selected hyperparameter within a dataset, 
+    highlighting the frequency of each unique value. The resulting bar chart is saved to a file.
 
+    Parameters:
+        dataframe : pandas.DataFrame
+            The DataFrame containing the data from which to count the hyperparameter values.
+        hyperparameter : str
+            The name of the column in `dataframe` representing the hyperparameter whose distribution is to be plotted.
+        x_label : str
+            The label for the x-axis of the plot, typically the name of the hyperparameter.     
+        title : str
+            The title of the plot, describing what the plot shows.    
+        name : str
+            The filename under which the plot will be saved. The plot is saved in the '../results/' directory.
+            The '.png' extension is recommended to be included in the `name` for clarity.
+
+    Examples:
+        >>> df = pd.DataFrame({'model_depth': [2, 3, 4, 2, 3, 3, 2]})
+        >>> hyperparameter_counts(df, 'model_depth', 'Model Depth', 'Distribution of Model Depths', 'model_depth_distribution.png')
+        # This will create and save a bar chart visualizing the frequency of different model depths in the dataset.
+
+    Notes:
+        - The plot is saved with a white background to ensure readability when viewed on various devices.
+        - Ensure the '../results/' directory exists before calling this function, or adjust the save path accordingly.
+        - The function does not return any value. It directly saves the generated plot to a file.
+    """
+      
+    fig, ax = plt.subplots(figsize=(10, 8))
+    dataframe[hyperparameter].value_counts().plot(kind='bar', ax=ax)
+    plt.grid()
+    plt.xlabel(x_label)
+    plt.xticks(rotation=0)
+    plt.ylabel('Count')
+    plt.title(title)
+    plt.savefig('../results/'+name, facecolor='white')
 
 
 
 def load_individual_skorch_data(agent_id):
-      #global model training:
-      if agent_id == -1:
-      # Created tensordataset
-            MY_DATA_PATH = '../data'
-            X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train.csv')
-            X_column_names = X_train_sc.columns.tolist()
+    """
+    Loads training, validation, and test datasets for a specified agent or for global model training.
 
-            y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr.csv')
+    This function reads the datasets from CSV files. If `agent_id` is -1, it loads the global datasets.
+    Otherwise, it loads the agent-specific datasets based on the provided `agent_id`.
 
-            X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val.csv')
-            y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl.csv')
+    Parameters:
+        agent_id : int
+            The identifier for the specific agent's dataset to load. If set to -1, the function loads the
+            global training, validation, and test datasets.
 
-            X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
-            y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
+    Returns:
+        tuple
+            A tuple containing the training features (X_train_sc), training labels (y_tr), validation features
+            (X_val_sc), validation labels (y_vl), test features (X_test_sc), test labels (y_te), column names
+            of the training features (X_column_names), and the total exposure from the training set (exposure).
 
-      else:
+    Examples:
+        >>> X_train, y_train, X_val, y_val, X_test, y_test, column_names, exposure = load_individual_skorch_data(-1)
+        >>> print(f"Training data shape: {X_train.shape}")
+    """
+    MY_DATA_PATH = '../data'
+    suffix = '' if agent_id == -1 else f'_{agent_id}'
+    
+    X_train_sc = pd.read_csv(f'{MY_DATA_PATH}/X_train{suffix}.csv')
+    X_column_names = X_train_sc.columns.tolist()
 
-            MY_DATA_PATH = '../data'
-            X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train_' + str(agent_id) + '.csv')
-            X_column_names = X_train_sc.columns.tolist()
+    y_tr = pd.read_csv(f'{MY_DATA_PATH}/y_tr{suffix}.csv')
+    X_val_sc = pd.read_csv(f'{MY_DATA_PATH}/X_val{suffix}.csv')
+    y_vl = pd.read_csv(f'{MY_DATA_PATH}/y_vl{suffix}.csv')
+    
+    # Note: It assumes X_test and y_test are the same across all agents
+    X_test_sc = pd.read_csv(f'{MY_DATA_PATH}/X_test.csv')
+    y_te = pd.read_csv(f'{MY_DATA_PATH}/y_test.csv')
 
-            y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr_' + str(agent_id) +  '.csv')
-
-            X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val_' + str(agent_id) + '.csv')
-            y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl_' + str(agent_id) + '.csv')
-
-            X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
-            y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
-
-      exposure = sum(X_train_sc['Exposure'])
-      
-      return (X_train_sc, y_tr, X_val_sc, y_vl, X_test_sc, y_te, X_column_names, exposure)
+    exposure = sum(X_train_sc['Exposure'])
+    
+    return (X_train_sc, y_tr, X_val_sc, y_vl, X_test_sc, y_te, X_column_names, exposure)
 
 
-
+#-------------------- FL training utils: ---------------------------
 def seed_torch(seed=SEED):
-      th.manual_seed(seed)
-      random.seed(seed)
-      th.cuda.manual_seed(seed)
-      th.cuda.manual_seed_all(seed)  # if you are using multi-GPU.
-      np.random.seed(seed)  # Numpy module.
-      random.seed(seed)  # Python random module.
-      th.manual_seed(seed)
-      th.backends.cudnn.benchmark = True
-      th.backends.cudnn.deterministic = True
+    """
+    Seeds the random number generators of PyTorch, NumPy, and Python's `random` module to ensure
+    reproducibility of results across runs when using PyTorch for deep learning experiments.
 
-#seed_torch() # for FL training, we cannot set seed, as everyone will have same rng
+    This function sets the seed for PyTorch (both CPU and CUDA), NumPy, and the Python `random` module,
+    enabling CuDNN benchmarking and deterministic algorithms. It is crucial for experiments requiring
+    reproducibility, like model performance comparisons. Note that enabling CuDNN benchmarking and
+    deterministic operations may impact performance and limit certain optimizations.
+
+    Parameters:
+        seed : int, optional
+            The seed value to use for all random number generators. The default value is `SEED`, which
+            should be defined beforehand.
+
+    Returns:
+        None
+            This function does not return a value but sets the random seed for various libraries.
+
+    Notes:
+        - When using multiple GPUs, `th.cuda.manual_seed_all(seed)` ensures all GPUs are seeded, 
+        crucial for reproducibility in multi-GPU setups.
+
+    Example:
+        >>> SEED = 42
+        >>> seed_torch(SEED)
+    """
+    th.manual_seed(seed)
+    random.seed(seed)
+    th.cuda.manual_seed(seed)
+    th.cuda.manual_seed_all(seed)  # if you are using multi-GPU.
+    np.random.seed(seed)  # Numpy module.
+    random.seed(seed)  # Python random module.
+    th.manual_seed(seed)
+    th.backends.cudnn.benchmark = True
+    th.backends.cudnn.deterministic = True
+
+
+#----------------------- Data preparation utils: --------------------------------
+    
+def preprocess_dataframe(df):
+    """
+    Applies preprocessing steps to the dataframe, including shuffling, data type transformations,
+    and value capping based on specified criteria.
+
+    Parameters:
+        df : DataFrame 
+            The pandas DataFrame to preprocess.
+
+    Returns:
+        DataFrame
+            The preprocessed DataFrame.
+
+    Usage:
+    ```
+    df_preprocessed = preprocess_dataframe(df)
+    ```
+    """    
+    # Shuffle dataset
+    df = df.sample(frac=1).reset_index(drop=True)
+    
+    # Data type transformations and capping
+    df['VehPower'] = df['VehPower'].astype(object)  # Convert to categorical
+    df['ClaimNb'] = pd.to_numeric(df['ClaimNb'], errors='coerce').clip(upper=4)
+    df['VehAge'] = df['VehAge'].clip(upper=20)
+    df['DrivAge'] = df['DrivAge'].clip(upper=90)
+    df['BonusMalus'] = df['BonusMalus'].clip(upper=150)
+    df['Density'] = np.log(df['Density'])
+    df['Exposure'] = df['Exposure'].clip(upper=1)
+    
+    # Drop unused variable
+    df = df.drop(['IDpol'], axis=1)
+    
+    return df
+
+def encode_and_scale_dataframe(df):
+    """
+    Encodes categorical variables and scales numerical features within the DataFrame.
+
+    Parameters:
+        df : DataFrame 
+            The DataFrame to encode and scale.
+
+    Returns:
+        DataFrame 
+            The encoded and scaled DataFrame.
+        MinMaxScaler 
+            The scaler used for numerical feature scaling.
+
+    Usage:
+    ```
+    df_encoded, scaler = encode_and_scale_dataframe(df_preprocessed)
+    ```
+    """
+    # Encode categorical variables
+    df_encoded = pd.get_dummies(df, columns=['VehBrand', 'Region'], drop_first=True)
+    
+    # Label encoding
+    cleanup_nums = {"Area": {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5, "F": 6},
+                    "VehGas": {"Regular": 1, "Diesel": 2}}
+    df_encoded.replace(cleanup_nums, inplace=True)
+    
+    # Scale features
+    scaler = MinMaxScaler()
+    features_to_scale = ['Area', 'VehPower', 'VehAge', 'DrivAge', 'BonusMalus', 'Density']
+    df_encoded[features_to_scale] = scaler.fit_transform(df_encoded[features_to_scale])
+    
+    return df_encoded, scaler
+
+def split_data(df_encoded):
+    """
+    Splits the encoded DataFrame into training, validation, and test sets.
+
+    Parameters:
+        df_encoded : DataFrame 
+            The encoded DataFrame from which to split the data.
+
+    Returns:
+        tuple
+            Contains training, validation, and test sets (X_train, X_val, X_test, y_train, y_val, y_test).
+
+    Usage:
+    ```
+    X_train, X_val, X_test, y_train, y_val, y_test = split_data(df_encoded)
+    ```
+    """
+    X = df_encoded.iloc[:, 1:].to_numpy()
+    y = df_encoded.iloc[:, 0].to_numpy()
+    
+    X_trainval, X_test, y_trainval, y_test = train_test_split(X, y, test_size=0.2, random_state=SEED)
+    X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_size=0.1, random_state=SEED)
+    
+    return X_train, X_val, X_test, y_train, y_val, y_test
 
 def upload_dataset():
-      seed_torch()
-      
-      df = pd.read_csv(DATA_PATH)
-      df = df.sample(frac=1) # shuffle dataset to make sure claims are not sorted e.g by Year
-      df.reset_index()
-#      df = df0.sort_values('ClaimNb', ignore_index=True)
-
-      #transformations and corrections
-      df['VehPower'] = df['VehPower'].astype(object) # categorical ordinal
-      df['ClaimNb'] = pd.to_numeric(df['ClaimNb'])
-      df['ClaimNb'].values[df['ClaimNb']>4] = 4 # corrected for unreasonable observations (see M.V. Wuthrich)
-      df['VehAge'].values[df['VehAge']>20] = 20 # capped for NN training (see M.V. Wuthrich)
-      df['DrivAge'].values[df['DrivAge']>90] = 90 # capped for NN training (see M.V. Wuthrich)
-      df['BonusMalus'].values[df['BonusMalus']>150] = 150 # capped for NN training (see M.V. Wuthrich)
-      df['Density']=np.log(df['Density']) # logged for NN training     (see M.V. Wuthrich)
-      df['Exposure'].values[df['Exposure']>1] = 1 # corrected for unreasonable observations (see M.V. Wuthrich)
-      df_new = df.drop(['IDpol'], axis=1) # variable not used
-
-      #Encode the data as per Wuthrich
-      df_new_encoded = pd.get_dummies(df_new, columns=['VehBrand', 'Region'], drop_first=True)
-
-      cleanup_nums = {"Area":     {"A": 1, "B": 2, "C": 3, "D": 4, "E":5, "F": 6},
-                  "VehGas":   {"Regular": 1, "Diesel": 2} }
-
-      #Apply label encoding - NOT ONE-HOT/DUMMY
-      df_new_encoded = df_new_encoded.replace(cleanup_nums)
-
-      #Apply MinMaxScaler as per Wuthrich
-      #TODO this should really be done for each train, val, test data
-      
-      scaler = MinMaxScaler()
-      df_new_encoded[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']] = scaler.fit_transform(df_new_encoded[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']])
-
-      #Convert to numpy array 
-      df_array=df_new_encoded.to_numpy()
-
-      # Create Input and Output Data
-      X = df_array[:, 1:]
-      y = df_array[:, 0]
-
-      #Data Splitting
-      #Split data into train and final test
-      X_trainval, X_test, y_trainval, y_test = train_test_split(X, y, test_size=0.2,  random_state=SEED)
-      
-      #Split train into train and validation
-      X_train, X_val, y_train, y_val = train_test_split(X_trainval, y_trainval, test_size=0.1,  random_state=SEED)
-
-      train_array = np.insert(X_train, 39, y_train, axis=1)
-      val_array = np.insert(X_val, 39, y_val, axis=1)
-
-
-      return (X_train, X_val, X_test, y_train, y_val, y_test, df_new_encoded.columns.tolist()[1:], scaler)
-
-
-
-def prep_partitions(agents:int = 10):
-      (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
-
-      #whole dataset (agent_id = -1) 
-      pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train.csv' , index=False)
-      pd.DataFrame(y_tr).to_csv(f'../data/y_tr.csv', index=False)
-
-      pd.DataFrame(X_test_sc[:,0:NUM_FEATURES], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
-      pd.DataFrame(y_te).to_csv('../data/y_test.csv', index=False)
-
-      pd.DataFrame(X_val_sc[:,0:NUM_FEATURES], columns=X_column_names).to_csv('../data/X_val.csv', index=False)
-      pd.DataFrame(y_vl).to_csv('../data/y_vl.csv', index=False)
-
-
-      train_array = np.insert(X_train_sc, NUM_FEATURES, y_tr, axis=1)
-      val_array = np.insert(X_val_sc, NUM_FEATURES, y_vl, axis=1)
-
-      print(f'train_array shape = {train_array.shape}, val_array shape = {val_array.shape}')
-
-      # datasets for agents (0 .... agents-1)
-      val_array_split = np.array_split(val_array, agents)
-      train_array_len = train_array.shape[0]
-
-      idx=[]
-
-      if agents == 1:
-            idx = [0, train_array_len]
-      elif agents == 3:
-            idx = [0, 1 * train_array_len // 6, 2 * train_array_len // 6, train_array_len]
-      elif agents == 10:
-            print('train_array_len: ', train_array_len)
-            part = train_array_len//40
-
-            parts=[0,1,3,5,5,5,5,5,5,5,1]
-            idx.append(parts[0]*part)
-            for no in range(1, agents):
-                  idx.append(idx[no-1] + parts[no]*part)
-            idx.append(train_array_len)
-
-
-      for ag_no in range(1, agents + 1):
-            X_train_sc = train_array[idx[ag_no-1]:idx[ag_no]][:,0:NUM_FEATURES]
-            print(f' Agent no = {ag_no} has ranges : {idx[ag_no-1]} to {idx[ag_no]}')
-            pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train_{ag_no - 1}.csv' , index=False)
-            y_tr = train_array[idx[ag_no - 1]:idx[ag_no]][:, NUM_FEATURES]
-            pd.DataFrame(y_tr).to_csv(f'../data/y_tr_{ag_no -1}.csv', index=False)
-
-      #truncate datas
-      for idx in range(agents):
-            print(f'Processing idx = {idx}')
-            X_val_sc = val_array_split[idx][:, 0:NUM_FEATURES]
-            pd.DataFrame(X_val_sc, columns=X_column_names).to_csv('../data/X_val_' + str(idx) + '.csv', index=False)
-            y_vl = val_array_split[idx][:,NUM_FEATURES]
-            pd.DataFrame(y_vl).to_csv('../data/y_vl_' + str(idx) + '.csv', index=False)
-
-
-
-def load_partition(idx: int = -1, num_agents: int = 10):
-      """Load 1/(num_agents) of the training and test data to simulate a partition."""
-
-      (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
-
-
-      train_array = np.insert(X_train_sc, NUM_FEATURES, y_tr, axis=1)
-      val_array = np.insert(X_val_sc, NUM_FEATURES, y_vl, axis=1)
-
-      #truncate data
-      if idx in range(num_agents):
-            train_array_split = np.array_split(train_array, num_agents)
-            val_array_split = np.array_split(val_array, num_agents)
-            X_train_sc = train_array_split[idx][:,0:NUM_FEATURES]
-            y_tr = train_array_split[idx][:, NUM_FEATURES]
-            X_val_sc = val_array_split[idx][:, 0:NUM_FEATURES]
-            y_vl = val_array_split[idx][:,NUM_FEATURES]
-
-
-      # Created tensordataset
-      train_dataset = torch.utils.data.TensorDataset(
-            torch.from_numpy(X_train_sc).float(), torch.from_numpy(y_tr).float())
-      val_dataset = torch.utils.data.TensorDataset(
-            torch.from_numpy(X_val_sc).float(), torch.from_numpy(y_vl).float())
-      test_dataset = torch.utils.data.TensorDataset(
-            torch.from_numpy(X_test_sc).float(), torch.from_numpy(y_te).float())
-      
-      return (train_dataset, val_dataset, test_dataset, X_column_names)
-
-
-def load_individual_data(agent_id, if_train_val=0): #if_train_val: True then validation data included in training set, else not included
-      #global model training:
-      if agent_id == -1:
-      # Created tensordataset
-            MY_DATA_PATH = '../data'
-            X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train.csv')
-            X_column_names = X_train_sc.columns.tolist()
-
-            y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr.csv')
-
-            X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val.csv')
-            y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl.csv')
-
-            X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
-            y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
-
-      else:
-
-            MY_DATA_PATH = '../data'
-            X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train_' + str(agent_id) + '.csv')
-            X_column_names = X_train_sc.columns.tolist()
-
-            y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr_' + str(agent_id) +  '.csv')
-
-            X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val_' + str(agent_id) + '.csv')
-            y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl_' + str(agent_id) + '.csv')
-
-            X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
-            y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
-
-      exposure = sum(X_train_sc['Exposure'])
-
-      print(f"Shape of the X_train_sc:  {X_train_sc.shape} y_tr {y_tr.shape} X_val_sc: {X_val_sc.shape} y_vl: {y_vl.shape} exposure {exposure}")
-
-      #to align the code with scorch tuning where validation set is included in training set
-      if if_train_val:
-            X_train_sc = pd.concat([X_train_sc, X_val_sc], axis=0)
-            y_tr = pd.concat([y_tr, y_vl], axis=0)
-            exposure = sum(X_train_sc['Exposure']) + sum(X_val_sc['Exposure'])
-            print(f"After concat: Shape of the X_train_sc:  {X_train_sc.shape} y_tr {y_tr.shape} exposure {exposure}")
-
-
-      # Created tensordataset
-      train_dataset = torch.utils.data.TensorDataset(
-            torch.tensor(X_train_sc.values).float(), torch.tensor(y_tr.values).float())
-      val_dataset = torch.utils.data.TensorDataset(
-            torch.tensor(X_val_sc.values).float(), torch.tensor(y_vl.values).float())
-      test_dataset = torch.utils.data.TensorDataset(
-            torch.tensor(X_test_sc.values).float(), torch.tensor(y_te.values).float())
-      
-      return (train_dataset, val_dataset, test_dataset, X_column_names, torch.tensor(X_test_sc.values).float(), exposure)
-
-def load_individual_data_lift(agent_id):
-      MY_DATA_PATH = '../data'
-      X_train_sc = pd.read_csv(MY_DATA_PATH + '/X_train_' + str(agent_id) + '.csv')
-      X_column_names = X_train_sc.columns.tolist()
-
-      y_tr = pd.read_csv(MY_DATA_PATH + '/y_tr_' + str(agent_id) +  '.csv')
-
-      X_val_sc = pd.read_csv(MY_DATA_PATH + '/X_val_' + str(agent_id) + '.csv')
-      y_vl = pd.read_csv(MY_DATA_PATH + '/y_vl_' + str(agent_id) + '.csv')
-
-      X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
-      y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
-
-      # Created tensordataset
-      train_dataset = torch.utils.data.TensorDataset(
-            torch.tensor(X_train_sc.values).float(), torch.tensor(y_tr.values).float())
-      val_dataset = torch.utils.data.TensorDataset(
-            torch.tensor(X_val_sc.values).float(), torch.tensor(y_vl.values).float())
-      test_dataset = torch.utils.data.TensorDataset(
-            torch.tensor(X_test_sc.values).float(), torch.tensor(y_te.values).float())
-      
-      return (train_dataset, val_dataset, test_dataset, X_train_sc, y_tr, X_val_sc, y_vl, X_test_sc, y_te)
-
-#---------------------- Model predictions testing
-
-def exp_model_predictions(model, test_loader):
-      y_pred_list = []
-      with th.no_grad():
-            model.eval()
-            for X_batch, _ in test_loader:
-                  y_test_pred = model(X_batch)
-                  y_pred_list.append(y_test_pred.cpu().numpy())
-      y_pred_list = [a.squeeze().tolist() for a in y_pred_list]
-      return np.exp(y_pred_list)
-
-
-def frequency_conversion(FACTOR, df, freq_dictionary):
-      for key in freq_dictionary:
-            df[freq_dictionary[key]]=df[key]/df['Exposure']
-
-      df.insert(1,FACTOR+'_binned_midpoint',[round((a.left + a.right)/2,0) for a in df[FACTOR+'_binned']])
-
-
-def one_way_graph(FACTOR, df, plot_name, ag,  *freq):
-      data_preproc = df[[FACTOR+'_binned_midpoint', *freq]]
-      plt.figure(figsize=(15,8))
-      sns.set(style='dark',)
-
-      sns.lineplot(data=pd.melt(data_preproc, [FACTOR+'_binned_midpoint']), x=FACTOR+'_binned_midpoint', y='value', hue='variable', linewidth=2.0).set(title= plot_name)
-      #sns.set_style("ticks",{'axes.grid' : True})
-
-      #plt.show()
-      plt.savefig(f'../plots/' + plot_name)
-
-      #plt.savefig(f'../ag_{ag}/' + plot_name)
-
-
-def predictions_check(run_name, model_global, model_partial, model_fl, ag):
-      
-      (X_train, X_val, X_test, y_train, y_val, y_test, X_column_names, scaler) = upload_dataset()
-      
-      MY_DATA_PATH = '../data'
-        
-      X_test_sc = pd.read_csv(MY_DATA_PATH + '/X_test.csv')
-      y_te = pd.read_csv(MY_DATA_PATH + '/y_test.csv')
-      X_column_names = X_test_sc.columns.tolist()
-      
-      test_dataset = torch.utils.data.TensorDataset(
-            torch.tensor(X_test_sc.values).float(), torch.tensor(y_te.values).float())
-            
-      
-      test_loader = DataLoader(dataset=test_dataset, batch_size=1)
-
-
-      test_complete_data=np.column_stack((X_test_sc, y_te))
-
-      X_column_names.append('ClaimNb')
-
-      #Convert dataset of test data, actuals, and prediction back into dataframe
-
-      df_test=pd.DataFrame(data=test_complete_data,    # values
-                     columns=X_column_names)  # 1st row as the column names
-      
-
-      df_test[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']]=scaler.inverse_transform(df_test[['Area', 'VehPower', 'VehAge','DrivAge','BonusMalus','Density']] )
-      
-      #Bin certain factors
-      factor_list = ['Area', 'VehPower', 'VehAge', 'DrivAge', 'BonusMalus', 'VehGas', 'Density']
-      BINSIZE = 15
-
-      for i in factor_list:
-          df_test[i+'_binned'] = pd.cut(df_test[i], bins=BINSIZE, duplicates='drop')
-
-
-      y_pred_list_exp = exp_model_predictions(model_global, test_loader)
-      df_test['ClaimNb_pred']=pd.Series(y_pred_list_exp)
-
-      y_partial_pred_list_exp = exp_model_predictions(model_partial, test_loader)
-      df_test['ClaimNb_partial_pred']=pd.Series(y_partial_pred_list_exp)
-      
-      y_fl_pred_list_exp = exp_model_predictions(model_fl, test_loader)
-      df_test['ClaimNb_fl_pred']=pd.Series(y_fl_pred_list_exp)
-
-      # One way analysis
-      FACTOR = 'VehAge'
-
-      df_sum=df_test.groupby([FACTOR+'_binned'])['Exposure','ClaimNb', 'ClaimNb_pred', 'ClaimNb_partial_pred', 'ClaimNb_fl_pred'].sum().reset_index()
-
-      frequency_conversion(FACTOR, df_sum, {'ClaimNb':'Actual freq', 'ClaimNb_pred':'Freq pred global model', 'ClaimNb_partial_pred':'Freq pred local model', 'ClaimNb_fl_pred':'Freq pred FL model'})
-
-      one_way_graph(FACTOR, df_sum, run_name, ag,  'Actual freq', 'Freq pred global model', 'Freq pred local model','Freq pred FL model')
-
-
-# Lorenz Curves
-
+    """
+    Uploads, preprocesses, encodes, scales, and splits the dataset into training, validation, and test sets.
+
+    Assumes the existence of a global `DATA_PATH` variable pointing to the dataset's location and a `SEED` for reproducibility.
+
+    Returns:
+        tuple
+            Contains the training, validation, and test sets, feature names, and the scaler.
+
+    Usage:
+    ```
+    X_train, X_val, X_test, y_train, y_val, y_test, feature_names, scaler = upload_dataset()
+    ```
+    """
+    seed_torch()
+    
+    df = pd.read_csv(DATA_PATH)
+    df_preprocessed = preprocess_dataframe(df)
+    df_encoded, scaler = encode_and_scale_dataframe(df_preprocessed)
+    X_train, X_val, X_test, y_train, y_val, y_test = split_data(df_encoded)
+    
+    feature_names = df_encoded.columns.tolist()[1:]
+    
+    return (X_train, X_val, X_test, y_train, y_val, y_test, feature_names, scaler)
+
+
+def load_individual_data(agent_id, include_val_in_train=False):
+    """
+    Loads individual or global datasets as PyTorch TensorDatasets, with an option to include validation data in the training set.
+
+    This function dynamically loads training, validation, and test data from CSV files located in a specified directory.
+    It can load data for a specific agent by ID or global data if the agent ID is set to -1. There is an option to merge
+    training and validation datasets for scenarios where validation data should be included in training, e.g., for certain
+    types of model tuning.
+
+    Parameters:
+        agent_id : int
+            The identifier for the agent's dataset to load. If set to -1, global datasets are loaded.
+        include_val_in_train : bool, optional
+            Determines whether validation data is included in the training dataset. Default is False.
+
+    Returns:
+        tuple
+            A tuple containing the training dataset, validation dataset, test dataset, column names of the training features,
+            a tensor of test features, and the total exposure calculated from the training (and optionally validation) dataset.
+
+    Examples:
+        >>> train_dataset, val_dataset, test_dataset, column_names, test_features, exposure = load_individual_data(-1, True)
+        >>> print(f"Training dataset size: {len(train_dataset)}")
+    """
+    MY_DATA_PATH = '../data'
+    suffix = '' if agent_id == -1 else f'_{agent_id}'
+    
+    # Load datasets
+    X_train = pd.read_csv(f'{MY_DATA_PATH}/X_train{suffix}.csv')
+    y_train = pd.read_csv(f'{MY_DATA_PATH}/y_tr{suffix}.csv')
+    X_val = pd.read_csv(f'{MY_DATA_PATH}/X_val{suffix}.csv')
+    y_val = pd.read_csv(f'{MY_DATA_PATH}/y_vl{suffix}.csv')
+    X_test = pd.read_csv(f'{MY_DATA_PATH}/X_test.csv')  # Assuming test data is the same for all agents
+    y_test = pd.read_csv(f'{MY_DATA_PATH}/y_test.csv')
+
+    # Merge training and validation datasets if specified
+    if include_val_in_train:
+        X_train = pd.concat([X_train, X_val], ignore_index=True)
+        y_train = pd.concat([y_train, y_val], ignore_index=True)
+
+    # Calculate exposure
+    exposure = X_train['Exposure'].sum()
+
+    # Convert to TensorDatasets
+    train_dataset = TensorDataset(th.tensor(X_train.values).float(), th.tensor(y_train.values).float())
+    val_dataset = TensorDataset(th.tensor(X_val.values).float(), th.tensor(y_val.values).float())
+    test_dataset = TensorDataset(th.tensor(X_test.values).float(), th.tensor(y_test.values).float())
+
+    return (train_dataset, val_dataset, test_dataset, X_train.columns.tolist(), th.tensor(X_test.values).float(), exposure)
+
+
+
+def uniform_partitions(agents: int = 10, num_features: int = None):
+    """
+    Splits and saves the dataset into uniform partitions for a specified number of agents.
+
+    This function loads a dataset via a previously defined `upload_dataset` function, then partitions
+    the training and validation datasets uniformly across the specified number of agents. Each partition
+    is saved to CSV files, containing both features and labels for each agent's training and validation datasets.
+
+    Parameters:
+        agents : int, optional
+            The number of agents to split the dataset into. Defaults to 10.
+        num_features : int, optional
+            The number of features in the dataset. Automatically inferred if not specified.
+
+    Notes:
+        - Requires `upload_dataset` and `seed_torch` to be defined and accessible within the scope.
+        - Saves partitioned data files in the '../data/' directory.
+
+    Example:
+        >>> uniform_partitions(agents=5)
+        Creates and saves 5 sets of training and validation data for 5 agents, storing them in '../data/'.
+
+    Raises:
+        FileNotFoundError
+            If the '../data/' directory does not exist or cannot be accessed.
+    
+    Returns:
+        None
+            The function does not return a value but saves partitioned datasets to disk.
+    """
+    # Load the dataset
+    X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _ = upload_dataset()
+    num_features = num_features or X_train_sc.shape[1]
+    
+    # Define the base path for saving files
+    base_path = '../data/'
+    
+    # Function to save datasets to CSV
+    def save_to_csv(data, filename, column_names=X_column_names):
+        pd.DataFrame(data, columns=column_names).to_csv(f'{base_path}{filename}', index=False)
+    
+    # Save the global datasets
+    save_to_csv(X_train_sc, 'X_train.csv')
+    save_to_csv(y_tr, 'y_tr.csv', ['y'])
+    save_to_csv(X_val_sc, 'X_val.csv')
+    save_to_csv(y_vl, 'y_vl.csv', ['y'])
+    save_to_csv(X_test_sc[:, :num_features], 'X_test.csv')
+    save_to_csv(y_te, 'y_test.csv', ['y'])
+
+    # Prepare and shuffle data
+    seed_torch()
+    train_data = np.hstack((X_train_sc, y_tr.reshape(-1, 1)))
+    val_data = np.hstack((X_val_sc, y_vl.reshape(-1, 1)))
+    np.random.shuffle(train_data)
+    np.random.shuffle(val_data)
+
+    # Split and save partitioned data
+    for i in range(agents):
+        partition_train = np.array_split(train_data, agents)[i]
+        partition_val = np.array_split(val_data, agents)[i]
+
+        save_to_csv(partition_train[:, :num_features], f'X_train_{i}.csv')
+        save_to_csv(partition_train[:, num_features:], f'y_tr_{i}.csv', ['y'])
+        save_to_csv(partition_val[:, :num_features], f'X_val_{i}.csv')
+        save_to_csv(partition_val[:, num_features:], f'y_vl_{i}.csv', ['y'])
+
+
+#-------------------- results analysis utils: -------------------------------------------
 def lorenz_curve(y_true, y_pred, exposure):
-    y_true, y_pred = np.asarray(y_true), np.asarray(y_pred)
-    y_true = y_true.reshape((len(y_true), ))
-    y_pred = y_pred.reshape((len(y_pred), ))
-    exposure = np.asarray(exposure)
+    """
+    Calculates the Lorenz curve for given true values, predicted values, and exposures.
 
-    # order samples by increasing predicted risk:
+    The Lorenz curve is a graphical representation of the distribution of income or wealth. In this context,
+    it is used to show the distribution of claims or losses in insurance, ordered by predicted risk. This function
+    calculates the cumulative percentage of claims and exposures, sorted by the predicted risk.
+
+    Parameters:
+        y_true : array_like
+            The true values of the claims or losses.
+        y_pred : array_like
+            The predicted risk scores associated with each claim or loss.
+        exposure : array_like
+            The exposure values associated with each observation.
+
+    Returns:
+        tuple of numpy.ndarray
+            A tuple containing two arrays: the cumulative percentage of exposure and the cumulative percentage of claims,
+            both sorted by the predicted risk.
+
+    Examples:
+        >>> y_true = np.array([100, 50, 20])
+        >>> y_pred = np.array([0.2, 0.5, 0.1])
+        >>> exposure = np.array([1, 2, 1])
+        >>> cumulated_exposure, cumulated_claims = lorenz_curve(y_true, y_pred, exposure)
+        >>> print(cumulated_exposure)
+        >>> print(cumulated_claims)
+    """
+    # Convert inputs to numpy arrays and reshape for consistency
+    y_true, y_pred, exposure = map(lambda x: np.asarray(x).flatten(), (y_true, y_pred, exposure))
+
+    # Order samples by increasing predicted risk
     ranking = np.argsort(y_pred)
     ranked_frequencies = y_true[ranking]
     ranked_exposure = exposure[ranking]
-    cumulated_claims = np.cumsum(ranked_frequencies * ranked_exposure)
-    cumulated_claims /= cumulated_claims[-1]
-    cumulated_exposure = np.cumsum(ranked_exposure)
-    cumulated_exposure /= cumulated_exposure[-1]
+
+    # Calculate cumulative claims and exposure, then normalize
+    cumulated_claims = np.cumsum(ranked_frequencies * ranked_exposure) / np.sum(ranked_frequencies * ranked_exposure)
+    cumulated_exposure = np.cumsum(ranked_exposure) / np.sum(ranked_exposure)
     
     return cumulated_exposure, cumulated_claims
-    
 
-def uniform_partitions(agents:int = 10):
-      (X_train_sc, X_val_sc, X_test_sc, y_tr, y_vl, y_te, X_column_names, _) = upload_dataset()
-      
-      # Training dataset 
-      pd.DataFrame(X_train_sc, columns=X_column_names).to_csv(f'../data/X_train.csv' , index=False)
-      pd.DataFrame(y_tr).to_csv(f'../data/y_tr.csv', index=False)
 
-      # Test dataset
-      pd.DataFrame(X_test_sc[:,0:NUM_FEATURES], columns=X_column_names).to_csv('../data/X_test.csv', index=False)
-      pd.DataFrame(y_te).to_csv('../data/y_test.csv', index=False)
 
-      # Validation dataset 
-      pd.DataFrame(X_val_sc, columns=X_column_names).to_csv(f'../data/X_val.csv' , index=False)
-      pd.DataFrame(y_vl).to_csv(f'../data/y_vl.csv', index=False)
 
-      # Create empty dictionaries for validation and training data
-      train_array_dictionary = {}
-      val_array_dictionary = {}
-
-      train_array = np.insert(X_train_sc, NUM_FEATURES, y_tr, axis=1)
-      val_array = np.insert(X_val_sc, NUM_FEATURES, y_vl, axis=1)
-
-      # Seed numpy etc. for shuffling
-      seed_torch()
-
-      # Shuffle arrays
-      np.random.shuffle(train_array)
-      np.random.shuffle(val_array)
-
-      val_array_split = np.array_split(val_array, agents)
-      train_array_split = np.array_split(train_array, agents)
-
-      for i in range(agents):
-            train_array_dictionary["X_train_{0}".format(i)] = train_array_split[i]
-            pd.DataFrame(train_array_split[i][:, 0:NUM_FEATURES], columns=X_column_names).to_csv(f'../data/X_train_{i}.csv' , index=False)
-            pd.DataFrame(train_array_split[i][:, NUM_FEATURES]).to_csv(f'../data/y_tr_{i}.csv' , index=False)
-            val_array_dictionary["X_val_{0}".format(i)] = val_array_split[i]
-            pd.DataFrame(val_array_split[i][:, 0:NUM_FEATURES], columns=X_column_names).to_csv(f'../data/X_val_{i}.csv' , index=False)
-            pd.DataFrame(val_array_split[i][:, NUM_FEATURES]).to_csv(f'../data/y_vl_{i}.csv' , index=False)
