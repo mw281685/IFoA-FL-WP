@@ -49,9 +49,10 @@ def calc_noise(file_path: str, agent_number: int) -> dict:
         >>> noises = calc_noise('path/to/seeds.csv', 2)
         >>> print(noises[1])  # Noise vector for round 1
     """
-    # Load seeds from file
-    seeds = load_noise(file_path)
-    
+    with open(file_path, mode='r', encoding='utf-8-sig') as infile:
+        reader = csv.reader(infile)
+        seeds = {int(rows[0]): rows[1:] for rows in reader} 
+
     noises = {}
     for round_number, seeds_per_round in seeds.items():
         noise_vector = np.zeros(162, dtype=np.int64)

@@ -6,7 +6,7 @@ import run_config
 import architecture as archit
 import torch
 import utils
-import insur_secAgg
+import insur_maskedAgg
 
 """
 This module demonstrates a Federated Learning (FL) server setup using the Flower framework.
@@ -52,7 +52,7 @@ def start_FL_server():
     """
     utils.seed_torch()
 
-    strategy = insur_secAgg.LocalUpdatesStrategy(
+    strategy = insur_maskedAgg.LocalUpdatesStrategy(
         fraction_fit=1.0,
         fraction_evaluate=1.0,
         min_fit_clients=run_config.server_config["num_clients"],
