@@ -50,9 +50,9 @@
 <li class="toctree-l2"><a class="reference internal" href="architecture.html">architecture module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="insur_FL_client.html">insur_FL_client module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="insur_FL_server.html">insur_FL_server module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="insur_secAgg.html">insur_secAgg module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="insur_maskedAgg.html">insur_maskedAgg module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html">prepare_dataset module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quanitsation_example.html">quanitsation_example module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run_config.html">run_config module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="skorch_tuning.html">skorch_tuning module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">utils module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils_quantisation.html">utils_quantisation module</a></li>
@@ -119,13 +119,13 @@
 <li class="toctree-l2"><a class="reference internal" href="insur_FL_server.html#insur_FL_server.start_FL_server"><code class="docutils literal notranslate"><span class="pre">start_FL_server()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="insur_secAgg.html">insur_secAgg module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="insur_secAgg.html#insur_secAgg.LocalUpdatesStrategy"><code class="docutils literal notranslate"><span class="pre">LocalUpdatesStrategy</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="insur_secAgg.html#insur_secAgg.LocalUpdatesStrategy.aggregate_fit"><code class="docutils literal notranslate"><span class="pre">LocalUpdatesStrategy.aggregate_fit()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="insur_maskedAgg.html">insur_maskedAgg module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="insur_maskedAgg.html#insur_maskedAgg.LocalUpdatesStrategy"><code class="docutils literal notranslate"><span class="pre">LocalUpdatesStrategy</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="insur_maskedAgg.html#insur_maskedAgg.LocalUpdatesStrategy.aggregate_fit"><code class="docutils literal notranslate"><span class="pre">LocalUpdatesStrategy.aggregate_fit()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="insur_secAgg.html#insur_secAgg.aggregate_qt"><code class="docutils literal notranslate"><span class="pre">aggregate_qt()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="insur_secAgg.html#insur_secAgg.aggregate_weighted_average"><code class="docutils literal notranslate"><span class="pre">aggregate_weighted_average()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="insur_maskedAgg.html#insur_maskedAgg.aggregate_qt"><code class="docutils literal notranslate"><span class="pre">aggregate_qt()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="insur_maskedAgg.html#insur_maskedAgg.aggregate_weighted_average"><code class="docutils literal notranslate"><span class="pre">aggregate_weighted_average()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="prepare_dataset.html">prepare_dataset module</a><ul>
@@ -134,26 +134,30 @@
 <li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html#prepare_dataset.prepare_and_validate_dataset"><code class="docutils literal notranslate"><span class="pre">prepare_and_validate_dataset()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="quanitsation_example.html">quanitsation_example module</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quanitsation_example.html#quanitsation_example.demonstrate_quantization"><code class="docutils literal notranslate"><span class="pre">demonstrate_quantization()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="quanitsation_example.html#quanitsation_example.generate_random_data"><code class="docutils literal notranslate"><span class="pre">generate_random_data()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="run_config.html">run_config module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="skorch_tuning.html">skorch_tuning module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="skorch_tuning.html#skorch_tuning.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">utils module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.create_df_sum"><code class="docutils literal notranslate"><span class="pre">create_df_sum()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.create_df_test_pred"><code class="docutils literal notranslate"><span class="pre">create_df_test_pred()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.create_test_data"><code class="docutils literal notranslate"><span class="pre">create_test_data()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.double_lift_rebase"><code class="docutils literal notranslate"><span class="pre">double_lift_rebase()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#utils.encode_and_scale_dataframe"><code class="docutils literal notranslate"><span class="pre">encode_and_scale_dataframe()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.frequency_conversion"><code class="docutils literal notranslate"><span class="pre">frequency_conversion()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#utils.hyperparameter_counts"><code class="docutils literal notranslate"><span class="pre">hyperparameter_counts()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#utils.load_individual_data"><code class="docutils literal notranslate"><span class="pre">load_individual_data()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#utils.load_individual_skorch_data"><code class="docutils literal notranslate"><span class="pre">load_individual_skorch_data()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.load_model"><code class="docutils literal notranslate"><span class="pre">load_model()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#utils.lorenz_curve"><code class="docutils literal notranslate"><span class="pre">lorenz_curve()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.one_way_graph_comparison"><code class="docutils literal notranslate"><span class="pre">one_way_graph_comparison()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#utils.preprocess_dataframe"><code class="docutils literal notranslate"><span class="pre">preprocess_dataframe()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#utils.row_check"><code class="docutils literal notranslate"><span class="pre">row_check()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#utils.seed_torch"><code class="docutils literal notranslate"><span class="pre">seed_torch()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#utils.split_data"><code class="docutils literal notranslate"><span class="pre">split_data()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#utils.training_loss_curve"><code class="docutils literal notranslate"><span class="pre">training_loss_curve()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.undummify"><code class="docutils literal notranslate"><span class="pre">undummify()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#utils.uniform_partitions"><code class="docutils literal notranslate"><span class="pre">uniform_partitions()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html#utils.upload_dataset"><code class="docutils literal notranslate"><span class="pre">upload_dataset()</span></code></a></li>
 </ul>

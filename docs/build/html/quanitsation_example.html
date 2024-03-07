@@ -52,11 +52,7 @@
 <li class="toctree-l2"><a class="reference internal" href="insur_FL_server.html">insur_FL_server module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="insur_secAgg.html">insur_secAgg module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html">prepare_dataset module</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">quanitsation_example module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#quanitsation_example.demonstrate_quantization"><code class="docutils literal notranslate"><span class="pre">demonstrate_quantization()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#quanitsation_example.generate_random_data"><code class="docutils literal notranslate"><span class="pre">generate_random_data()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">quanitsation_example module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="skorch_tuning.html">skorch_tuning module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">utils module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils_quantisation.html">utils_quantisation module</a></li>
@@ -90,48 +86,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-quanitsation_example">
-<span id="quanitsation-example-module"></span><h1>quanitsation_example module<a class="headerlink" href="#module-quanitsation_example" title="Permalink to this heading"></a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="quanitsation_example.demonstrate_quantization">
-<span class="sig-prename descclassname"><span class="pre">quanitsation_example.</span></span><span class="sig-name descname"><span class="pre">demonstrate_quantization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#quanitsation_example.demonstrate_quantization" title="Permalink to this definition"></a></dt>
-<dd><p>Demonstrate the process of quantizing and dequantizing data, displaying the original,
-quantized, and dequantized data.</p>
-<dl class="simple">
-<dt>Parameters</dt><dd><dl class="simple">
-<dt>data<span class="classifier">np.ndarray </span></dt><dd><p>The original data to be quantized.</p>
-</dd>
-<dt>scale: float </dt><dd><p>The scale factor used for quantization and dequantization.</p>
-</dd>
-<dt>precision: int </dt><dd><p>The precision (number of levels) used for quantization.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="quanitsation_example.generate_random_data">
-<span class="sig-prename descclassname"><span class="pre">quanitsation_example.</span></span><span class="sig-name descname"><span class="pre">generate_random_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#quanitsation_example.generate_random_data" title="Permalink to this definition"></a></dt>
-<dd><p>Generate random data for demonstration purposes.</p>
-<dl class="simple">
-<dt>Parameters:</dt><dd><dl class="simple">
-<dt>seed<span class="classifier">int</span></dt><dd><p>Seed for the random number generator to ensure reproducibility. Defaults to 42.</p>
-</dd>
-<dt>size<span class="classifier">int</span></dt><dd><p>The size of the generated data array. Defaults to 4.</p>
-</dd>
-<dt>scale<span class="classifier">float</span></dt><dd><p>The scale factor to adjust the generated data. Defaults to 3.0.</p>
-</dd>
-</dl>
-</dd>
-<dt>Returns: </dt><dd><dl class="simple">
-<dt>np.ndarray </dt><dd><p>A numpy array of generated data.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
+  <section id="quanitsation-example-module">
+<h1>quanitsation_example module<a class="headerlink" href="#quanitsation-example-module" title="Permalink to this heading"></a></h1>
 </section>
 
 

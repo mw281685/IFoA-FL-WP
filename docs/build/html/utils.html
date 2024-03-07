@@ -50,21 +50,29 @@
 <li class="toctree-l2"><a class="reference internal" href="architecture.html">architecture module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="insur_FL_client.html">insur_FL_client module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="insur_FL_server.html">insur_FL_server module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="insur_secAgg.html">insur_secAgg module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="insur_maskedAgg.html">insur_maskedAgg module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html">prepare_dataset module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quanitsation_example.html">quanitsation_example module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run_config.html">run_config module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="skorch_tuning.html">skorch_tuning module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#utils.create_df_sum"><code class="docutils literal notranslate"><span class="pre">create_df_sum()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utils.create_df_test_pred"><code class="docutils literal notranslate"><span class="pre">create_df_test_pred()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utils.create_test_data"><code class="docutils literal notranslate"><span class="pre">create_test_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utils.double_lift_rebase"><code class="docutils literal notranslate"><span class="pre">double_lift_rebase()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils.encode_and_scale_dataframe"><code class="docutils literal notranslate"><span class="pre">encode_and_scale_dataframe()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utils.frequency_conversion"><code class="docutils literal notranslate"><span class="pre">frequency_conversion()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils.hyperparameter_counts"><code class="docutils literal notranslate"><span class="pre">hyperparameter_counts()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils.load_individual_data"><code class="docutils literal notranslate"><span class="pre">load_individual_data()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils.load_individual_skorch_data"><code class="docutils literal notranslate"><span class="pre">load_individual_skorch_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utils.load_model"><code class="docutils literal notranslate"><span class="pre">load_model()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils.lorenz_curve"><code class="docutils literal notranslate"><span class="pre">lorenz_curve()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utils.one_way_graph_comparison"><code class="docutils literal notranslate"><span class="pre">one_way_graph_comparison()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils.preprocess_dataframe"><code class="docutils literal notranslate"><span class="pre">preprocess_dataframe()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils.row_check"><code class="docutils literal notranslate"><span class="pre">row_check()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils.seed_torch"><code class="docutils literal notranslate"><span class="pre">seed_torch()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils.split_data"><code class="docutils literal notranslate"><span class="pre">split_data()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils.training_loss_curve"><code class="docutils literal notranslate"><span class="pre">training_loss_curve()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utils.undummify"><code class="docutils literal notranslate"><span class="pre">undummify()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils.uniform_partitions"><code class="docutils literal notranslate"><span class="pre">uniform_partitions()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils.upload_dataset"><code class="docutils literal notranslate"><span class="pre">upload_dataset()</span></code></a></li>
 </ul>
@@ -103,6 +111,26 @@
   <section id="module-utils">
 <span id="utils-module"></span><h1>utils module<a class="headerlink" href="#module-utils" title="Permalink to this heading"></a></h1>
 <dl class="py function">
+<dt class="sig sig-object py" id="utils.create_df_sum">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">create_df_sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_test_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NUM_AGENTS</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.create_df_sum" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.create_df_test_pred">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">create_df_test_pred</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NUM_AGENTS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fl_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_model_dictionary</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.create_df_test_pred" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.create_test_data">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">create_test_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.create_test_data" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.double_lift_rebase">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">double_lift_rebase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_test_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.double_lift_rebase" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="utils.encode_and_scale_dataframe">
 <span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">encode_and_scale_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.encode_and_scale_dataframe" title="Permalink to this definition"></a></dt>
 <dd><p>Encodes categorical variables and scales numerical features within the DataFrame.</p>
@@ -125,6 +153,11 @@
 <span class="pre">df_encoded,</span> <span class="pre">scaler</span> <span class="pre">=</span> <span class="pre">encode_and_scale_dataframe(df_preprocessed)</span>
 <span class="pre">`</span></code></p>
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.frequency_conversion">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">frequency_conversion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FACTOR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_dictionary</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.frequency_conversion" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.hyperparameter_counts">
@@ -221,6 +254,11 @@ of the training features (X_column_names), and the total exposure from the train
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="utils.load_model">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">39</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.load_model" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="utils.lorenz_curve">
 <span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">lorenz_curve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exposure</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.lorenz_curve" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates the Lorenz curve for given true values, predicted values, and exposures.</p>
@@ -254,6 +292,11 @@ both sorted by the predicted risk.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.one_way_graph_comparison">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">one_way_graph_comparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_test_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agents_to_graph_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NUM_AGENTS</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.one_way_graph_comparison" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.preprocess_dataframe">
@@ -391,6 +434,11 @@ to have a ‘history’ attribute that is a NumPy array or a similar structure w
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="utils.undummify">
+<span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">undummify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix_sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.undummify" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.uniform_partitions">

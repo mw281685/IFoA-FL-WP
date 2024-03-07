@@ -7,9 +7,9 @@ code
    architecture
    insur_FL_client
    insur_FL_server
-   insur_secAgg
+   insur_maskedAgg
    prepare_dataset
-   quanitsation_example
+   run_config
    skorch_tuning
    utils
    utils_quantisation
