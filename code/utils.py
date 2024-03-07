@@ -8,7 +8,8 @@ from torch.utils.data import TensorDataset, DataLoader
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 from run_config import NUM_FEATURES, DATA_PATH, SEED
-
+import architecture
+from skorch import NeuralNetRegressor
 
 #---------------------- DATASET CHECKS: ----------------------------------------------------------------------------
 
