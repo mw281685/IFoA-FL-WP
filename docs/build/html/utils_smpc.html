@@ -58,7 +58,6 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">utils_smpc module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#utils_smpc.calc_noise"><code class="docutils literal notranslate"><span class="pre">calc_noise()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils_smpc.calc_noise_zero"><code class="docutils literal notranslate"><span class="pre">calc_noise_zero()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#utils_smpc.load_noise"><code class="docutils literal notranslate"><span class="pre">load_noise()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -139,30 +138,6 @@ the run configuration. It differentiates the noise for the specific agent from o
 </dd>
 <dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">zero_noises</span> <span class="o">=</span> <span class="n">calc_noise_zero</span><span class="p">(</span><span class="s1">&#39;path/to/seeds.csv&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">zero_noises</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># Zero noise vector for round 1</span>
-</pre></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="utils_smpc.load_noise">
-<span class="sig-prename descclassname"><span class="pre">utils_smpc.</span></span><span class="sig-name descname"><span class="pre">load_noise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#utils_smpc.load_noise" title="Permalink to this definition"></a></dt>
-<dd><p>Reads a CSV file and returns its content as a list of rows.</p>
-<p>This function opens a CSV file for reading and extracts each row as a list of strings. It’s useful for loading data that will be processed or analyzed further, especially when dealing with configurations or parameters stored in a CSV format.</p>
-<dl>
-<dt>Parameters:</dt><dd><dl class="simple">
-<dt>file<span class="classifier">str</span></dt><dd><p>The path to the CSV file to be read.</p>
-</dd>
-</dl>
-</dd>
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>list</dt><dd><p>A list where each item represents a row from the CSV file, itself a list of strings corresponding to the values in that row.</p>
-</dd>
-</dl>
-</dd>
-<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">noise_data</span> <span class="o">=</span> <span class="n">load_noise</span><span class="p">(</span><span class="s1">&#39;path/to/noise_seeds.csv&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">noise_data</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># Prints the first row of the CSV file</span>
 </pre></div>
 </div>
 </dd>

@@ -528,9 +528,22 @@ def lorenz_curve(y_true, y_pred, exposure):
     
     return cumulated_exposure, cumulated_claims
 
-#------new:
+#---------------------------- GRAPHS AND RESULTS ANALYSIS UTILS  ------------------------------------------------------
 
 def load_model(agent=-1, num_features=NUM_FEATURES):
+    """
+        Load a pre-trained neural network model for a specific agent.
+
+        Parameters:
+            agent : int 
+                The ID of the agent whose model to load. Default is -1.
+            num_features : int 
+                The number of input features for the model. Default is NUM_FEATURES.
+
+        Returns:
+            loaded_agent_model : NeuralNetRegressor 
+                The loaded neural network model for the specified agent.
+    """
     
     all_results_df = pd.read_csv('../results/all_results.csv')
     top_results_df = all_results_df.loc[all_results_df['rank_test_score']==1]
@@ -548,12 +561,38 @@ def load_model(agent=-1, num_features=NUM_FEATURES):
     return loaded_agent_model
 
 def frequency_conversion(FACTOR, df, freq_dictionary):
-      for key in freq_dictionary:
-            df[freq_dictionary[key]]=df[key]/df['Exposure']
+    """
+    Perform frequency conversion on a DataFrame.
 
-      df.insert(1,FACTOR+'_binned_midpoint',[round((a.left + a.right)/2,0) for a in df[FACTOR+'_binned']])
+    Parameters:
+        FACTOR : str 
+            The factor to be converted.
+        df : pandas.DataFrame 
+            The DataFrame containing the data.
+        freq_dictionary : dict 
+            A dictionary mapping factor keys to frequency keys.
+
+    Returns:
+        df : pandas.DataFrame 
+            The DataFrame with frequency conversion applied.
+    """
+
+    for key in freq_dictionary:
+        df[freq_dictionary[key]]=df[key]/df['Exposure']
+
+    df.insert(1,FACTOR+'_binned_midpoint',[round((a.left + a.right)/2,0) for a in df[FACTOR+'_binned']])
 
 def undummify(df, prefix_sep="_"):
+    """
+    Reverse one-hot encoding (dummy variables) in a DataFrame.
+
+    Parameters:
+        - df (pandas.DataFrame): The DataFrame containing dummy variables.
+        - prefix_sep (str, optional): Separator used in column prefixes. Default is "_".
+
+    Returns:
+        undummified_df (pandas.DataFrame): The DataFrame with one-hot encoding reversed.
+    """
     cols2collapse = {
         item.split(prefix_sep)[0]: (prefix_sep in item) for item in df.columns
     }
@@ -573,6 +612,22 @@ def undummify(df, prefix_sep="_"):
     return undummified_df
 
 def create_test_data(): 
+    """
+    Create test data for evaluation.
+
+    This function loads test data, undummifies categorical variables,
+    applies scaling to certain features, bins numerical factors, and returns
+    processed test datasets for evaluation.
+
+    Returns:
+        X_test : pandas.DataFrame
+            Test features dataset.
+        y_test : pandas.DataFrame
+            Test labels dataset.
+        df_test : pandas.DataFrame
+            Processed test dataset.
+    """
+
     (X_train, X_val, X_test, y_train, y_val, y_test, X_column_names, scaler) = upload_dataset()
     
     MY_DATA_PATH = '../data'
@@ -623,7 +678,28 @@ def create_test_data():
     return X_test, y_test, df_test
 
 def create_df_test_pred(df_test, X_test, NUM_AGENTS, global_model, fl_model, agent_model_dictionary):
-    
+    """
+    Generate predictions for the test dataset using various models.
+
+    Parameters:
+        df_test : pandas.DataFrame
+            The test dataset.
+        X_test : numpy.ndarray
+            The features of the test dataset.
+        NUM_AGENTS : int
+            The number of agents.
+        global_model 
+            The global model for prediction.
+        fl_model 
+            The federated learning model for prediction.
+        agent_model_dictionary : dict
+            A dictionary containing agent models.
+
+    Returns:
+        df_test : pandas.DataFrame 
+            The test dataset with predictions appended.
+    """
+
     # Global Model Predictions
     y_pred = global_model.predict(X_test.astype(np.float64))
     df_test['ClaimNb_pred']=pd.Series(y_pred.flatten())
@@ -643,6 +719,21 @@ def create_df_test_pred(df_test, X_test, NUM_AGENTS, global_model, fl_model, age
     return df_test
 
 def create_df_sum(df_test_pred, factor, NUM_AGENTS):
+    """
+    Create a summary DataFrame aggregating predictions by binned factors.
+
+    Parameters:
+        df_test_pred : pandas.DataFrame
+            The DataFrame with test predictions.
+        factor : str 
+            The factor for binning.
+        NUM_AGENTS : int 
+            The number of agents.
+
+    Returns:
+        df_sum : pandas.DataFrame 
+            The summary DataFrame aggregated by binned factors.
+    """
 
     sum_list = ['Exposure',  'ClaimNb', 'ClaimNb_pred', 'ClaimNb_fl_pred']
     sum_dictionary = {'ClaimNb':'Actual freq', 'ClaimNb_pred':'Freq pred global model', 'ClaimNb_fl_pred':'Freq pred FL model'}
@@ -662,8 +753,22 @@ def create_df_sum(df_test_pred, factor, NUM_AGENTS):
     return df_sum
 
 def one_way_graph_comparison(factor, df_test_pred, agents_to_graph_list, NUM_AGENTS):
+        """
+        Generate a one-way graph comparison of actual vs. predicted frequencies by agents.
 
-        #NUM_AGENTS = len(agents_to_graph_list)
+        Parameters:
+            factor : str
+                The factor for binning.
+            df_test_pred : pandas.DataFrame
+                The DataFrame with test predictions.
+            agents_to_graph_list : list
+                List of agent indices to include in the graph.
+            NUM_AGENTS : int 
+                The total number of agents.
+
+        Returns:
+        None
+        """
 
         df_sum = create_df_sum(df_test_pred, factor, NUM_AGENTS)
         
@@ -729,6 +834,20 @@ def one_way_graph_comparison(factor, df_test_pred, agents_to_graph_list, NUM_AGE
         plt.show()
 
 def double_lift_rebase(df_test_pred, model1, model2):
+    """
+    Generate a double lift chart comparing the performance of two models.
+
+    Parameters:
+        df_test_pred : pandas.DataFrame
+            The DataFrame with test predictions.
+        model1 : str
+            The name of the first model.
+        model2 : str 
+            The name of the second model.
+
+    Returns:
+    - None
+    """
 
     # Rename 
     df_test_pred['ClaimNb_global_pred'] = df_test_pred['ClaimNb_pred']

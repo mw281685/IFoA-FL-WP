@@ -52,7 +52,6 @@
 <li class="toctree-l2"><a class="reference internal" href="insur_FL_server.html">insur_FL_server module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="insur_maskedAgg.html">insur_maskedAgg module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="prepare_dataset.html">prepare_dataset module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="run_config.html">run_config module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="skorch_tuning.html">skorch_tuning module</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">utils module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#utils.create_df_sum"><code class="docutils literal notranslate"><span class="pre">create_df_sum()</span></code></a></li>
@@ -113,22 +112,91 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.create_df_sum">
 <span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">create_df_sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_test_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NUM_AGENTS</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.create_df_sum" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Create a summary DataFrame aggregating predictions by binned factors.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><dl class="simple">
+<dt>df_test_pred<span class="classifier">pandas.DataFrame</span></dt><dd><p>The DataFrame with test predictions.</p>
+</dd>
+<dt>factor<span class="classifier">str </span></dt><dd><p>The factor for binning.</p>
+</dd>
+<dt>NUM_AGENTS<span class="classifier">int </span></dt><dd><p>The number of agents.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>df_sum<span class="classifier">pandas.DataFrame </span></dt><dd><p>The summary DataFrame aggregated by binned factors.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.create_df_test_pred">
 <span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">create_df_test_pred</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_test</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NUM_AGENTS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fl_model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agent_model_dictionary</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.create_df_test_pred" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Generate predictions for the test dataset using various models.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><dl class="simple">
+<dt>df_test<span class="classifier">pandas.DataFrame</span></dt><dd><p>The test dataset.</p>
+</dd>
+<dt>X_test<span class="classifier">numpy.ndarray</span></dt><dd><p>The features of the test dataset.</p>
+</dd>
+<dt>NUM_AGENTS<span class="classifier">int</span></dt><dd><p>The number of agents.</p>
+</dd>
+<dt>global_model </dt><dd><p>The global model for prediction.</p>
+</dd>
+<dt>fl_model </dt><dd><p>The federated learning model for prediction.</p>
+</dd>
+<dt>agent_model_dictionary<span class="classifier">dict</span></dt><dd><p>A dictionary containing agent models.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>df_test<span class="classifier">pandas.DataFrame </span></dt><dd><p>The test dataset with predictions appended.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.create_test_data">
 <span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">create_test_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.create_test_data" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Create test data for evaluation.</p>
+<p>This function loads test data, undummifies categorical variables,
+applies scaling to certain features, bins numerical factors, and returns
+processed test datasets for evaluation.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>X_test<span class="classifier">pandas.DataFrame</span></dt><dd><p>Test features dataset.</p>
+</dd>
+<dt>y_test<span class="classifier">pandas.DataFrame</span></dt><dd><p>Test labels dataset.</p>
+</dd>
+<dt>df_test<span class="classifier">pandas.DataFrame</span></dt><dd><p>Processed test dataset.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.double_lift_rebase">
 <span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">double_lift_rebase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_test_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.double_lift_rebase" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Generate a double lift chart comparing the performance of two models.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><dl class="simple">
+<dt>df_test_pred<span class="classifier">pandas.DataFrame</span></dt><dd><p>The DataFrame with test predictions.</p>
+</dd>
+<dt>model1<span class="classifier">str</span></dt><dd><p>The name of the first model.</p>
+</dd>
+<dt>model2<span class="classifier">str </span></dt><dd><p>The name of the second model.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>Returns:
+- None</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.encode_and_scale_dataframe">
@@ -157,7 +225,24 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.frequency_conversion">
 <span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">frequency_conversion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FACTOR</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_dictionary</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.frequency_conversion" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Perform frequency conversion on a DataFrame.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><dl class="simple">
+<dt>FACTOR<span class="classifier">str </span></dt><dd><p>The factor to be converted.</p>
+</dd>
+<dt>df<span class="classifier">pandas.DataFrame </span></dt><dd><p>The DataFrame containing the data.</p>
+</dd>
+<dt>freq_dictionary<span class="classifier">dict </span></dt><dd><p>A dictionary mapping factor keys to frequency keys.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>df<span class="classifier">pandas.DataFrame </span></dt><dd><p>The DataFrame with frequency conversion applied.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.hyperparameter_counts">
@@ -256,7 +341,22 @@ of the training features (X_column_names), and the total exposure from the train
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.load_model">
 <span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">agent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">39</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.load_model" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Load a pre-trained neural network model for a specific agent.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><dl class="simple">
+<dt>agent<span class="classifier">int </span></dt><dd><p>The ID of the agent whose model to load. Default is -1.</p>
+</dd>
+<dt>num_features<span class="classifier">int </span></dt><dd><p>The number of input features for the model. Default is NUM_FEATURES.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>loaded_agent_model<span class="classifier">NeuralNetRegressor </span></dt><dd><p>The loaded neural network model for the specified agent.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.lorenz_curve">
@@ -296,7 +396,23 @@ both sorted by the predicted risk.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.one_way_graph_comparison">
 <span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">one_way_graph_comparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_test_pred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agents_to_graph_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">NUM_AGENTS</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.one_way_graph_comparison" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Generate a one-way graph comparison of actual vs. predicted frequencies by agents.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><dl class="simple">
+<dt>factor<span class="classifier">str</span></dt><dd><p>The factor for binning.</p>
+</dd>
+<dt>df_test_pred<span class="classifier">pandas.DataFrame</span></dt><dd><p>The DataFrame with test predictions.</p>
+</dd>
+<dt>agents_to_graph_list<span class="classifier">list</span></dt><dd><p>List of agent indices to include in the graph.</p>
+</dd>
+<dt>NUM_AGENTS<span class="classifier">int </span></dt><dd><p>The total number of agents.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>Returns:
+None</p>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.preprocess_dataframe">
@@ -438,7 +554,17 @@ to have a ‘history’ attribute that is a NumPy array or a similar structure w
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.undummify">
 <span class="sig-prename descclassname"><span class="pre">utils.</span></span><span class="sig-name descname"><span class="pre">undummify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix_sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#utils.undummify" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Reverse one-hot encoding (dummy variables) in a DataFrame.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>df (pandas.DataFrame): The DataFrame containing dummy variables.</p></li>
+<li><p>prefix_sep (str, optional): Separator used in column prefixes. Default is “_”.</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><p>undummified_df (pandas.DataFrame): The DataFrame with one-hot encoding reversed.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="utils.uniform_partitions">
@@ -496,6 +622,7 @@ is saved to CSV files, containing both features and labels for each agent’s tr
 <span class="pre">`</span></code></p>
 </dd></dl>
 
+<p>#   :exclude-members: load_model,  frequency_conversion, undummify, create_test_data, create_df_test_pred, create_df_sum, one_way_graph_comparison, double_lift_rebase</p>
 </section>
 
 
