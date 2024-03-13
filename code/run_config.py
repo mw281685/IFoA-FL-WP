@@ -5,10 +5,10 @@ import pandas as pd
 IF_TRAIN_VAL = 1  # Include validation dataset in training
 QUANTISATION = 0
 SMPC_NOISE = 0  
-EPOCHS_LOCAL_GLOBAL = 10 
 EPOCHS = 10
 BATCH_SIZE = 500
 NUM_FEATURES = 39
+LEARNING_RATE = 0.001
 
 # Server Configuration
 server_config = {

@@ -17,11 +17,10 @@ import csv
 from utils_quantisation import quantize, modulus,  N, M, CR
 from utils_smpc import calc_noise, calc_noise_zero
 import run_config
-from run_config import EPOCHS, BATCH_SIZE, QUANTISATION, SMPC_NOISE
+from run_config import EPOCHS, BATCH_SIZE, QUANTISATION, SMPC_NOISE, LEARNING_RATE
 
 MODEL_PATH = '.'
 ROUND_NO = 0
-# LEARNING_RATE = ....
 
 device = torch.device("cpu" if torch.cuda.is_available() else "cpu")
 
@@ -457,7 +456,7 @@ def initialize_model():
         num_units_1=run_config.NUM_UNITS_1,
         num_units_2=run_config.NUM_UNITS_2
     ).to(device)
-    optimizer = optim.NAdam(model.parameters())
+    optimizer = optim.NAdam(model.parameters(), lr=LEARNING_RATE)
     criterion = nn.PoissonNLLLoss(log_input=False, full=True)
     return model, optimizer, criterion
 
