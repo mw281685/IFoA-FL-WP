@@ -4,29 +4,6 @@ import run_config
 from utils_quantisation import modulus, M
 
 
-def load_noise(file: str) -> list:
-    """
-    Reads a CSV file and returns its content as a list of rows.
-
-    This function opens a CSV file for reading and extracts each row as a list of strings. It's useful for loading data that will be processed or analyzed further, especially when dealing with configurations or parameters stored in a CSV format.
-
-    Parameters:
-        file : str
-            The path to the CSV file to be read.
-
-    Returns:
-        list
-            A list where each item represents a row from the CSV file, itself a list of strings corresponding to the values in that row.
-
-    Example:
-        >>> noise_data = load_noise('path/to/noise_seeds.csv')
-        >>> print(noise_data[0])  # Prints the first row of the CSV file
-    """
-    with open(file, 'r') as read_obj:
-        csv_reader = csv.reader(read_obj)
-        return list(csv_reader)
-
-
 def calc_noise(file_path: str, agent_number: int) -> dict:
     """
     Calculate noise based on seeds stored in a CSV file for a specific agent.
@@ -64,7 +41,8 @@ def calc_noise(file_path: str, agent_number: int) -> dict:
                 noise_vector = modulus(noise_vector + ((run_config.server_config["num_clients"] - 1) * noise_adjustment if i == agent_number else -noise_adjustment))
             else:
                 uniform_noise = np.round(np.random.uniform(-2, 2, 162), 5)
-                noise_vector += uniform_noise * (run_config.server_config["num_clients"] - 1 if i == agent_number else -1)
+                noise_vector = noise_vector.astype(float)
+                noise_vector += uniform_noise * float(run_config.server_config["num_clients"] - 1 if i == agent_number else -1)
 
         noises[round_number] = noise_vector
     
@@ -90,9 +68,10 @@ def calc_noise_zero(file_path: str, agent_number: int) -> dict:
         >>> zero_noises = calc_noise_zero('path/to/seeds.csv', 2)
         >>> print(zero_noises[1])  # Zero noise vector for round 1
     """
-    seeds = load_noise(file_path)
+    with open(file_path, mode='r', encoding='utf-8-sig') as infile:
+        reader = csv.reader(infile)
+        seeds = {int(rows[0]): rows[1:] for rows in reader} 
     
     noises = {round_number: np.zeros(162) for round_number in seeds.keys()}
     
     return noises
-    

@@ -3,8 +3,8 @@ import pandas as pd
 
 # Constants and Configuration
 IF_TRAIN_VAL = 1  # Include validation dataset in training
-QUANTISATION = 1
-SMPC_NOISE = 1  
+QUANTISATION = 0
+SMPC_NOISE = 0  
 EPOCHS_LOCAL_GLOBAL = 10 
 EPOCHS = 10
 BATCH_SIZE = 500
@@ -13,7 +13,7 @@ NUM_FEATURES = 39
 # Server Configuration
 server_config = {
     "num_clients": 10,
-    "num_rounds": 50
+    "num_rounds": 5
 }
 
 # Constructing a unique run name based on configuration

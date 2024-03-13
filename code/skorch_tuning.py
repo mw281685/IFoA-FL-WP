@@ -28,8 +28,8 @@ DATA_PATH = run_config.dataset_config["path"]
 SEED = run_config.dataset_config["seed"]
 BATCH_SIZE = 5_00
 NUM_AGENTS = 10
-GRID_SIZE = 18
-EPOCHS = 100
+GRID_SIZE = 30
+EPOCHS = 150
  
 # Formatting options to print dataframe to terminal
 pd.set_option('display.max_columns', 7)
@@ -50,11 +50,11 @@ check_point_callback = callbacks.Checkpoint(monitor='weighted_PDE_best', load_be
 
 # Grid Search space dictionary
 params = {
-    'optimizer__lr': [0.001, 0.01], # 2
+    'optimizer__lr': [0.001, 0.002, 0.01], # 2
     #'optimizer__momentum': [0.9],
-    #'batch_size':[500, 5_000, 50_000], # 3
-    'module__num_units_1': [5, 10, 15],# 3
-    'module__num_units_2': [5, 10, 15], # 3
+    'batch_size':[500, 1_000, 5_000, 10_000], # 3
+    'module__num_units_1': [10, 15, 20],# 3
+    'module__num_units_2': [10, 15, 20], # 3
 }
 
 def main():
