@@ -3,8 +3,8 @@ import pandas as pd
 
 # Constants and Configuration
 IF_TRAIN_VAL = 1  # Include validation dataset in training
-QUANTISATION = 0
-SMPC_NOISE = 0  
+QUANTISATION = 1
+SMPC_NOISE = 1  
 EPOCHS = 10
 BATCH_SIZE = 500
 NUM_FEATURES = 39

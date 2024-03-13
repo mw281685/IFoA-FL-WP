@@ -7,6 +7,7 @@ import architecture as archit
 import torch
 import utils
 import insur_maskedAgg
+import platform
 
 """
 This module demonstrates a Federated Learning (FL) server setup using the Flower framework.
@@ -61,8 +62,16 @@ def start_FL_server():
         initial_parameters=init_parameters(),
     )
 
+
+    system = platform.system()
+    if system == "Windows":
+        server_address="localhost:8080"
+    else:
+        server_address= "[::]:8080"
+
+
     fl.server.start_server(
-        server_address="[::]:8080",
+        server_address=server_address,
         config=fl.server.ServerConfig(num_rounds=run_config.server_config["num_rounds"]),
         strategy=strategy
     )
