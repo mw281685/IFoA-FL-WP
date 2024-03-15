@@ -51,7 +51,7 @@ def row_check(agents: int = 10):
     expected_claims_sum = 36_056
 
     # Load and aggregate datasets
-    datasets = {'X_train': [], 'X_val': [], 'y_train': [], 'y_val': []}
+    datasets = {'X_train': [], 'X_val': [], 'y_tr': [], 'y_vl': []}
     for prefix in datasets.keys():
         for i in range(agents):
             datasets[prefix].append(load_data_frame(prefix, i))
@@ -61,15 +61,14 @@ def row_check(agents: int = 10):
     # Calculate totals
     total_row_count = sum(df.shape[0] for prefix in ['X_train', 'X_val'] for df in datasets[prefix]) + X_test.shape[0]
     total_exposure_sum = sum(df['Exposure'].sum() for prefix in ['X_train', 'X_val'] for df in datasets[prefix]) + X_test['Exposure'].sum()
-    total_claims_sum = sum(df['0'].sum() for prefix in ['y_train', 'y_val'] for df in datasets[prefix]) + y_test['0'].sum()
+    total_claims_sum = sum(df.sum() for prefix in ['y_tr', 'y_vl'] for df in datasets[prefix]).item() + y_test.sum().item()
 
     # Validate dataset integrity
     assert total_row_count == expected_row_count, f"Total row count mismatch: expected {expected_row_count}, got {total_row_count}"
     assert round(total_exposure_sum, 2) == round(expected_exposure_sum, 2), f"Total exposure mismatch: expected {expected_exposure_sum}, got {round(total_exposure_sum, 2)}"
     assert total_claims_sum == expected_claims_sum, f"Total claims sum mismatch: expected {expected_claims_sum}, got {total_claims_sum}"
-
+    
     print('All checks passed successfully.')
-
 
 
 #---------------------------- SKORCH_TUNING_UTILS ------------------------------------------------------
