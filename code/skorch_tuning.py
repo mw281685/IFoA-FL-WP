@@ -26,10 +26,10 @@ import architecture as archit
 
 DATA_PATH = run_config.dataset_config["path"]
 SEED = run_config.dataset_config["seed"]
-BATCH_SIZE = 5_00
-NUM_AGENTS = 10
+#BATCH_SIZE = run_config.BATCH_SIZE
+NUM_AGENTS = run_config.server_config["num_clients"]
 GRID_SIZE = 30
-EPOCHS = 150
+EPOCHS = 200
  
 # Formatting options to print dataframe to terminal
 pd.set_option('display.max_columns', 7)
@@ -51,7 +51,6 @@ check_point_callback = callbacks.Checkpoint(monitor='weighted_PDE_best', load_be
 # Grid Search space dictionary
 params = {
     'optimizer__lr': [0.001, 0.002, 0.01], # 2
-    #'optimizer__momentum': [0.9],
     'batch_size':[500, 1_000, 5_000, 10_000], # 3
     'module__num_units_1': [10, 15, 20],# 3
     'module__num_units_2': [10, 15, 20], # 3
@@ -108,7 +107,7 @@ def main():
             optimizer=optim.NAdam,
             criterion=nn.PoissonNLLLoss(log_input= False, full= True),
             max_epochs=EPOCHS,
-            batch_size=BATCH_SIZE,
+            #batch_size=BATCH_SIZE,
             train_split = predefined_split(valid_ds),
             #callbacks=[pde_callback, early_stopping_callback, check_point_callback, weighted_pde_callback],
             device=None, # ignore CUDA for now
