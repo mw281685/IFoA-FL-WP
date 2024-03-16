@@ -91,29 +91,25 @@ def training_loss_curve(estimator, agent_id):
     """
     
     # Creating a DataFrame from the estimator's history for easier manipulation
-    train_val_loss_df = pd.DataFrame(estimator.history, columns=['train_loss', 'valid_loss', 'weighted_PDE_best'])
-    train_val_loss_df.rename(columns={'weighted_PDE_best': 'PDE'}, inplace=True)
+    train_val_loss_df = pd.DataFrame(estimator.history[:, ['train_loss', 'valid_loss']], columns=['train_loss', 'valid_loss'])
 
-    # Plotting setup
-    fig, ax1 = plt.subplots(figsize=(40, 15))
-    ax1.set_xlabel('Epochs')
-    ax1.set_ylabel('Loss')
-    ax1.plot(train_val_loss_df['train_loss'], label='Training Loss', color='tab:blue')
-    ax1.plot(train_val_loss_df['valid_loss'], label='Validation Loss', color='tab:orange')
-    ax1.tick_params(axis='y')
-    ax1.grid()
-    ax1.legend(loc='upper left')
 
-    # Twin axis for PDE
-    ax2 = ax1.twinx()
-    ax2.set_ylabel('% of Poisson Deviance Explained', color='g')
-    ax2.plot(train_val_loss_df['PDE'], label='PDE', color='g')
-    ax2.tick_params(axis='y', labelcolor='g')
-    ax2.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-    ax2.legend(loc='upper right')
+    fig, ax = plt.subplots(figsize=(15,8))
+    plt.plot(train_val_loss_df ['train_loss'],  label='Training Loss')
+    plt.plot(train_val_loss_df ['valid_loss'],  label='Validation Loss')
+    plt.legend(
+        loc='upper right', 
+        fontsize=15
+        )
+    plt.xlabel('Epochs', fontsize=15)
+    plt.xticks(fontsize=15)
+    plt.ylabel('Loss', fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.grid()
+    plt.title(f"Agent {agent_id}'s Best Model's Training Loss Curve", fontsize=15)
 
     # Title and save figure
-    plt.title(f"Agent {agent_id}'s Best Model's Training Loss Curve")
+    plt.title(f"Agent {agent_id}'s Best Model's Training Loss Curve", fontsize=15)
     plt.savefig(f'../ag_{agent_id}/agent_{agent_id}_training_loss_chart.png', facecolor='white')
     plt.close(fig)
 
