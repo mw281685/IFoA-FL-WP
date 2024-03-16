@@ -9,6 +9,8 @@ EPOCHS = 10
 BATCH_SIZE = 1000
 NUM_FEATURES = 39
 LEARNING_RATE = 0.001
+NUM_UNITS_1 = 15 # Extracting top results for NUM_UNITS_1 and NUM_UNITS_2
+NUM_UNITS_2 = 20 
 
 # Server Configuration
 server_config = {
@@ -29,10 +31,6 @@ dataset_config = {
 
 DATA_PATH = dataset_config["path"]
 SEED = dataset_config["seed"]
-
-# Extracting top results for NUM_UNITS_1 and NUM_UNITS_2
-NUM_UNITS_1 = 15 
-NUM_UNITS_2 = 20 
 
 if __name__ == "__main__":
     print(f"Run name: {run_name}")
